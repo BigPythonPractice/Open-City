@@ -862,8 +862,10 @@ function cleanDrivingReward(mode,job){
 // KM follow the existing distance-earned scale (0.8 metres per world unit).
 const JOB_BANDS=[{name:'Regional',min:8,max:14,weight:.50},{name:'Long haul',min:20,max:40,weight:.38},{name:'Cross-country',min:60,max:100,weight:.12}];
 const RIDE_BANDS=[{min:2,max:5,weight:1}];
+const SCENIC_JOB_CHANCE=.25,SCENIC_JOB_AREAS=['oldtown','park','offroad'];
 const JOB_ROUTE_COLOR='#d65cff';
 const jobLegKm=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)*.0008;
+const isScenicStop=stop=>stop.site.startsWith('scenic:');
 const jobStopRadius=mode=>mode==='uber'?27:40;
 function jobLengthKm(job){return job.stops.slice(1).reduce((sum,p,n)=>sum+jobLegKm(job.stops[n],p),0);}
 function jobJourneyName(job){const longest=Math.max(...job.stops.slice(1).map((p,n)=>jobLegKm(job.stops[n],p)));return longest>=60?'Cross-country':longest>=20?'Long haul':'Regional';}
@@ -881,7 +883,7 @@ function cleanJob(raw,mode,accepted=true){
   if(n){const km=jobLegKm(stops[n-1],p);if(!bands.some(b=>km>=b.min&&km<=b.max))return null;}
  }
  const job={version:2,id:raw.id,index:raw.index,accepted,stops};
- if(accepted){
+ if(accepted&&job.index>0){
   const score=raw.cleanDriving;
   job.cleanDriving=Number.isInteger(score)&&score>=0&&score<=CLEAN_DRIVING_START?score:CLEAN_DRIVING_START;
  }
@@ -1328,13 +1330,13 @@ function jobTarget(){const job=currentJob();return job?.accepted?job.stops[job.i
 function recordJobCollision(other){
  if(!started||!CLEAN_COLLISION_KINDS.has(other.kind))return;
  const job=currentJob();
- if(!job?.accepted||job.index>=job.stops.length||job.cleanDriving<=0)return;
+ if(!job?.accepted||job.index>=job.stops.length||job.cleanDriving===0)return;
  let contacts=cleanDrivingContacts.get(job);
  if(!contacts){contacts=new WeakMap();cleanDrivingContacts.set(job,contacts);}
  const lastContact=contacts.get(other);
  contacts.set(other,simTime);
- // The solver can report the same scrape several times per frame.
- if(lastContact!==undefined&&simTime-lastContact<CLEAN_CONTACT_GAP)return;
+ // Ignore pickup-leg hits and repeated reports of an ongoing scrape.
+ if(job.index===0||(lastContact!==undefined&&simTime-lastContact<CLEAN_CONTACT_GAP))return;
  job.cleanDriving=Math.max(0,job.cleanDriving-CLEAN_DRIVING_PENALTY);
  progressDirty=true;queueProgressSave();
 }
@@ -1370,7 +1372,7 @@ function cityJobType(i,j){
  const landmark=worldHash(i,j,234);if(landmark<.055)return 'hospital';if(landmark<.09)return 'pharmacy';if(landmark<.12)return 'firestation';
  const weights=typeWeights[districtAt(i,j).style],rng=seededRandom(Math.floor(worldHash(i,j,81)*4294967296));return weights[Math.floor(rng()*weights.length)];
 }
-function streetSite(block,building,name,action,origin){
+function streetSite(block,building,name,action,origin,localRoad=action==='dropoff'){
  const left=roadCoord(block.i,0),right=roadCoord(block.i+1,0),top=roadCoord(block.j,1),bottom=roadCoord(block.j+1,1),roof=building||{x:block.x+block.w/2,y:block.y+block.h/2};
  const px=clamp(roof.x,left+90,right-90),py=clamp(roof.y,top+90,bottom-90);
  const spots=[{x:px,y:bottom-roadHalf(block.j+1,1)+18,angle:Math.PI},{x:px,y:top+roadHalf(block.j,1)-18,angle:0},{x:left+roadHalf(block.i,0)-18,y:py,angle:-Math.PI/2},{x:right-roadHalf(block.i+1,0)+18,y:py,angle:Math.PI/2}];
@@ -1378,7 +1380,7 @@ function streetSite(block,building,name,action,origin){
  if(action!=='hospital')spots.sort((a,b)=>Math.hypot(a.x-roof.x,a.y-roof.y)-Math.hypot(b.x-roof.x,b.y-roof.y));
  for(const p of spots){
   if(Math.hypot(p.x-origin.x,p.y-origin.y)<250)continue;
-  if(action==='dropoff'){
+  if(localRoad){
    const road=closestRoad(p.x,p.y),horizontal=Math.abs(Math.cos(p.angle))>.5;
    if(isHighway(horizontal?road.iy:road.ix))continue;
   }
@@ -1444,15 +1446,58 @@ function distantCurbStop(anchor,origin,action){
  }
  return null;
 }
-function distantJobStop(kind,origin,rng,heading){
+function scenicSceneStop(scene,vehicle,action,inBand){
+ const landmark=scene.showcase,solids=[...scene.buildings,...scene.obstacles,...scene.parked],margin=vehicle.hw+20;
+ let best=null,bestDistance=Infinity;
+ for(const seg of scene.segments){
+  const length=Math.hypot(seg.b.x-seg.a.x,seg.b.y-seg.a.y);if(length<margin*2)continue;
+  const projection=projectSegment(landmark.x,landmark.y,seg.a,seg.b),angle=projection.angle;
+  const fraction=clamp(projection.t,margin/length,1-margin/length),side=seg.width/2-vehicle.hh-4;
+  const x=lerp(seg.a.x,seg.b.x,fraction)-Math.sin(angle)*side,y=lerp(seg.a.y,seg.b.y,fraction)+Math.cos(angle)*side;
+  const distance=Math.hypot(x-landmark.x,y-landmark.y);
+  if(distance>=bestDistance||Math.min(x-scene.x,scene.x+scene.w-x,y-scene.y,scene.y+scene.h-y)<180||!inBand({x,y}))continue;
+  const body={x,y,angle,hw:vehicle.hw+4,hh:vehicle.hh+3};
+  if(solids.some(solid=>contact(body,solid)))continue;
+  best={x,y,angle,action,site:'scenic:'+scene.type+':'+scene.key,name:scene.name+(scene.type==='oldtown'?' · '+scene.town.plaza:' · Trail stop')};
+  bestDistance=distance;
+ }
+ return best;
+}
+function scenicJobStop(area,anchor,origin,band,mode,action){
+ const park=area==='park',step=park?1:3,radius=park?8:2,vehicle=VEHICLE_TYPES[GAME_MODES[mode].model];
+ const ci=Math.floor(roadIndex(anchor.x,0)/step),cj=Math.floor(roadIndex(anchor.y,1)/step),candidates=[];
+ for(let j=cj-radius;j<=cj+radius;j++)for(let i=ci-radius;i<=ci+radius;i++){
+  if((park?cityJobType(i,j):regionType(i,j))!==area)continue;
+  const x=(roadCoord(i*step,0)+roadCoord((i+1)*step,0))/2,y=(roadCoord(j*step,1)+roadCoord((j+1)*step,1))/2;
+  candidates.push({i,j,distance:Math.hypot(x-anchor.x,y-anchor.y)});
+ }
+ candidates.sort((a,b)=>a.distance-b.distance);
+ const inBand=p=>{const km=jobLegKm(origin,p);return km>=band.min&&km<=band.max;};
+ for(const {i,j} of candidates){
+  if(park){
+   const block=previewBlock(i,j),stop=streetSite(block,null,block.name,action,origin,true);
+   if(stop&&inBand(stop))return {...stop,site:'scenic:park:'+block.key};
+  }else{
+   const stop=scenicSceneStop(getScene(i,j),vehicle,action,inBand);
+   if(stop)return stop;
+  }
+ }
+ return null;
+}
+function distantJobStop(kind,origin,rng,heading,mode,scenicArea){
  const bands=kind==='dropoff'?RIDE_BANDS:JOB_BANDS;
  let roll=rng(),band=bands.at(-1);for(const option of bands){roll-=option.weight;if(roll<0){band=option;break;}}
- // Preview only a few blocks near a far-away anchor. Never load a corridor of
- // city chunks or plan a world-sized path to create a long-distance job.
- for(let attempt=0;attempt<20;attempt++){
+ const pickAnchor=()=>{
   const angle=heading==null?rng()*TAU:heading+(rng()-.5)*1.3;
   const km=lerp(band.min,band.max,.15+rng()*.7),radius=km/.0008;
-  const anchor={x:origin.x+Math.cos(angle)*radius,y:origin.y+Math.sin(angle)*radius};
+  return {x:origin.x+Math.cos(angle)*radius,y:origin.y+Math.sin(angle)*radius};
+ };
+ // Preview destinations around a few anchors without streaming a corridor.
+ if(scenicArea)for(let attempt=0;attempt<4;attempt++){
+  const stop=scenicJobStop(scenicArea,pickAnchor(),origin,band,mode,kind);if(stop)return stop;
+ }
+ for(let attempt=0;attempt<20;attempt++){
+  const anchor=pickAnchor();
   const p=kind==='store'?findJobSite('store',anchor):distantCurbStop(anchor,origin,kind);
   if(p){const distance=jobLegKm(origin,p);if(distance>=band.min&&distance<=band.max)return p;}
  }
@@ -1460,13 +1505,16 @@ function distantJobStop(kind,origin,rng,heading){
 }
 function createJobOffer(mode=progress.mode){
  if(!JOB_MODES.includes(mode))return null;
- const serial=progress.jobSerial+1,rng=seededRandom(Math.floor(worldHash(roadIndex(player.x,0),roadIndex(player.y,1),serial+801)*4294967296));
+ const serial=progress.jobSerial+1,i=roadIndex(player.x,0),j=roadIndex(player.y,1),rng=seededRandom(Math.floor(worldHash(i,j,serial+801)*4294967296));
  const first=mode==='truck'?findJobSite('depot',player):nearbyRoadStops(player,1,mode==='uber'?'pickup':'stop')[0];
  if(!first)return null;
  const nextAction=mode==='bus'?'stop':mode==='uber'?'dropoff':'store';
  const count=mode==='bus'?BUS_STOP_COUNTS[Math.floor(rng()*BUS_STOP_COUNTS.length)]:2,stops=[first];let heading=null;
+ // Roll once per offer so a multi-stop bus route has the same chance as a ride.
+ const roll=worldHash(i,j,serial+4867);
+ const scenicArea=roll<SCENIC_JOB_CHANCE?SCENIC_JOB_AREAS[Math.floor(roll/SCENIC_JOB_CHANCE*SCENIC_JOB_AREAS.length)]:null;
  while(stops.length<count){
-  const last=stops.at(-1),next=distantJobStop(nextAction,last,rng,heading);if(!next)return null;
+  const last=stops.at(-1),next=distantJobStop(nextAction,last,rng,heading,mode,stops.length===count-1?scenicArea:null);if(!next)return null;
   // Each later bus leg continues broadly onwards, instead of doubling back.
   heading=Math.atan2(next.y-last.y,next.x-last.x);stops.push(next);
  }
@@ -1476,7 +1524,7 @@ function ensureJobOffer(){if(!JOB_MODES.includes(progress.mode)||jobTarget())ret
 function acceptJob(){
  if(!started||activeModal||jobTarget())return false;
  const offer=currentOffer();if(!offer)return false;
- const job={...offer,accepted:true,cleanDriving:CLEAN_DRIVING_START};progress.jobs[progress.mode]=job;delete progress.offers[progress.mode];
+ const job={...offer,accepted:true};progress.jobs[progress.mode]=job;delete progress.offers[progress.mode];
  Object.assign(service,{jobId:job.id,ms:0,retryIn:0});jobNavigation.key='';progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
  const message=progress.mode==='bus'?'Bus job accepted · '+job.stops.length+' stops total. First pickup marked in purple.':progress.mode==='uber'?'Ride accepted · Meet your passenger at the purple marker.':'Job accepted · Your pickup is marked in purple. No time limit.';
  toast(message);return true;
@@ -1493,10 +1541,11 @@ function finishJobStop(){
  const mode=progress.mode,index=job.index,last=index===job.stops.length-1;let bonus=0,message='';
  if(mode==='bus'){const stop=busStopService(job);bonus=stop.bonus;message=last?'Route complete · All '+job.stops.length+' stops done':stop.drop+' off · '+stop.board+' boarded';if(index===0)message=stop.board+' passengers aboard';}
  else if(mode==='uber'){bonus=last?RIDE_REWARD_KM:0;message=last?'Ride complete':'Passenger aboard. Head to the drop-off.';}
- else{bonus=last?TRUCK_REWARD_KM:0;message=last?'Materials delivered':'Materials loaded. Head to the shop.';}
+ else{bonus=last?TRUCK_REWARD_KM:0;message=last?'Materials delivered':isScenicStop(job.stops[1])?'Materials loaded. Head to the drop-off.':'Materials loaded. Head to the shop.';}
  const cleanBonus=last?cleanDrivingReward(mode,job):0;
  // Advance first, then save the new stage and its reward together. Holding the
  // brake, changing modes or reloading cannot collect the same delivery twice.
+ if(index===0)job.cleanDriving=CLEAN_DRIVING_START;
  job.index++;service.ms=0;jobNavigation.key='';if(last){progress.completedJobs[mode]++;ensureJobOffer();}
  if(bonus||cleanBonus)earnDistance((bonus+cleanBonus)*1000);
  progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
@@ -1624,8 +1673,8 @@ function updateModeHUD(){
  put('acceptJobLabel',busMode&&offer?'Accept '+offer.stops.length+'-stop route':rideMode?'Accept ride':'Accept job');
  $('acceptJobBtn').hidden=!!target||!offer;$('jobProgress').hidden=!target;$('jobMapBtn').hidden=!target;
  const cleanPanel=$('jobClean');
- cleanPanel.hidden=!target;
- if(target){
+ cleanPanel.hidden=!target||job.index===0;
+ if(!cleanPanel.hidden){
   const score=job.cleanDriving;
   const band=score>=70?'green':score>30?'yellow':'red';
   if(cleanPanel.dataset.band!==band)cleanPanel.dataset.band=band;
@@ -1635,8 +1684,9 @@ function updateModeHUD(){
  put('newJobBtn',rideMode?(target?'End ride':'Next ride'):(target?'End job':'Next job'));
  $('newJobBtn').classList.toggle('next-job',!target);$('newJobBtn').title=target?'End this assignment without its remaining bonuses':'Find a new offer with a pickup near your current location';
  if(!target){
+  const destination=offer?.stops.at(-1),scenic=destination&&isScenicStop(destination);
   const offerTitle=offer&&(busMode?offer.stops.length+'-stop bus route':rideMode?'Ride to '+offer.stops[1].name:jobJourneyName(offer)+' delivery');
-  const offerType=offer&&(busMode?jobJourneyName(offer):rideMode?'1 passenger':'Depot → shop');
+  const offerType=offer&&(busMode?jobJourneyName(offer)+(scenic?' · Final stop at '+destination.name:''):rideMode?'1 passenger':'Depot → '+(scenic?destination.name:'shop'));
   put('jobTitle',offerTitle||'Finding a clear pickup…');
   put('jobStage','AWAITING ACCEPTANCE');
   put('jobDistance',offer?'≈ '+jobLengthKm(offer).toFixed(1)+' km':'');
@@ -1658,7 +1708,7 @@ function updateModeHUD(){
   if(rideMode){
    put('jobCargo',step===0?'Passenger waiting':'1 passenger aboard');
    put('jobReward','Ride fare +'+RIDE_REWARD_KM+' KM');
-   put('jobInstruction',service.ms>0?(step===0?'Passenger boarding…':'Passenger getting out…'):'Stop at the marked curb for 2 seconds. No time limit.');
+   put('jobInstruction',service.ms>0?(step===0?'Passenger boarding…':'Passenger getting out…'):'Stop in the marked area for 2 seconds. No time limit.');
   }else{
    put('jobCargo',bus?bus.onboard+' / 24 passengers':step===1?'Materials loaded':'Cargo bay empty');
    put('jobReward',bus?(bus.bonus?'Next stop +'+bus.bonus+' KM':'Board now · earn KM at drop-offs'):'Delivery bonus +'+TRUCK_REWARD_KM+' KM');
@@ -1726,7 +1776,7 @@ function drawJobWaypoint(){
  else if(target.action==='pickup'){circle(0,27,4,'#a58bd0');circle(0,23,2.5,'#ecceb0');}
  ctx.restore();
  const label=target.action==='stop'?'BUS STOP '+(currentJob().index+1)+' OF '+currentJob().stops.length:
-  target.action==='load'?'LOAD MATERIALS':target.action==='store'?'STORE DELIVERY':
+  target.action==='load'?'LOAD MATERIALS':target.action==='store'?(isScenicStop(target)?'MATERIALS DROP-OFF':'STORE DELIVERY'):
   target.action==='pickup'?'PASSENGER PICKUP':'PASSENGER DROP-OFF';
  textAt(label,target.x,target.y-(ride?48:69),8,'#f2edcb');
 }
