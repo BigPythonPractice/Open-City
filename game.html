@@ -55,6 +55,7 @@
 /* Mode selection and unhurried city jobs. */
 #modeMenuBtn:hover{background:#315047}#modeMenuBtn .menu-caret{color:var(--green);font-size:12px;margin-left:3px}.cycle-mode{font-size:9px;letter-spacing:.4px;color:#cbd7c2}.cycle-mode b{color:var(--green);font-weight:500}.intro-modes{border:1px solid #ffffff25;color:#d5e3c6;background:none;width:100%;padding:11px;border-radius:9px;margin-top:10px;font-size:11px}.intro-modes:hover{background:#ffffff0b}
 .job-card{position:fixed;top:151px;right:32px;width:264px;padding:18px;background:#17342ff5;border:1px solid #ffffff25;border-radius:17px;box-shadow:0 9px 26px #102d2b25}.job-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}.job-heading .eyebrow{font-size:8px;letter-spacing:1.4px;color:#cbdcba}.job-heading>span:last-child{font-size:8px;color:#aebfac;white-space:nowrap}.job-heading>span.active-bus-stage{font-size:11px;font-weight:700;color:#e7efc4}.job-card h2{font-size:17px;line-height:1.25;letter-spacing:-.35px;margin:13px 0 8px}.job-distance{color:#eee2ac;font-size:23px;letter-spacing:-.5px;font-variant-numeric:tabular-nums;margin:9px 0 13px;min-height:26px}.job-cargo{font-size:11px;color:#e2e8d0}.job-reward{font-size:10px;color:var(--green);margin-top:7px}.job-card p{font-size:10px;line-height:1.6;color:#adbfac;margin:13px 0 8px;min-height:32px}.job-progress{height:4px;background:#ffffff14;border-radius:5px;overflow:hidden}.job-progress i{display:block;height:100%;width:0;background:#e5d089;transition:width .1s linear}.job-accept{display:flex;width:100%;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 12px;border:1px solid #d4ed8966;border-radius:8px;background:#d4ed89;color:#203b2e;font-size:11px;font-weight:700}.job-accept:hover{background:#e5f6b7}.job-accept kbd{border:1px solid #203b2e55;border-radius:4px;padding:2px 5px;font:700 10px Arial}.job-actions{display:flex;justify-content:space-between;gap:9px;margin-top:14px}.job-actions button{border:0;background:none;padding:3px 0;color:#d5e5c2;font-size:9px}.job-actions button:last-child{color:#a0b79e}.job-actions button:hover{color:#f0facb}.job-actions button.next-job{width:100%;padding:10px 12px;border:1px solid #c5d8b74d;border-radius:8px;background:#ffffff08;color:#dfebd1;font-size:11px;text-align:center}.job-actions button.next-job:hover{background:#ffffff14;border-color:#d4ed8980}
+.job-actions .next-job{display:flex;align-items:center;justify-content:space-between}.job-actions kbd{border:1px solid #c5d8b74d;border-radius:4px;padding:2px 5px;font:700 10px Arial;color:var(--green)}
 .job-clean{--clean-color:#c9edad;margin-top:9px;color:var(--clean-color);font-size:11px}
 .job-clean[data-band="yellow"]{--clean-color:#f1d27e}
 .job-clean[data-band="red"]{--clean-color:#f7a19a}
@@ -163,7 +164,7 @@
  </div>
  <p id="jobInstruction"></p><div class="job-progress" id="jobProgress" role="progressbar" aria-label="Boarding or loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="jobProgressFill"></i></div>
  <button class="job-accept" id="acceptJobBtn" hidden><span id="acceptJobLabel">Accept job</span><kbd>E</kbd></button>
- <div class="job-actions"><button id="jobMapBtn">Show on map ↗</button><button id="newJobBtn" class="next-job" title="Find a new job with a pickup near your current location">Next job</button></div>
+ <div class="job-actions"><button id="jobMapBtn">Show on map ↗</button><button id="newJobBtn" class="next-job" aria-keyshortcuts="N" title="Find a new job with a pickup near your current location"><span id="newJobLabel">Next job</span><kbd id="newJobKey" aria-hidden="true">N</kbd></button></div>
 </section>
 <div class="modal" id="modeModal" hidden><section class="dialog mode-dialog" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
  <button class="iconbtn close" data-close aria-label="Close game modes">×</button>
@@ -1689,8 +1690,11 @@ function updateModeHUD(){
   put('jobCleanValue',score+'% · +'+cleanDrivingReward(mode,job)+' KM');
   $('jobCleanFill').style.width=score+'%';
  }
- put('newJobBtn',rideMode?(target?'End ride':'Next ride'):(target?'End job':'Next job'));
- $('newJobBtn').classList.toggle('next-job',!target);$('newJobBtn').title=target?'End this assignment without its remaining bonuses':'Find a new offer with a pickup near your current location';
+ const newJobButton=$('newJobBtn');
+ put('newJobLabel',rideMode?(target?'End ride':'Next ride'):(target?'End job':'Next job'));
+ $('newJobKey').hidden=!!target;
+ newJobButton.classList.toggle('next-job',!target);newJobButton.title=target?'End this assignment without its remaining bonuses':'Find a new offer with a pickup near your current location';
+ if(target)newJobButton.removeAttribute('aria-keyshortcuts');else newJobButton.setAttribute('aria-keyshortcuts','N');
  if(!target){
   const destination=offer?.stops.at(-1),scenic=destination&&isScenicStop(destination);
   const offerTitle=offer&&(busMode?offer.stops.length+'-stop bus route':rideMode?'Ride to '+offer.stops[1].name:jobJourneyName(offer)+' delivery');
@@ -1854,7 +1858,7 @@ addEventListener('keydown',e=>{
   return;
  }
  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){if(key!==' '||document.activeElement.tagName!=='BUTTON')e.preventDefault();}
- if(e.repeat&&['r','m','g','b','c','v','e','escape','p'].includes(key))return;
+ if(e.repeat&&['r','m','g','b','c','v','e','n','escape','p'].includes(key))return;
  if(activeModal==='mapModal'&&['arrowup','arrowdown','arrowleft','arrowright','+','=','-'].includes(key)){e.preventDefault();if(key==='+'||key==='=')zoomMap(.75);else if(key==='-')zoomMap(1/.75);else{mapView.x+=(key==='arrowright'?1:key==='arrowleft'?-1:0)*mapView.span*.12;mapView.y+=(key==='arrowdown'?1:key==='arrowup'?-1:0)*mapView.span*.12;mapView.dirty=true;}return;}
  if(key==='escape'&&activeModal==='trophyModal'&&trophyPending){dismissTrophyConfirmation(true);return;}
  if(key==='escape'||key==='p'){activeModal?closeModal():started&&openModal('pauseModal');return;}
@@ -1865,6 +1869,7 @@ addEventListener('keydown',e=>{
  if(key==='c'){if(!activeModal)cycleGameMode();return;}
  if(activeModal)return;
  if(key==='e'&&started){acceptJob();return;}
+ if(key==='n'){if(!jobTarget())changeJobOffer();return;}
  if(key==='r'&&started){recover();return;}
  if(!started&&(key==='enter'||['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)))start();
  if(started)keys[key]=true;
