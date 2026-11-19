@@ -11,17 +11,17 @@
 #game{display:block;width:100%;height:100%;touch-action:none;outline:none} .vignette{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 160px #0a272935}
 .top{position:fixed;top:28px;left:32px;right:32px;display:flex;align-items:center;justify-content:space-between;gap:20px;pointer-events:none}.brand{display:flex;align-items:center;gap:13px;text-shadow:0 2px 12px #102b2baa}.brand-icon{background:var(--green);color:#193732;width:43px;height:43px;display:grid;place-items:center;font-size:29px;font-weight:bold;border-radius:12px;box-shadow:0 4px 16px #1233}.brand-name{font-size:21px;letter-spacing:-1px;font-weight:900;line-height:1}.brand-sub{display:block;font-size:9px;letter-spacing:2.1px;margin-top:7px;font-weight:500;color:#f5f2e6}.top-right{display:flex;gap:8px;pointer-events:auto}.pill,.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);box-shadow:0 5px 20px #15272719;backdrop-filter:blur(16px)}.pill{border-radius:30px;padding:12px 17px;display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:1.4px;font-weight:700}.live-dot{width:6px;height:6px;background:var(--green);border-radius:100%;box-shadow:0 0 10px #def3a133}.iconbtn{border-radius:50%;width:39px;height:39px;display:grid;place-items:center;font-size:16px;transition:background .15s}.iconbtn:hover{background:#36524b}.iconbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
 .location{position:fixed;top:103px;left:33px;pointer-events:none;text-shadow:0 2px 7px #102726}.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted)}.location strong{display:block;font-size:16px;margin-top:5px;letter-spacing:-.3px}.location small{display:block;font-size:10px;margin-top:5px;color:#e1e6db}
+.location .day-cycle{color:#f6e0a3;font-weight:700;font-variant-numeric:tabular-nums}.location .day-cycle[data-phase="night"]{color:#cbddf6}
 .map-card{position:fixed;left:30px;bottom:29px;width:230px;border:1px solid #c6d4b83a;border-radius:17px;background:var(--panel);padding:9px;box-shadow:0 12px 35px #102d2b33;backdrop-filter:blur(15px)}.map-button{display:block;width:100%;border:0;background:none;padding:0;position:relative;border-radius:10px;overflow:hidden;color:var(--ink)}#mini{display:block;width:210px;height:174px;background:#284a44}.north{position:absolute;right:9px;top:8px;font-size:9px;font-weight:700;background:#163b35c9;padding:4px 5px;border-radius:4px}.map-label{display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:1.3px;padding:11px 5px 3px;color:#dfe5d9}.map-label span:last-child{color:var(--green)}
 .drive-hud{position:fixed;bottom:30px;right:32px;width:202px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:19px 21px 16px;backdrop-filter:blur(16px);box-shadow:0 8px 30px #102d2b22}.car-title{display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:1.2px;color:var(--muted)}.car-title span:last-child{color:var(--green)}.speed-line{display:flex;align-items:baseline;gap:9px;margin:4px 0 7px}.speed{font-size:62px;line-height:1.1;font-weight:700;letter-spacing:-4px;font-variant-numeric:tabular-nums}.unit{font-size:9px;letter-spacing:1px;color:var(--muted)}.gear{margin-left:auto;font-size:20px;color:var(--green)}.speed-track{height:3px;background:#ffffff1a;margin-bottom:15px;border-radius:3px;overflow:hidden}.speed-fill{height:100%;width:0;background:var(--green);transition:width .1s}.distance{display:flex;justify-content:space-between;align-items:baseline;font-size:9px;letter-spacing:1px;color:var(--muted)}.distance b{color:var(--ink);font-size:12px;letter-spacing:.2px;font-variant-numeric:tabular-nums}
-.controls{position:fixed;bottom:33px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:17px;padding:11px 17px;background:#16312cd9;border:1px solid #ffffff18;border-radius:30px;backdrop-filter:blur(14px);white-space:nowrap;color:#e6ebde;font-size:10px}.controls span{display:flex;align-items:center;gap:5px}.controls kbd{font:700 9px Arial;letter-spacing:.5px;background:#ffffff14;border:1px solid #ffffff1c;padding:4px 5px;border-radius:4px;color:var(--green)}
 .intro{position:fixed;top:50%;right:7%;transform:translateY(-48%);width:344px;padding:31px;border-radius:23px;border:1px solid #d6dfb431;background:#142f2bf2;backdrop-filter:blur(20px);box-shadow:0 25px 80px #112d2b45}.intro .eyebrow{color:var(--green)}.intro h1{font-size:49px;line-height:.98;letter-spacing:-2.5px;margin:23px 0 18px;font-weight:800}.intro h1 em{font-style:normal;color:var(--green)}.intro p{font-size:12px;line-height:1.8;color:#c2cec0;margin:0 0 25px;max-width:260px}.start{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:var(--green);color:#1a362d;font-weight:700;font-size:12px;border-radius:10px;padding:16px 18px}.start:hover{background:#e1f7a5}.start span{font-size:20px;font-weight:400}.intro-footer{font-size:9px;letter-spacing:1.3px;color:#9eafa2;margin-top:18px;display:flex;align-items:center;justify-content:space-between}.intro-footer i{font-style:normal;color:var(--green)}
 .toast{position:fixed;left:50%;top:94px;transform:translate(-50%,-8px);background:var(--panel);border:1px solid var(--line);padding:12px 19px;border-radius:30px;font-size:11px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}.toast b{color:var(--green)}
 .modal{position:fixed;inset:0;display:grid;place-items:center;background:#09292488;backdrop-filter:blur(6px);z-index:10;padding:20px}.dialog{position:relative;width:min(410px,100%);min-width:0;max-height:calc(100dvh - 40px);overflow-y:auto;border:1px solid #ffffff26;border-radius:23px;background:#17342f;padding:30px;box-shadow:0 30px 100px #05171455}.dialog h2{font-size:30px;letter-spacing:-1px;margin:16px 0 10px}.dialog p{font-size:12px;line-height:1.8;color:#c6d0c2}.close{position:absolute;top:16px;right:16px}.help-row{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #ffffff12;color:#dbe3d3;font-size:12px}.help-row b{font-size:11px;color:var(--green)}.dialog .start{margin-top:22px}.map-dialog{width:min(840px,100%);padding:23px}.map-dialog h2{margin:5px 0}.map-head{padding:0 0 15px}.map-head .eyebrow{margin:9px 0}#atlas{display:block;width:100%;height:auto;aspect-ratio:1.25;border-radius:12px;background:#26483f}.map-foot{display:flex;justify-content:space-between;gap:10px;margin:14px 0 0;font-size:10px;color:#c4d5be}.map-foot span:first-child{color:var(--green)}
 .touch{position:fixed;bottom:31px;display:none;gap:8px;pointer-events:auto}.touch-left{left:24px}.touch-right{right:24px;align-items:flex-end}.touch button{width:56px;height:56px;border:1px solid #ffffff35;background:#14382dcf;color:#e3f4bb;border-radius:15px;font-size:23px;touch-action:none;user-select:none;-webkit-user-select:none}.touch button.held{background:#a5c975;color:#183b2e}.touch .pedal{height:76px;font-size:12px;font-weight:bold}.touch .hand{width:45px;font-size:9px}
-@media(max-width:1000px){.controls{gap:10px;bottom:29px;font-size:9px;padding:11px}.controls .optional{display:none}.intro{right:5%;width:320px}.map-card{width:200px;left:22px}#mini{width:180px;height:149px}.drive-hud{right:22px;width:174px;padding:15px 18px}.speed{font-size:54px}}
-@media(max-width:700px){.top{top:18px;left:18px;right:18px}.brand-name{font-size:18px}.brand-icon{width:36px;height:36px;font-size:24px}.brand-sub{font-size:8px;letter-spacing:1.5px}.pill{display:none}.top-right{gap:6px}.iconbtn{width:34px;height:34px}.location{left:19px;top:80px}.location .eyebrow{display:none}.location strong{font-size:13px}.location small{font-size:9px}.intro{right:20px;left:20px;top:47%;width:auto;max-width:330px;margin:auto;padding:26px}.intro h1{font-size:43px;margin-top:18px}.intro p{font-size:11px;margin-bottom:20px}.intro-footer{font-size:8px}.map-card{left:16px;bottom:17px;width:140px;padding:7px;border-radius:13px}#mini{width:124px;height:102px}.map-label{font-size:8px;padding-top:8px}.drive-hud{width:137px;right:16px;bottom:17px;padding:11px 14px;border-radius:13px}.car-title{font-size:8px}.speed{font-size:43px}.speed-line{gap:6px}.speed-track{margin-bottom:9px}.gear{font-size:15px}.distance{font-size:8px}.distance b{font-size:10px}.controls{display:none}.toast{top:124px;max-width:95%;font-size:10px;white-space:normal;text-align:center}.map-dialog{padding:17px}.map-dialog h2{font-size:24px}.map-foot{font-size:9px;flex-wrap:wrap}.map-foot span:nth-child(2){order:3;flex-basis:100%}}
-@media(pointer:coarse){body.driving .touch{display:flex}body.driving .map-card{bottom:134px}body.driving .drive-hud{bottom:134px}.controls{display:none}}
-@media(max-height:540px){.intro{top:52%;padding:22px;width:300px;left:auto;right:7%}.intro h1{font-size:34px;margin:13px 0}.intro p{margin-bottom:15px}.intro-footer{display:none}.location{top:77px}.map-card{bottom:16px;width:140px}#mini{width:120px;height:94px}.drive-hud{bottom:16px;width:150px;padding:12px}.speed{font-size:42px}.controls{display:none}body.driving .map-card,body.driving .drive-hud{display:none}.top{top:15px}.map-dialog{width:min(600px,90vw);max-height:96vh;overflow:auto}#atlas{max-height:60vh;object-fit:contain}}
+@media(max-width:1000px){.intro{right:5%;width:320px}.map-card{width:200px;left:22px}#mini{width:180px;height:149px}.drive-hud{right:22px;width:174px;padding:15px 18px}.speed{font-size:54px}}
+@media(max-width:700px){.top{top:18px;left:18px;right:18px}.brand-name{font-size:18px}.brand-icon{width:36px;height:36px;font-size:24px}.brand-sub{font-size:8px;letter-spacing:1.5px}.pill{display:none}.top-right{gap:6px}.iconbtn{width:34px;height:34px}.location{left:19px;top:80px}.location .eyebrow{display:none}.location strong{font-size:13px}.location small{font-size:9px}.intro{right:20px;left:20px;top:47%;width:auto;max-width:330px;margin:auto;padding:26px}.intro h1{font-size:43px;margin-top:18px}.intro p{font-size:11px;margin-bottom:20px}.intro-footer{font-size:8px}.map-card{left:16px;bottom:17px;width:140px;padding:7px;border-radius:13px}#mini{width:124px;height:102px}.map-label{font-size:8px;padding-top:8px}.drive-hud{width:137px;right:16px;bottom:17px;padding:11px 14px;border-radius:13px}.car-title{font-size:8px}.speed{font-size:43px}.speed-line{gap:6px}.speed-track{margin-bottom:9px}.gear{font-size:15px}.distance{font-size:8px}.distance b{font-size:10px}.toast{top:124px;max-width:95%;font-size:10px;white-space:normal;text-align:center}.map-dialog{padding:17px}.map-dialog h2{font-size:24px}.map-foot{font-size:9px;flex-wrap:wrap}.map-foot span:nth-child(2){order:3;flex-basis:100%}}
+@media(pointer:coarse){body.driving .touch{display:flex}body.driving .map-card{bottom:134px}body.driving .drive-hud{bottom:134px}}
+@media(max-height:540px){.intro{top:52%;padding:22px;width:300px;left:auto;right:7%}.intro h1{font-size:34px;margin:13px 0}.intro p{margin-bottom:15px}.intro-footer{display:none}.location{top:77px}.map-card{bottom:16px;width:140px}#mini{width:120px;height:94px}.drive-hud{bottom:16px;width:150px;padding:12px}.speed{font-size:42px}body.driving .map-card,body.driving .drive-hud{display:none}.top{top:15px}.map-dialog{width:min(600px,90vw);max-height:96vh;overflow:auto}#atlas{max-height:60vh;object-fit:contain}}
 
 /* Kilometres earned on the road become upgrades in Northside Customs. */
 .garage-wallet{width:100%;display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:13px;padding:11px 0 0;border:0;border-top:1px solid #ffffff20;background:none;color:var(--green);font-size:9px;letter-spacing:.6px}.garage-wallet b{font-size:13px;font-variant-numeric:tabular-nums}.garage-wallet:hover{color:#efffbf}.turbo-meter{margin:10px 0 13px}.turbo-label{display:flex;justify-content:space-between;gap:5px;font-size:8px;letter-spacing:.7px;color:#9edbd4;margin-bottom:6px}.turbo-track{height:3px;background:#ffffff16;border-radius:3px;overflow:hidden}.turbo-track i{display:block;height:100%;background:#96e1cf;transition:width .08s}.turbo-meter.boosting .turbo-track i{background:#f0d790;box-shadow:0 0 10px #f5d281}.toast{z-index:20}
@@ -49,7 +49,7 @@
 
 .map-discover{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 12px}.map-discover>span{font-size:8px;letter-spacing:1px;color:#b8c6ad;margin-right:3px}.map-discover button{border:1px solid #ffffff21;background:#2b483a;color:#e2ebc9;border-radius:7px;padding:8px 10px;font-size:10px}.map-discover button:hover{background:#3a5944}.map-discover #clearDestination{margin-left:auto;color:#b9c9b4}.location .destination-hint{color:#f0d490;font-weight:bold;max-width:310px;line-height:1.5}.map-dialog{max-height:calc(100dvh - 32px)}
 .power-hud{position:fixed;left:50%;top:145px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}.power-card{min-width:142px;padding:11px 13px 10px;border:1px solid color-mix(in srgb,var(--power) 50%,transparent);border-radius:12px;background:#16342ff2;box-shadow:0 7px 20px #102a2a30}.power-top{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.6px;font-weight:bold;color:var(--power)}.power-symbol{font-size:20px;line-height:1}.power-time{display:block;margin:7px 0 8px;font-size:14px;letter-spacing:.4px;color:#f2f1de;font-variant-numeric:tabular-nums}.power-track{height:3px;background:#ffffff14;border-radius:3px;overflow:hidden}.power-track i{display:block;background:var(--power);height:100%;width:100%}.location .pickup-hint{font-weight:bold;line-height:1.5;max-width:300px}.power-time{white-space:nowrap}
-.driving .pill,.driving .iconbtn,.driving .map-card,.driving .drive-hud,.driving .controls,.driving .police-toggle{backdrop-filter:none;-webkit-backdrop-filter:none}
+.driving .pill,.driving .iconbtn,.driving .map-card,.driving .drive-hud,.driving .police-toggle{backdrop-filter:none;-webkit-backdrop-filter:none}
 @media(max-height:780px){.power-hud{top:132px}.power-card{padding:8px 10px;min-width:133px}.power-time{font-size:12px;margin:5px 0 7px}}
 
 /* Mode selection and unhurried city jobs. */
@@ -142,12 +142,11 @@
 <canvas id="game" tabindex="0" aria-label="Top-down free roam driving game. Use W A S D or arrow keys to drive, Space to drift, R to recover, M for the map, and Escape to pause."></canvas>
 <div class="vignette"></div>
 <header class="top"><div class="brand"><div class="brand-icon" aria-hidden="true">↗</div><div><div class="brand-name">OPEN CITY</div><span class="brand-sub">ENDLESS ROADS. YOUR WAY.</span></div></div><nav class="top-right" aria-label="Game controls"><button class="pill" id="modeMenuBtn" title="Choose game mode (V)" aria-haspopup="dialog"><span class="live-dot"></span><span id="modeName">FREE ROAM</span><span class="menu-caret" aria-hidden="true">⌄</span></button><button class="iconbtn" id="garageBtn" title="Garage (G)" aria-label="Open upgrade garage"><svg viewBox="0 0 20 20"><path d="M12 2a5 5 0 0 0-5 7l-5 5a2 2 0 0 0 4 4l5-5a5 5 0 0 0 7-5l-4 2-3-3z"/></svg></button><button type="button" class="iconbtn" id="trophyBtn" title="Trophy Room (B)" aria-label="Open Trophy Room (B)" aria-haspopup="dialog"><span aria-hidden="true">★</span></button><button class="iconbtn" id="mapBtn" title="City map (M)" aria-label="Open city map"><svg viewBox="0 0 20 20"><path d="m2 4 5-2 6 2 5-2v14l-5 2-6-2-5 2zM7 2v14M13 4v14"/></svg></button><button class="iconbtn" id="helpBtn" title="Driving controls" aria-label="Driving controls">?</button><button class="iconbtn" id="pauseBtn" title="Pause (Esc)" aria-label="Pause game">Ⅱ</button></nav></header>
-<div class="location"><div class="eyebrow">YOU ARE EXPLORING</div><strong id="district">Garden Quarter</strong><small id="street">Juniper Avenue</small><small id="destinationHint" class="destination-hint" hidden></small><small id="pickupHint" class="pickup-hint" hidden></small></div>
+<div class="location"><div class="eyebrow">YOU ARE EXPLORING</div><strong id="district">Garden Quarter</strong><small id="street">Juniper Avenue</small><small id="dayCycle" class="day-cycle" aria-label="Day and night countdown" hidden></small><small id="destinationHint" class="destination-hint" hidden></small><small id="pickupHint" class="pickup-hint" hidden></small></div>
 <div class="police-control"><button class="police-toggle cycle-mode" id="cycleModeBtn" title="Cycle through game modes (C)"><span class="police-key">C</span> NEXT: <b id="nextModeName">Police chase</b><span aria-hidden="true">↗</span></button><span class="pursuit-status" id="pursuitStatus" role="status" hidden></span></div>
 <section class="intro" id="intro"><div class="eyebrow">THE CITY KEEPS GOING</div><h1>Every turn<br>is <em>yours.</em></h1><p>Roam endless streets, outrun the police, carry passengers, or deliver freight. Every kilometre and completed job helps build your ride.</p><button class="start" id="startBtn">Let's drive <span aria-hidden="true">↗</span></button><button class="intro-modes" id="introModesBtn">Choose a game mode · V</button><div class="intro-footer"><span>WASD / ARROWS TO DRIVE</span><i>JUST EXPLORE.</i></div></section>
 <section class="map-card" aria-label="Minimap"><button class="map-button" id="miniBtn" title="Open city map (M)" aria-label="Open city map"><canvas id="mini" width="420" height="348"></canvas><span class="north">↑ N</span></button><div class="map-label"><span>ENDLESS CITY</span><span>M ↗</span></div></section>
 <section class="drive-hud" aria-label="Driving dashboard"><div class="car-title"><span id="activeVehicleName">THE RUNABOUT</span><span>●</span></div><div class="speed-line"><span class="speed" id="speed">0</span><span class="unit">KM/H</span><span class="gear" id="gear">N</span></div><div class="speed-track"><div class="speed-fill" id="speedFill"></div></div><div class="turbo-meter" id="turboMeter" hidden><div class="turbo-label"><span id="turboStatus">TURBO READY</span><span>SHIFT</span></div><div class="turbo-track"><i id="turboFill"></i></div></div><div class="distance"><span>LIFETIME</span><b id="distance">0.00 km</b></div><button class="garage-wallet" id="walletBtn" title="Spend kilometres in the garage (G)"><span>GARAGE ↗</span><b id="wallet">0.00 km</b></button></section>
-<div class="controls"><span><kbd>W A S D</kbd> drive</span><span><kbd>SPACE</kbd> drift</span><span><kbd>R</kbd> recover</span><span><kbd>G</kbd> garage</span><span><kbd>C</kbd> next mode</span><span><kbd>V</kbd> modes</span><span class="optional" id="turboHint" hidden><kbd>SHIFT</kbd> turbo</span></div>
 <div id="powerHud" class="power-hud" aria-label="Active pickup powers" hidden><div class="power-card" id="power-speed" style="--power:#efd276" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">ϟ</span>SPEED +40%</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-phase" style="--power:#8bdedc" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">◇</span>GHOST DRIVE</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-nitro" style="--power:#c7a5f2" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">∞</span>INFINITE NITRO</div><span class="power-time"></span><div class="power-track"><i></i></div></div></div>
 <div class="toast" id="toast" role="status"></div>
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
@@ -211,10 +210,17 @@ const $=id=>document.getElementById(id),canvas=$('game');
 let ctx=canvas.getContext('2d',{alpha:false});
 const mini=$('mini'),mctx=mini.getContext('2d'), atlas=$('atlas'),actx=atlas.getContext('2d');
 const TAU=Math.PI*2,STEP=1000/120,SPACING=500,HALF=65,LANE=22,WORLD_SEED=4271;
+const DAY_PHASE_MS=180000,TWILIGHT_MS=10000,DAY_TRAFFIC_LIMIT=48,NIGHT_TRAFFIC_LIMIT=16;
+let dayCycleMs=0;
 const MINIMAP_SPAN=1900,MINIMAP_LOOK_AHEAD=480,MINIMAP_CACHE_PAD=64;
 const minimapView={offsetX:0,offsetY:0,terrain:document.createElement('canvas'),cachedRegion:null};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
+function nightLevel(){
+ const elapsed=dayCycleMs-DAY_PHASE_MS;
+ const t=clamp(Math.min(elapsed,DAY_PHASE_MS-elapsed)/TWILIGHT_MS,0,1);
+ return t*t*(3-2*t);
+}
 const angleDiff=(a,b)=>Math.atan2(Math.sin(a-b),Math.cos(a-b));
 function worldHash(i,j,salt=0){let h=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(salt|0,1442695041)^WORLD_SEED;h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296;}
 function seededRandom(initial){let n=initial>>>0;return ()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
@@ -388,6 +394,7 @@ function generateBlock(i,j){
 }
 // Large districts replace a three-by-three patch of the street grid.
 const sceneCache=new Map(),activeScenes=new Map(),navigation={nodes:[],nodeIds:new Map(),roads:[],segments:[],version:0};
+const streetlamps=[];
 function isHighway(index){return mod(index,12)===0;}
 function regionType(a,b){
  if(a===1&&b===1)return 'city';
@@ -396,7 +403,11 @@ function regionType(a,b){
 }
 function featureAt(i,j){const a=Math.floor(i/3),b=Math.floor(j/3);return {a,b,key:a+','+b,type:regionType(a,b)};}
 function regionName(a,b){const root=districtRoots[Math.floor(worldHash(a,b,182)*districtRoots.length)],type=regionType(a,b);return root+(type==='airport'?' '+AIRPORTS[airportKind(a,b)].name:type==='oldtown'?' '+oldTownStyle(a,b).name:worldHash(a,b,183)>.5?' Forest Trails':' Badlands');}
-function gridEdge(axis,index,span){const a=axis===0?featureAt(index-1,span):featureAt(span,index-1),b=axis===0?featureAt(index,span):featureAt(span,index);return a.key!==b.key||a.type==='city';}
+function gridEdge(axis,index,span){
+ if(mod(index,3)===0)return true;
+ const across=Math.floor(index/3),along=Math.floor(span/3);
+ return (axis===0?regionType(across,along):regionType(along,across))==='city';
+}
 function projectSegment(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,len2=dx*dx+dy*dy,t=clamp(((x-a.x)*dx+(y-a.y)*dy)/(len2||1),0,1),px=a.x+dx*t,py=a.y+dy*t;return {x:px,y:py,t,distance:Math.hypot(x-px,y-py),angle:Math.atan2(dy,dx)};}
 function roadObject(points,width,kind='street'){const segments=[];for(let n=1;n<points.length;n++){const a=points[n-1],b=points[n];segments.push({a,b,width,kind,l:Math.min(a.x,b.x)-width/2,r:Math.max(a.x,b.x)+width/2,t:Math.min(a.y,b.y)-width/2,bottom:Math.max(a.y,b.y)+width/2});}return {points,width,kind,segments};}
 function boxOnSegment(box,a,b,pad){
@@ -409,20 +420,30 @@ function getScene(a,b){
  const x=roadCoord(a*3,0),y=roadCoord(b*3,1),w=roadCoord(a*3+3,0)-x,h=roadCoord(b*3+3,1)-y;
  const rng=seededRandom(Math.floor(worldHash(a,b,184)*4294967296)),pick=v=>v[Math.floor(rng()*v.length)];
  const s={key,a,b,type,name:regionName(a,b),x,y,w,h,roads:[],buildings:[],obstacles:[],trees:[],parked:[],decor:[],trafficLoops:[],town:type==='oldtown'?oldTownStyle(a,b):null,forest:worldHash(a,b,183)>.5,vertical:type==='airport'&&worldHash(a,b,185)>.5};
- const point=(u,v)=>s.vertical?{x:x+v*w,y:y+u*h}:{x:x+u*w,y:y+v*h};
- const box=(u,v,uw,vh)=>{const p=point(u+uw/2,v+vh/2);return {...p,hw:(s.vertical?vh*w:uw*w)/2,hh:(s.vertical?uw*h:vh*h)/2};};
+ let siteX=x,siteY=y,siteW=w,siteH=h;
+ const point=(u,v)=>s.vertical?{x:siteX+v*siteW,y:siteY+u*siteH}:{x:siteX+u*siteW,y:siteY+v*siteH};
+ const box=(u,v,uw,vh)=>{const p=point(u+uw/2,v+vh/2);return {...p,hw:(s.vertical?vh*siteW:uw*siteW)/2,hh:(s.vertical?uw*siteH:vh*siteH)/2};};
  const road=(points,width=48,kind='service')=>{const r=roadObject(points,width,kind);if(kind==='cobbles'){r.color=s.town.street;r.edge=s.town.edge;}s.roads.push(r);return r;};
  const uvroad=(pairs,width=48,kind='service')=>road(pairs.map(p=>point(...p)),width,kind);
  const building=(q,label='',style='old')=>{const b={...q,angle:0,vx:0,vy:0,invMass:0,kind:'building',style,label,color:pick(palette[style]),detail:Math.floor(rng()*1000)};dressBuilding(b,{town:s.town});s.buildings.push(b);return b;};
  const obstacle=(q,kind)=>{const o={...q,angle:0,vx:0,vy:0,invMass:0,kind};s.obstacles.push(o);return o;};
- const away=(q,extra=3)=>s.roads.every(r=>r.segments.every(seg=>!boxOnSegment(q,seg.a,seg.b,r.width/2+extra)));
+ const away=(q,extra=3)=>{
+  const left=q.x-q.hw-extra,right=q.x+q.hw+extra,top=q.y-q.hh-extra,bottom=q.y+q.hh+extra;
+  return s.roads.every(r=>r.segments.every(seg=>right<seg.l||left>seg.r||bottom<seg.t||top>seg.bottom||!boxOnSegment(q,seg.a,seg.b,r.width/2+extra)));
+ };
  const occupied=q=>s.buildings.concat(s.obstacles).some(o=>Math.abs(q.x-o.x)<q.hw+o.hw+5&&Math.abs(q.y-o.y)<q.hh+o.hh+5);
  const portals=[];
- for(let n=1;n<=2;n++){const px=roadCoord(a*3+n,0),py=roadCoord(b*3+n,1);portals.push({x:px,y,side:'top'},{x:px,y:y+h,side:'bottom'},{x,y:py,side:'left'},{x:x+w,y:py,side:'right'});}
+ for(let n=1;n<=2;n++){const px=roadCoord(a*3+n,0),py=roadCoord(b*3+n,1);portals.push({x:px,y,side:'top',streetIndex:b*3},{x:px,y:y+h,side:'bottom',streetIndex:b*3+3},{x,y:py,side:'left',streetIndex:a*3},{x:x+w,y:py,side:'right',streetIndex:a*3+3});}
  s.portals=portals;
  if(type==='airport'){
   const kind=airportKind(a,b),p=AIRPORTS[kind];s.airportKind=kind;
-  const toUV=q=>s.vertical?{u:(q.y-y)/h,v:(q.x-x)/w}:{u:(q.x-x)/w,v:(q.y-y)/h};
+  // Keep the 48-unit service road and a verge beyond any expressway shoulder.
+  // Fit the entire airport together so runways, buildings and their routes stay aligned.
+  const inset=(index,axis,span,fraction)=>isHighway(index)?Math.max(0,(roadHalf(index,axis)+36-span*fraction)/(1-fraction)):0;
+  const left=inset(a*3,0,w,s.vertical?p.v0:p.u0),right=inset(a*3+3,0,w,1-(s.vertical?p.v1:p.u1));
+  const top=inset(b*3,1,h,s.vertical?p.u0:p.v0),bottom=inset(b*3+3,1,h,1-(s.vertical?p.u1:p.v1));
+  siteX+=left;siteY+=top;siteW-=left+right;siteH-=top+bottom;
+  const toUV=q=>s.vertical?{u:(q.y-siteY)/siteH,v:(q.x-siteX)/siteW}:{u:(q.x-siteX)/siteW,v:(q.y-siteY)/siteH};
   const entrances=portals.map(portal=>{
    const q=toUV(portal);return {portal,u:clamp(q.u,p.u0,p.u1),v:clamp(q.v,p.v0,p.v1)};
   });
@@ -507,10 +528,48 @@ function buildNavigation(){
  navigation.nodes.length=navigation.roads.length=navigation.segments.length=0;const ids=new Map(),r=worldWindow.radius,ci=worldWindow.i,cj=worldWindow.j;navigation.nodeIds=ids;
  const node=p=>{const key=p.x.toFixed(3)+','+p.y.toFixed(3);if(ids.has(key))return ids.get(key);const id=navigation.nodes.length;navigation.nodes.push({x:p.x,y:p.y,id,edges:[]});ids.set(key,id);return id;};
  const addRoad=road=>{navigation.roads.push(road);for(const seg of road.segments){navigation.segments.push(seg);if(!insideLoaded(seg.a.x,seg.a.y,-1)||!insideLoaded(seg.b.x,seg.b.y,-1))continue;const a=node(seg.a),b=node(seg.b),distance=Math.hypot(seg.a.x-seg.b.x,seg.a.y-seg.b.y);if(a!==b){navigation.nodes[a].edges.push({to:b,cost:distance,width:road.width,kind:road.kind});navigation.nodes[b].edges.push({to:a,cost:distance,width:road.width,kind:road.kind});}}};
- for(let i=ci-r;i<=ci+r+1;i++)for(let j=cj-r;j<=cj+r;j++)if(gridEdge(0,i,j))addRoad(roadObject([{x:roadCoord(i,0),y:roadCoord(j,1)},{x:roadCoord(i,0),y:roadCoord(j+1,1)}],roadHalf(i,0)*2,isHighway(i)?'highway':'street'));
- for(let j=cj-r;j<=cj+r+1;j++)for(let i=ci-r;i<=ci+r;i++)if(gridEdge(1,j,i))addRoad(roadObject([{x:roadCoord(i,0),y:roadCoord(j,1)},{x:roadCoord(i+1,0),y:roadCoord(j,1)}],roadHalf(j,1)*2,isHighway(j)?'highway':'street'));
+ for(const axis of [0,1]){
+  const center=axis===0?ci:cj,across=axis===0?cj:ci;
+  for(let i=center-r;i<=center+r+1;i++)for(let j=across-r;j<=across+r;j++){
+   if(!gridEdge(axis,i,j))continue;
+   const coord=roadCoord(i,axis),point=n=>axis===0?{x:coord,y:roadCoord(n,1)}:{x:roadCoord(n,0),y:coord};
+   const road=roadObject([point(j),point(j+1)],roadHalf(i,axis)*2,isHighway(i)?'highway':'street');
+   // Leave space for the crossing carriageway, or a narrower scenic entrance.
+   const inset=n=>gridEdge(1-axis,n,i-1)||gridEdge(1-axis,n,i)?roadHalf(n,1-axis)+4:36;
+   road.entryInset=inset(j);road.exitInset=inset(j+1);
+   addRoad(road);
+  }
+ }
  for(const s of activeScenes.values())for(const road of s.roads)addRoad(road);
+ rebuildStreetlamps();
  navigation.version++;for(const c of police)c.planTimer=Math.min(c.planTimer,30+c.unit*35);
+}
+function rebuildStreetlamps(){
+ streetlamps.length=0;
+ for(const seg of navigation.segments){
+  const highway=seg.kind==='highway';
+  if(!highway&&seg.kind!=='street')continue;
+  const horizontal=seg.a.y===seg.b.y,mx=(seg.a.x+seg.b.x)/2,my=(seg.a.y+seg.b.y)/2;
+  const i=roadIndex(mx,0),j=roadIndex(my,1);
+  if(highway){
+   // Use the median, with one light every other block and alternating arms.
+   const span=horizontal?i:j;if(mod(span,2))continue;
+   const side=mod(span,4)===0?1:-1,nx=horizontal?0:side,ny=horizontal?side:0;
+   streetlamps.push({x:mx,y:my,bx:mx+nx*7,by:my+ny*7,angle:Math.atan2(ny,nx),radius:150});
+   continue;
+  }
+  const block=i+j,curb=seg.width/2+7;
+  if(seg.width<150&&mod(block,2))continue;
+  const preferred=mod(block,4)<2?-1:1;
+  for(const side of [preferred,-preferred]){
+   const nx=horizontal?0:side,ny=horizontal?side:0;
+   const x=mx+nx*curb,y=my+ny*curb;
+   const sidewalk=chunks.get(roadIndex(x,0)+','+roadIndex(y,1));
+   if(!sidewalk||sidewalk.scene||sidewalk.trees.some(t=>(x-t.x)**2+(y-t.y)**2<(t.r+5)**2))continue;
+   streetlamps.push({x,y,bx:x-nx*10,by:y-ny*10,angle:Math.atan2(-ny,-nx),radius:seg.width>=150?100:82});
+   break;
+  }
+ }
 }
 function nearestDriveRoad(x,y){let best=null;for(const seg of navigation.segments){const p=projectSegment(x,y,seg.a,seg.b);if(!best||p.distance<best.distance)best={...p,seg};}return best;}
 function surfaceAt(x,y){
@@ -547,44 +606,125 @@ function highwayRoute(axis,index,lane,direction){
  const a=axis===0?{x:coord-direction*lane,y:low}:{x:low,y:coord+direction*lane},b=axis===0?{x:a.x,y:high}:{x:high,y:a.y};
  const route=polyRoute(direction>0?[a,b]:[b,a]);route.closed=false;route.highway={axis,index,lane,direction};return route;
 }
+function trafficCandidate(route,distance,roadType,cruise,initial=false){
+ const p=routeAt(route,distance);
+ if(!insideLoaded(p.x,p.y,120)||Math.hypot(p.x-player.x,p.y-player.y)<170||(!initial&&nearDrivingView(p.x,p.y)))return null;
+ const model=choose(TRAFFIC_MIX[roadType]||TRAFFIC_MIX.city),color=model==='ambulance'?'#f0f0d9':model==='bus'?choose(TRAFFIC_BUS_COLORS):choose(['#e6c36c','#ba6e59','#789c9e','#d6d6bf','#73899a','#a695a0','#8c9c73']);
+ const c=makeCar(p.x,p.y,p.angle,color,'traffic',model);
+ // Leave braking room when joining roads, and keep grid crossings clear.
+ if(route.junctions?.some(j=>Math.abs(c.x-j.x)<100+c.hw&&Math.abs(c.y-j.y)<100+c.hw))return null;
+ if(route.highway){
+  const axis=1-route.highway.axis,v=axis===0?c.x:c.y,index=roadIndex(v,axis);
+  if([index,index+1].some(i=>Math.abs(v-roadCoord(i,axis))<roadHalf(i,axis)+c.hw+30))return null;
+ }
+ if(!clearSpot(c))return null;
+ const fx=Math.cos(c.angle),fy=Math.sin(c.angle);
+ if(traffic.some(other=>{const dx=other.x-c.x,dy=other.y-c.y,along=dx*fx+dy*fy,side=-dx*fy+dy*fx;return Math.abs(along)<c.hw+other.hw+60&&Math.abs(side)<c.hh+other.hh+8;}))return null;
+ const desiredCruise=cruise*VEHICLE_TYPES[model].pace;
+ Object.assign(c,{route,seg:p.index,routeD:p.d,roadType,cruise:desiredCruise,cooldown:0,id:Math.floor(random()*1e8),senseIn:0,trafficLimit:desiredCruise,progressTime:0,checkX:c.x,checkY:c.y,stuckFor:0,reverseFor:0,rejoinAll:false});
+ // New vehicles join at road speed, already facing their lane.
+ c.vx=fx*desiredCruise;c.vy=fy*desiredCruise;
+ return c;
+}
+function highwayAhead(){
+ const speed=Math.hypot(player.vx,player.vy);
+ const x=speed>.04?player.vx/speed:Math.cos(player.angle),y=speed>.04?player.vy/speed:Math.sin(player.angle);
+ const axis=Math.abs(x)>Math.abs(y)?1:0,heading=axis===1?x:y;
+ if(Math.abs(heading)<.8)return null;
+ const cross=axis===1?player.y:player.x,cell=roadIndex(cross,axis);
+ const index=[cell,cell+1].find(i=>isHighway(i)&&Math.abs(cross-roadCoord(i,axis))<=roadHalf(i,axis));
+ if(index===undefined)return null;
+ const direction=Math.sign(heading),position=axis===1?player.x:player.y,center=axis===1?worldWindow.i:worldWindow.j;
+ const edge=center+(direction>0?worldWindow.radius+1:-worldWindow.radius);
+ const far=(roadCoord(edge,1-axis)-position)*direction-125;
+ const viewHalf=(axis===1?viewW:viewH)/(2*zoom);
+ const cameraLead=((axis===1?camera.x:camera.y)-position)*direction;
+ const mapLead=(axis===1?minimapView.offsetX:minimapView.offsetY)*direction;
+ const mapHalf=MINIMAP_SPAN/2*(axis===1?1:mini.height/mini.width);
+ // Pick candidates beyond both views, then use the usual visibility check.
+ const near=Math.max(viewHalf+200+Math.max(0,cameraLead,speed*140),mapHalf+40+mapLead)+8;
+ return far>near?{axis,index,direction,position,near,far}:null;
+}
+function refillHighwayAhead(ahead,target,maxSpawns){
+ const {axis,index,direction,position,near,far}=ahead;
+ const distanceAhead=c=>((axis===1?c.x:c.y)-position)*direction;
+ const sameHighway=c=>c.route.highway?.axis===axis&&c.route.highway.index===index;
+ const desired=Math.round(lerp(6,2,nightLevel()));
+ let sameWayNeeded=Math.ceil(desired/2),oncomingNeeded=Math.floor(desired/2),added=0;
+ for(const c of traffic){
+  if(!sameHighway(c)||distanceAhead(c)<=0||distanceAhead(c)>far)continue;
+  if(c.route.highway.direction===direction)sameWayNeeded--;else oncomingNeeded--;
+ }
+ for(let n=0;n<24&&added<maxSpawns&&(sameWayNeeded>0||oncomingNeeded>0);n++){
+  if(traffic.length>target)break;
+  const sameDirection=sameWayNeeded>oncomingNeeded,travel=sameDirection?direction:-direction;
+  const route=highwayRoute(axis,index,random()<.5?54:100,travel);
+  const start=route.segments[0],origin=axis===1?start.x:start.y;
+  const distance=(position+direction*lerp(near,far,random())-origin)*travel;
+  const c=trafficCandidate(route,distance,'highway',.28+random()*.1);
+  if(!c)continue;
+  if(traffic.length===target){
+   // Swap only after finding a safe new slot. Keep visible cars and cars
+   // already approaching on this highway, and prefer recycling distant cars behind.
+   let replacement=-1,score=-Infinity;
+   for(let i=0;i<traffic.length;i++){
+    const other=traffic[i],along=distanceAhead(other);
+    if((sameHighway(other)&&along>0)||protectVisibleVehicle(other))continue;
+    const weight=(other.x-player.x)**2+(other.y-player.y)**2+(along<0?1000000:0);
+    if(weight>score){score=weight;replacement=i;}
+   }
+   if(replacement<0)break;
+   traffic.splice(replacement,1);
+  }
+  traffic.push(c);added++;
+  if(sameDirection)sameWayNeeded--;else oncomingNeeded--;
+ }
+ return added;
+}
 function refillTraffic(initial=false){
+ const target=trafficLimitForTime(),ahead=highwayAhead(),maxSpawns=initial?target:4;
+ const added=ahead?refillHighwayAhead(ahead,target,initial?target:2):0;
+ if(traffic.length>=target)return;
+ // Refill over several ticks when the traffic target rises or the map streams.
+ const limit=Math.min(target,traffic.length+maxSpawns-added),attemptLimit=initial?220:ahead?40:64;
  const pool=blocks.filter(b=>!b.scene&&Math.abs(b.i-worldWindow.i)<worldWindow.radius&&Math.abs(b.j-worldWindow.j)<worldWindow.radius&&gridEdge(0,b.i,b.j)&&gridEdge(0,b.i+1,b.j)&&gridEdge(1,b.j,b.i)&&gridEdge(1,b.j+1,b.i));
  const scenic=[...activeScenes.values()].filter(s=>s.trafficLoops.length),highways=[];
  for(let i=worldWindow.i-worldWindow.radius+1;i<=worldWindow.i+worldWindow.radius;i++)if(isHighway(i))highways.push({axis:0,index:i});
  for(let j=worldWindow.j-worldWindow.radius+1;j<=worldWindow.j+worldWindow.radius;j++)if(isHighway(j))highways.push({axis:1,index:j});
- for(let attempt=0;traffic.length<42&&attempt<220;attempt++){
-  let route,ownerI=worldWindow.i,ownerJ=worldWindow.j,roadType='city',cruise=.15+random()*.07;
+ for(let attempt=0;traffic.length<limit&&attempt<attemptLimit;attempt++){
+  let route,roadType='city',cruise=.15+random()*.07;
   const roll=random();
   if(highways.length&&(roll<.4||!pool.length&&!scenic.length)){
    const hw=choose(highways);route=highwayRoute(hw.axis,hw.index,random()<.5?54:100,random()<.5?1:-1);roadType='highway';cruise=.28+random()*.1;
   }else if(scenic.length&&(roll<.65||!pool.length)){
-   const s=choose(scenic);route=polyRoute(s.trafficLoops[0]);ownerI=s.a*3+1;ownerJ=s.b*3+1;roadType=s.type;cruise=s.type==='oldtown'?.11+random()*.035:s.type==='offroad'?.13+random()*.04:.16+random()*.055;
-  }else{const b=choose(pool);if(!b)continue;ownerI=b.i;ownerJ=b.j;route=routeRect(roadCoord(b.i,0),roadCoord(b.j,1),roadCoord(b.i+1,0),roadCoord(b.j+1,1),random()>.5);}
-  const p=routeAt(route,random()*route.length);if(!insideLoaded(p.x,p.y,120)||Math.hypot(p.x-player.x,p.y-player.y)<170||(!initial&&nearDrivingView(p.x,p.y)))continue;
-   const model=choose(TRAFFIC_MIX[roadType]||TRAFFIC_MIX.city),color=model==='ambulance'?'#f0f0d9':model==='bus'?choose(TRAFFIC_BUS_COLORS):choose(['#e6c36c','#ba6e59','#789c9e','#d6d6bf','#73899a','#a695a0','#8c9c73']);
-  const c=makeCar(p.x,p.y,p.angle,color,'traffic',model);if(!clearSpot(c))continue;
-  // Leave braking room when joining roads, and keep grid crossings clear.
-  if(route.junctions?.some(j=>Math.abs(c.x-j.x)<100+c.hw&&Math.abs(c.y-j.y)<100+c.hw))continue;
-  if(route.highway){const axis=1-route.highway.axis,index=roadIndex(axis===0?c.x:c.y,axis),v=axis===0?c.x:c.y;if([index,index+1].some(i=>Math.abs(v-roadCoord(i,axis))<roadHalf(i,axis)+c.hw+30))continue;}
-  if(traffic.some(other=>{const dx=other.x-c.x,dy=other.y-c.y,along=dx*Math.cos(c.angle)+dy*Math.sin(c.angle),side=-dx*Math.sin(c.angle)+dy*Math.cos(c.angle);return Math.abs(along)<c.hw+other.hw+60&&Math.abs(side)<c.hh+other.hh+8;}))continue;
-  const desiredCruise=cruise*VEHICLE_TYPES[model].pace;
-  Object.assign(c,{route,seg:p.index,routeD:p.d,roadType,cruise:desiredCruise,cooldown:0,ownerI,ownerJ,id:Math.floor(random()*1e8),senseIn:0,trafficLimit:desiredCruise,progressTime:0,checkX:c.x,checkY:c.y,stuckFor:0,reverseFor:0,rejoinAll:false});
-  // New vehicles join at road speed, already facing their lane.
-  c.vx=Math.cos(c.angle)*desiredCruise;c.vy=Math.sin(c.angle)*desiredCruise;traffic.push(c);
+   const s=choose(scenic);route=polyRoute(s.trafficLoops[0]);roadType=s.type;cruise=s.type==='oldtown'?.11+random()*.035:s.type==='offroad'?.13+random()*.04:.16+random()*.055;
+  }else{const b=choose(pool);if(!b)continue;route=routeRect(roadCoord(b.i,0),roadCoord(b.j,1),roadCoord(b.i+1,0),roadCoord(b.j+1,1),random()>.5);}
+  const c=trafficCandidate(route,random()*route.length,roadType,cruise,initial);
+  if(c)traffic.push(c);
  }
 }
 
 
+function trafficLimitForTime(){return Math.round(lerp(DAY_TRAFFIC_LIMIT,NIGHT_TRAFFIC_LIMIT,nightLevel()));}
 let trafficRefreshIn=1200;
 function maintainTraffic(dt){
  trafficRefreshIn-=dt;if(trafficRefreshIn>0)return;trafficRefreshIn=1200;
- for(let i=traffic.length-1;i>=0;i--){const c=traffic[i];if(!insideLoaded(c.x,c.y,150)&&!protectVisibleVehicle(c))traffic.splice(i,1);}
- if(traffic.length<42)refillTraffic();
+ const limit=trafficLimitForTime();
+ for(let i=traffic.length-1;i>=0;i--){
+  const c=traffic[i];
+  if((traffic.length>limit||!insideLoaded(c.x,c.y,150))&&!protectVisibleVehicle(c))traffic.splice(i,1);
+ }
+ refillTraffic();
 }
 function streamWorld(force=false){
- const i=roadIndex(player.x,0),j=roadIndex(player.y,1),radius=Math.max(3,Math.ceil(Math.max(viewW,viewH)/(2*zoom*SPACING))+2);
+ const radius=Math.max(3,Math.ceil(Math.max(viewW,viewH)/(2*zoom*SPACING))+2);
+ // Grid boundaries run down the middle of the road. Keep the loaded window
+ // steady during lane changes, independently on each axis.
+ const i=!force&&player.x>=worldWindow.left&&player.x<=worldWindow.right?worldWindow.i:roadIndex(player.x,0);
+ const j=!force&&player.y>=worldWindow.top&&player.y<=worldWindow.bottom?worldWindow.j:roadIndex(player.y,1);
  if(!force&&worldWindow.i===i&&worldWindow.j===j&&worldWindow.radius===radius)return false;
- const initial=!Number.isFinite(worldWindow.i);Object.assign(worldWindow,{i,j,radius});
+ const initial=!Number.isFinite(worldWindow.i);
+ Object.assign(worldWindow,{i,j,radius,left:roadCoord(i,0)-roadHalf(i,0),right:roadCoord(i+1,0)+roadHalf(i+1,0),top:roadCoord(j,1)-roadHalf(j,1),bottom:roadCoord(j+1,1)+roadHalf(j+1,1)});
  for(const [key,b]of chunks)if(Math.abs(b.i-i)>radius||Math.abs(b.j-j)>radius)chunks.delete(key);
  for(let cy=j-radius;cy<=j+radius;cy++)for(let cx=i-radius;cx<=i+radius;cx++){const key=cx+','+cy;if(!chunks.has(key)){chunks.set(key,generateBlock(cx,cy));worldWindow.generated++;}}
  blocks.length=buildings.length=obstacles.length=trees.length=parked.length=xs.length=ys.length=0;
@@ -864,7 +1004,7 @@ function cleanDrivingReward(mode,job){return jobBaseReward(mode,job)*job.cleanDr
 function takedownReward(mode,job){return jobBaseReward(mode,job)*job.takedowns*TAKEDOWN_BONUS_PERCENT/100;}
 // KM follow the existing distance-earned scale (0.8 metres per world unit).
 const JOB_BANDS=[{name:'Regional',min:8,max:14,weight:.50},{name:'Long haul',min:20,max:40,weight:.38},{name:'Cross-country',min:60,max:100,weight:.12}];
-const RIDE_BANDS=[{min:2,max:5,weight:1}];
+const RIDE_BANDS=[{min:2,max:5,weight:.60},{min:5,max:12,weight:.25},{min:12,max:20,weight:.15,anchorInset:.025}];
 const STALE_OFFER_PICKUP_KM=20;
 const SCENIC_JOB_CHANCE=.25,SCENIC_JOB_AREAS=['oldtown','park','offroad'];
 const JOB_ROUTE_COLOR='#d65cff';
@@ -952,7 +1092,7 @@ function ghosting(){return powerActive('phase')||powers.exitBodies.size>0;}
 function ignoresCollision(a,b){const other=a===player?b:b===player?a:null;return !!other&&(powerActive('phase')||powers.exitBodies.has(other));}
 function syncTurboAvailability(){
  const available=garageState().performance.turbo>0||powerActive('nitro');document.body.classList.toggle('turbo-owned',available);
- $('turboMeter').hidden=$('turboHint').hidden=$('touchBoost').hidden=!available;
+ $('turboMeter').hidden=$('touchBoost').hidden=!available;
 }
 function activatePower(type){
  const power=POWER_TYPES[type];if(!power)return false;
@@ -1322,7 +1462,7 @@ const keys=Object.create(null);
 let safePosition={x:player.x,y:player.y,angle:player.angle};
 const rendering={density:1.5,frames:0,slow:0,time:0};
 function sizeGameCanvas(){pixelRatio=Math.min(devicePixelRatio||1,rendering.density,Math.sqrt(6000000/(viewW*viewH)));canvas.width=Math.round(viewW*pixelRatio);canvas.height=Math.round(viewH*pixelRatio);sceneryCache.valid=false;}
-function resize(){viewW=innerWidth;viewH=innerHeight;zoom=viewW<700?1.15:1.55;sizeGameCanvas();drawAtlas();}
+function resize(){viewW=innerWidth;viewH=innerHeight;zoom=viewW<700?1.15:1.55;sizeGameCanvas();if(activeModal==='mapModal')drawAtlas();}
 function trackFrameTime(elapsed){
  if(!started||activeModal||document.hidden){rendering.frames=rendering.slow=rendering.time=0;return;}
  rendering.frames++;rendering.time+=elapsed;if(elapsed>25)rendering.slow++;
@@ -1507,9 +1647,10 @@ function scenicJobStop(area,anchor,origin,band,mode,action){
 function distantJobStop(kind,origin,rng,heading,mode,scenicArea){
  const bands=kind==='dropoff'?RIDE_BANDS:JOB_BANDS;
  let roll=rng(),band=bands.at(-1);for(const option of bands){roll-=option.weight;if(roll<0){band=option;break;}}
+ const inset=band.anchorInset??.15;
  const pickAnchor=()=>{
   const angle=heading==null?rng()*TAU:heading+(rng()-.5)*1.3;
-  const km=lerp(band.min,band.max,.15+rng()*.7),radius=km/.0008;
+  const km=lerp(band.min,band.max,inset+rng()*(1-2*inset)),radius=km/.0008;
   return {x:origin.x+Math.cos(angle)*radius,y:origin.y+Math.sin(angle)*radius};
  };
  // Preview destinations around a few anchors without streaming a corridor.
@@ -2247,7 +2388,12 @@ function resolve(a,b,hit){
  }
 }
 function rebuildDynamic(){dynamicHash.clear();for(const c of parked)dynamicHash.insert(c);for(const c of traffic)dynamicHash.insert(c);for(const c of police)dynamicHash.insert(c);dynamicHash.insert(player);}
-function clearSpot(candidate){for(const b of staticHash.query(candidate,3))if(contact(candidate,b))return false;for(const c of [...parked,...traffic,...police])if(contact({...candidate,hw:Math.max(candidate.hw+7,25),hh:Math.max(candidate.hh+5,15)},c))return false;return true;}
+function clearSpot(candidate){
+ for(const b of staticHash.query(candidate,3))if(contact(candidate,b))return false;
+ const clearance={x:candidate.x,y:candidate.y,angle:candidate.angle,hw:Math.max(candidate.hw+7,25),hh:Math.max(candidate.hh+5,15)};
+ for(const group of [parked,traffic,police])for(const c of group)if(contact(clearance,c))return false;
+ return true;
+}
 function recover(){
  streamWorld();const candidates=[];
  for(const seg of navigation.segments){const p=projectSegment(player.x,player.y,seg.a,seg.b);if(p.distance>1100)continue;const side=seg.width>80?22:0;
@@ -2417,6 +2563,8 @@ function senseTraffic(c,speed){
    const gap=ahead-c.hw-length,leader=Math.max(0,other.vx*fx+other.vy*fy),safeGap=20+speed*230;
    if(gap<c.blockedGap){c.blocker=other;c.blockedGap=gap;}
    limit=Math.min(limit,Math.max(0,(gap-20)/350),leader+Math.max(0,gap-safeGap)*.002);yielding=true;
+   // Give a displaced oncoming driver room to back up and steer into its lane.
+   if(co<-.8&&other.reverseFor>0&&(c.route.highway||other.route?.highway))limit=0;
   }
   // At crossings outside the junction graph, fixed priority prevents mutual yielding.
   const gx=Math.cos(other.angle),gy=Math.sin(other.angle),den=fx*gy-fy*gx;
@@ -2451,8 +2599,8 @@ function updateTraffic(c,dt){
   const displaced=c.routeError>8||Math.abs(angleDiff(near.angle,c.angle))>.4||c.bumpFor>0;
   if(c.stuckFor>=1500&&displaced&&!c.reverseFor&&!c.recoveryCooldown){c.reverseFor=850;c.recoveryCooldown=2000;c.rejoinAll=true;c.stuckFor=0;c.cooldown=0;}
  }
- // Make a little room when the driver ahead needs to back out of an impact.
- if(!c.reverseFor&&c.blocker?.reverseFor>0&&c.blockedGap<40){c.reverseFor=500;c.recoveryCooldown=1200;c.cooldown=0;}
+ // Make room for a reversing driver ahead. Wait in place if we're facing them.
+ if(!c.reverseFor&&c.blocker?.reverseFor>0&&c.blockedGap<40&&Math.cos(c.angle-c.blocker.angle)>=-.8){c.reverseFor=500;c.recoveryCooldown=1200;c.cooldown=0;}
  if(c.reverseFor>0){
   c.reverseFor=Math.max(0,c.reverseFor-dt);target=-trafficRearLimit(c);
   delta=angleDiff(near.angle,c.angle);
@@ -2466,6 +2614,7 @@ function updateTraffic(c,dt){
 }
 
 function physics(dt){
+ if(started)dayCycleMs=(dayCycleMs+dt)%(DAY_PHASE_MS*2);
  streamWorld();maintainTraffic(dt);if(started){tickPowers(dt);maintainPursuit(dt);}
  physicsTick++;activeBodies.length=0;
  for(const c of traffic){snapshotBody(c);c.activeTick=physicsTick;activeBodies.push(c);}
@@ -2514,10 +2663,22 @@ function sceneGround(s,g=ctx,map=false){
  g.fillStyle=s.type==='airport'?'#8c9d7a':s.type==='oldtown'?s.town.ground:s.forest?'#73966a':'#b7a47c';g.fillRect(left,top,right-left,bottom-top);
  if(!map){
   g.save();g.beginPath();g.rect(left,top,right-left,bottom-top);g.clip();
-  if(s.type==='oldtown'){g.strokeStyle='#897e6635';g.lineWidth=.7;for(let py=Math.max(top,Math.floor(bounds.t/18)*18);py<Math.min(bottom,bounds.b);py+=18){g.beginPath();g.moveTo(Math.max(left,bounds.l),py);g.lineTo(Math.min(right,bounds.r),py);g.stroke();}}
+  if(s.type==='oldtown'){g.strokeStyle='#897e6635';g.lineWidth=.7;for(let py=Math.ceil(Math.max(top,bounds.t)/18)*18;py<Math.min(bottom,bounds.b);py+=18){g.beginPath();g.moveTo(Math.max(left,bounds.l),py);g.lineTo(Math.min(right,bounds.r),py);g.stroke();}}
   if(s.type==='offroad'){
-   const startX=Math.max(0,Math.floor((bounds.l-s.x)/110)),endX=Math.min(15,Math.ceil((bounds.r-s.x)/110)),startY=Math.max(0,Math.floor((bounds.t-s.y)/105)),endY=Math.min(15,Math.ceil((bounds.b-s.y)/105));
+   const startX=Math.max(0,Math.floor((bounds.l-s.x-126)/110)),endX=Math.min(15,Math.ceil((bounds.r-s.x+76)/110)),startY=Math.max(0,Math.floor((bounds.t-s.y-111)/105)),endY=Math.min(15,Math.ceil((bounds.b-s.y+76)/105));
    for(let j=startY;j<=endY;j++)for(let i=startX;i<=endX;i++){const n=worldHash(s.a*17+i,s.b*17+j,191),px=s.x+i*110+n*50,py=s.y+j*105+n*35;g.fillStyle=s.forest?'#527a4e20':'#c7b78f44';g.beginPath();g.ellipse(px,py,42+n*34,27+n*20,n*3,0,TAU);g.fill();}
+  }
+  if(s.type==='offroad'){
+   // A grassy verge shades into the trail district inside the road shoulder.
+   const depth=s.forest?110:85;
+   const verge=(x,y,dx,dy,w,h)=>{
+    if(!visible(x+w/2,y+h/2,Math.abs(w)/2,Math.abs(h)/2))return;
+    const fade=g.createLinearGradient(x,y,x+dx,y+dy);
+    fade.addColorStop(0,'#a6b09bbf');fade.addColorStop(1,'#a6b09b00');
+    g.fillStyle=fade;g.fillRect(x,y,w,h);
+   };
+   verge(left,top,depth,0,depth,bottom-top);verge(right,top,-depth,0,-depth,bottom-top);
+   verge(left,top,0,depth,right-left,depth);verge(left,bottom,0,-depth,right-left,-depth);
   }
   g.restore();
  }
@@ -2527,32 +2688,64 @@ function sceneGround(s,g=ctx,map=false){
   if(d.kind==='oldplaza'||d.kind==='clearing'){g.fillStyle=d.kind==='oldplaza'?'#c4b796':s.forest?'#acaa80':'#c6b48d';g.beginPath();g.arc(d.x,d.y,d.r,0,TAU);g.fill();}
  }
 }
+function drawGridPavement(road,color,extra=0){
+ const {a,b}=road.segments[0],half=road.width/2+extra;
+ // Overlap adjoining fills by one world unit to prevent hairlines at fractional zoom.
+ if(a.y===b.y)rect(a.x-1,a.y-half,b.x-a.x+2,half*2,color);
+ else rect(a.x-half,a.y-1,half*2,b.y-a.y+2,color);
+}
+function drawGridMarkings(road){
+ const {a,b}=road.segments[0],horizontal=a.y===b.y,origin=horizontal?a.x:a.y;
+ const start=road.entryInset,end=(horizontal?b.x-a.x:b.y-a.y)-road.exitInset;
+ if(end<=start)return;
+ ctx.save();ctx.translate(a.x,a.y);if(!horizontal)ctx.rotate(Math.PI/2);
+ const strip=(offset,width,color)=>rect(start,offset-width/2,end-start,width,color);
+ const dash=(offsets,width,color,on,off)=>{
+  ctx.lineCap='butt';ctx.lineWidth=width;ctx.strokeStyle=color;ctx.setLineDash([on,off]);
+  ctx.lineDashOffset=mod(origin+start,on+off);ctx.beginPath();
+  for(const offset of offsets){ctx.moveTo(start,offset);ctx.lineTo(end,offset);}
+  ctx.stroke();
+ };
+ if(road.kind==='highway'){
+  strip(0,20,'#b6ae804d');for(const n of [-9,9])strip(n,1.5,'#d4c179');
+  for(const n of [-137,137])strip(n,2,'#dfe0c5');
+  dash([-96,-52,52,96],1.4,'#e2dfbd90',24,22);
+ }else dash([0],1.2,'#d7c58b70',20,18);
+ ctx.restore();
+}
+function drawScenicEntrance(road){
+ const [p,q]=road.points;if(!p.side)return;
+ const nx=p.side==='left'?1:p.side==='right'?-1:0,ny=p.side==='top'?1:p.side==='bottom'?-1:0;
+ const axis=nx?0:1,index=p.streetIndex;
+ const shoulder=roadHalf(index,axis),depth=Math.min(72,((q.x-p.x)*nx+(q.y-p.y)*ny-shoulder)*.8);
+ if(depth<=0)return;
+ const x=p.x+nx*shoulder,y=p.y+ny*shoulder,color=isHighway(index)?'#465657':'#505e5e';
+ const fade=ctx.createLinearGradient(x,y,x+nx*depth,y+ny*depth);
+ fade.addColorStop(0,color);fade.addColorStop(1,color+'00');strokeRoad(ctx,road,fade);
+}
 function drawRoads(){
  rect(bounds.l,bounds.t,bounds.r-bounds.l,bounds.b-bounds.t,'#a6b09b');
  for(const s of activeScenes.values())if(visible(s.x+s.w/2,s.y+s.h/2,s.w/2,s.h/2))sceneGround(s);
- const roads=navigation.roads.filter(r=>r.segments.some(s=>s.r>=bounds.l&&s.l<=bounds.r&&s.bottom>=bounds.t&&s.t<=bounds.b));
- for(const r of roads){const dirt=r.kind==='dirt',cobbles=r.kind==='cobbles';strokeRoad(ctx,r,dirt?'#a7a17a':cobbles?r.edge||'#968972':'#c7c3ab',r.width+(dirt?9:8));}
- for(const r of roads)strokeRoad(ctx,r,r.kind==='dirt'?'#b7a57b':r.kind==='cobbles'?r.color||'#c1b497':r.kind==='runway'?'#4c5959':'#505e5e');
- for(const r of roads){  if(r.kind==='dirt'){for(const offset of [-8,8]){const points=r.points.map((p,n)=>{const q=r.points[Math.min(n+1,r.points.length-1)],prev=r.points[Math.max(0,n-1)],angle=Math.atan2(q.y-prev.y,q.x-prev.x);return {x:p.x-Math.sin(angle)*offset,y:p.y+Math.cos(angle)*offset};});strokeRoad(ctx,{...r,points},'#95826230',4);}}}
- // Continuous, six-lane expressways stand out from the smaller streets.
- for(const r of roads)if(r.kind==='highway')strokeRoad(ctx,r,'#c6c4aa',r.width+8);
- for(const r of roads)if(r.kind==='highway')strokeRoad(ctx,r,'#465657');
- for(const r of roads)if(r.kind==='highway'){
-  const a=r.points[0],b=r.points.at(-1),angle=Math.atan2(b.y-a.y,b.x-a.x),nx=-Math.sin(angle),ny=Math.cos(angle),shifted=n=>({...r,points:r.points.map(p=>({x:p.x+nx*n,y:p.y+ny*n}))});
-  strokeRoad(ctx,r,'#b6ae804d',20);for(const offset of [-9,9])strokeRoad(ctx,shifted(offset),'#d4c179',1.5);
-  for(const offset of [-96,-52,52,96])strokeRoad(ctx,shifted(offset),'#e2dfbd90',1.4,[24,22]);for(const offset of [-137,137])strokeRoad(ctx,shifted(offset),'#dfe0c5',2);
- }
- for(const r of roads){
-  if(r.kind==='street'||r.kind==='service')strokeRoad(ctx,r,'#d7c58b70',1.2,[20,18]);
+ const roads=navigation.roads.filter(r=>r.segments.some(s=>s.r+5>=bounds.l&&s.l-5<=bounds.r&&s.bottom+5>=bounds.t&&s.t-5<=bounds.b));
+ const grid=roads.filter(r=>r.entryInset!==undefined),scenic=roads.filter(r=>r.entryInset===undefined);
+ for(const r of grid)drawGridPavement(r,r.kind==='highway'?'#c6c4aa':'#c7c3ab',4);
+ for(const r of scenic){const dirt=r.kind==='dirt',cobbles=r.kind==='cobbles';strokeRoad(ctx,r,dirt?'#a7a17a':cobbles?r.edge||'#968972':'#c7c3ab',r.width+(dirt?9:8));}
+ for(const r of scenic)strokeRoad(ctx,r,r.kind==='dirt'?'#b7a57b':r.kind==='cobbles'?r.color||'#c1b497':r.kind==='runway'?'#4c5959':'#505e5e');
+ for(const r of scenic){
+  if(r.kind==='dirt'){for(const offset of [-8,8]){const points=r.points.map((p,n)=>{const q=r.points[Math.min(n+1,r.points.length-1)],prev=r.points[Math.max(0,n-1)],angle=Math.atan2(q.y-prev.y,q.x-prev.x);return {x:p.x-Math.sin(angle)*offset,y:p.y+Math.cos(angle)*offset};});strokeRoad(ctx,{...r,points},'#95826230',4);}}
+  if(r.kind==='dirt'||r.kind==='cobbles')drawScenicEntrance(r);
+  if(r.kind==='service')strokeRoad(ctx,r,'#d7c58b70',1.2,[20,18]);
   if(r.kind==='taxiway')strokeRoad(ctx,r,'#d9be69',1.6);
-
  }
+ for(const r of grid)if(r.kind==='street')drawGridPavement(r,'#505e5e');
+ for(const r of grid)if(r.kind==='highway')drawGridPavement(r,'#465657');
+ for(const r of grid)drawGridMarkings(r);
  ctx.lineCap='butt';ctx.lineJoin='miter';
  for(let i=worldWindow.i-worldWindow.radius;i<=worldWindow.i+worldWindow.radius+1;i++)for(let j=worldWindow.j-worldWindow.radius;j<=worldWindow.j+worldWindow.radius+1;j++){
   const x=roadCoord(i,0),y=roadCoord(j,1);if(isHighway(i)||isHighway(j)||!visible(x,y,105)||!gridEdge(0,i,j)||!gridEdge(0,i,j-1)||!gridEdge(1,j,i)||!gridEdge(1,j,i-1))continue;
   const hx=roadHalf(i,0),hy=roadHalf(j,1);for(const side of [-1,1]){for(let k=-hx+15;k<hx-10;k+=12)rect(x+k,y+side*(hy+11)-6,7,13,'#c9cbb19c');for(let k=-hy+15;k<hy-10;k+=12)rect(x+side*(hx+11)-6,y+k,13,7,'#c9cbb19c');}
  }
- for(const b of blocks)if(!b.scene&&visible(b.x+b.w/2,b.y-31,b.w/2,25))textAt(streetName(b.j,1).toUpperCase(),b.x+b.w/2,roadCoord(b.j,1)+36,8,'#dce2c154','normal');
+ for(const b of blocks)if(!b.scene){const x=b.x+b.w/2,y=roadCoord(b.j,1)+36;if(visible(x,y,85,10))textAt(streetName(b.j,1).toUpperCase(),x,y,8,'#dce2c154','normal');}
 }
 function drawSceneDetails(s){
  for(const d of s.decor){
@@ -2718,6 +2911,72 @@ function drawAircraft(d){
 }
 
 function drawTree(t){circle(t.x+6,t.y+8,t.r+2,'#284d3a34');circle(t.x,t.y,t.r,t.tone>.5?'#4f7959':'#5d845c');circle(t.x-3,t.y-3,t.r*.78,t.tone>.5?'#6b925e':'#749965');circle(t.x-5,t.y-5,t.r*.42,'#92ad743d');}
+function drawStreetlampPosts(){
+ for(const {x,y,bx,by,angle} of streetlamps){
+  if(!visible(x,y,18))continue;
+  circle(x+1.5,y+2.5,2.8,'#26383255');circle(x,y,2,'#495b53');
+  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+  const arm=Math.hypot(bx-x,by-y);
+  rounded(0,-.9,arm,1.8,.8,'#4a5a52');rounded(arm-2.6,-1.7,5.2,3.4,1.4,'#64766a');
+  rect(arm-1.5,-.7,3,1.4,'#c6c5ad');ctx.restore();
+ }
+}
+function createNightLightTextures(){
+ const pool=document.createElement('canvas');pool.width=pool.height=192;
+ const p=pool.getContext('2d'),glow=p.createRadialGradient(96,96,0,96,96,96);
+ glow.addColorStop(0,'#ffe8b59c');glow.addColorStop(.22,'#ffd48475');glow.addColorStop(.58,'#ffcc7034');glow.addColorStop(1,'#ffcc7000');
+ p.fillStyle=glow;p.fillRect(0,0,pool.width,pool.height);
+ const beam=document.createElement('canvas');beam.width=192;beam.height=112;
+ const b=beam.getContext('2d'),falloff=b.createLinearGradient(8,0,181,0);
+ falloff.addColorStop(0,'#fff2c67a');falloff.addColorStop(.2,'#fff2c658');falloff.addColorStop(.63,'#ffeabc2c');falloff.addColorStop(1,'#ffeabc00');
+ b.fillStyle=falloff;b.filter='blur(5px)';b.beginPath();b.moveTo(8,48);
+ b.quadraticCurveTo(40,42,150,13);b.quadraticCurveTo(175,8,182,32);
+ b.lineTo(182,80);b.quadraticCurveTo(175,104,150,99);b.quadraticCurveTo(40,70,8,64);
+ b.closePath();b.fill();
+ return {pool,beam};
+}
+let nightLightTextures=null;
+const nightMap={canvas:document.createElement('canvas'),build:-1};
+function prepareNightMap(pool){
+ const {l,t,r,b,builds}=sceneryCache;
+ if(nightMap.build===builds)return;
+ const layer=nightMap.canvas,width=Math.ceil((r-l)*.5),height=Math.ceil((b-t)*.5);
+ if(layer.width!==width||layer.height!==height){layer.width=width;layer.height=height;}
+ const g=layer.getContext('2d'),sx=width/(r-l),sy=height/(b-t);
+ g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,width,height);
+ g.fillStyle='#11182ea6';g.fillRect(0,0,width,height);
+ g.setTransform(sx,0,0,sy,-l*sx,-t*sy);
+ const lamps=streetlamps.filter(({bx,by,radius})=>bx+radius>=l&&bx-radius<=r&&by+radius>=t&&by-radius<=b);
+ const stamp=({bx,by,radius})=>g.drawImage(pool,bx-radius,by-radius,radius*2,radius*2);
+ g.globalCompositeOperation='destination-out';lamps.forEach(stamp);
+ g.globalCompositeOperation='source-over';g.globalAlpha=.40;lamps.forEach(stamp);
+ g.globalAlpha=1;g.fillStyle='#fff0ba';
+ for(const {bx,by} of lamps){g.beginPath();g.arc(bx,by,1.7,0,TAU);g.fill();}
+ nightMap.build=builds;
+}
+function drawVehicleLights(c,beam){
+ const x=lerp(c.prevX,c.x,renderAlpha),y=lerp(c.prevY,c.y,renderAlpha);
+ const range=c===player?156:124;
+ if(!visible(x,y,c.hw+range))return;
+ ctx.save();ctx.translate(x,y);ctx.rotate(lerp(c.prevAngle,c.angle,renderAlpha));
+ ctx.drawImage(beam,c.hw-7,-43,range,86);
+ const offset=c.model==='motorbike'?0:c.hh-3.4;
+ for(const yy of offset>0?[-offset,offset]:[0]){
+  rect(c.hw-1,yy-1.35,2,2.7,'#fff4d0');
+  rect(-c.hw,yy-1.25,2,2.5,c.braking?'#ffc394':'#f37e69');
+ }
+ ctx.restore();
+}
+function drawNightLighting(level){
+ if(!nightLightTextures)nightLightTextures=createNightLightTextures();
+ const {pool,beam}=nightLightTextures;
+ prepareNightMap(pool);
+ ctx.save();ctx.globalAlpha=level;paintScenery(nightMap.canvas);
+ for(const c of traffic)drawVehicleLights(c,beam);
+ for(const c of police)drawVehicleLights(c,beam);
+ drawVehicleLights(player,beam);
+ ctx.restore();
+}
 function drawCar(c){
  const x=lerp(c.prevX,c.x,renderAlpha),y=lerp(c.prevY,c.y,renderAlpha);
  if(!visible(x,y,c.hw+12))return;
@@ -3021,9 +3280,12 @@ function drawExplosions(){
 const sceneryCache={ground:document.createElement('canvas'),roofs:document.createElement('canvas'),valid:false,builds:0,uses:0};
 function prepareScenery(){
  const cache=sceneryCache;
- if(cache.valid&&cache.generation===worldWindow.generation&&cache.scale===pixelRatio*zoom&&bounds.l>=cache.l&&bounds.r<=cache.r&&bounds.t>=cache.t&&bounds.b<=cache.b){cache.uses++;return;}
+ if(cache.valid&&(cache.complete||cache.generation===worldWindow.generation)&&cache.scale===pixelRatio*zoom&&bounds.l>=cache.l&&bounds.r<=cache.r&&bounds.t>=cache.t&&bounds.b<=cache.b){cache.uses++;return;}
  const scale=pixelRatio*zoom,pad=160,w=Math.ceil((viewW/zoom+pad*2)*scale),h=Math.ceil((viewH/zoom+pad*2)*scale);
- cache.l=Math.floor((camera.x-viewW/(2*zoom)-pad)*scale)/scale;cache.t=Math.floor((camera.y-viewH/(2*zoom)-pad)*scale)/scale;
+ // Put more of the existing buffer ahead on a sustained drive. Reserve enough
+ // behind the camera to cover the visible bounds and a sudden change of direction.
+ const leadX=clamp(player.vx*260,-pad*.55,pad*.55),leadY=clamp(player.vy*260,-pad*.55,pad*.55);
+ cache.l=Math.floor((camera.x+leadX-viewW/(2*zoom)-pad)*scale)/scale;cache.t=Math.floor((camera.y+leadY-viewH/(2*zoom)-pad)*scale)/scale;
  cache.r=cache.l+w/scale;cache.b=cache.t+h/scale;cache.scale=scale;
  const screenContext=ctx,screenBounds=bounds;bounds={l:cache.l,t:cache.t,r:cache.r,b:cache.b};
  try{
@@ -3031,30 +3293,41 @@ function prepareScenery(){
    if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
    ctx=layer.getContext('2d',{alpha:roofs});ctx.setTransform(1,0,0,1,0,0);if(roofs)ctx.clearRect(0,0,w,h);
    ctx.setTransform(scale,0,0,scale,-cache.l*scale,-cache.t*scale);
-   if(roofs){for(const b of buildings)if(visible(b.x,b.y,b.hw+15,b.hh+15))drawBuilding(b);}
+   if(roofs){
+    cache.hasRoofs=false;
+    for(const b of buildings){
+     const overhang=(b.height||8)+4;
+     if(visible(b.x,b.y,b.hw+overhang,b.hh+overhang)){drawBuilding(b);cache.hasRoofs=true;}
+    }
+   }
    else{
     drawRoads();
     for(const b of blocks)if(visible(b.x+b.w/2,b.y+b.h/2,b.w/2+15,b.h/2+15))drawBlock(b);
     for(const s of activeScenes.values())if(visible(s.x+s.w/2,s.y+s.h/2,s.w/2,s.h/2))drawSceneDetails(s);
+    drawStreetlampPosts();
    }
   }
  }finally{ctx=screenContext;bounds=screenBounds;}
+ // A fully loaded patch can be reused after a chunk boundary moves behind it.
+ cache.complete=insideLoaded(cache.l,cache.t,180)&&insideLoaded(cache.r,cache.b,180);
  cache.generation=worldWindow.generation;cache.valid=true;cache.builds++;
 }
 function paintScenery(layer){const c=sceneryCache;ctx.drawImage(layer,c.l,c.t,c.r-c.l,c.b-c.t);}
 function draw(){
- ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);ctx.fillStyle='#537f7b';ctx.fillRect(0,0,viewW,viewH);
+ ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
  const shift=shake>.1?Math.sin(performance.now()*.1)*shake:0;
  ctx.translate(viewW/2+shift,viewH/2+shift*.4);ctx.scale(zoom,zoom);ctx.translate(-camera.x,-camera.y);
  bounds={l:camera.x-viewW/(2*zoom)-45,r:camera.x+viewW/(2*zoom)+45,t:camera.y-viewH/(2*zoom)-45,b:camera.y+viewH/(2*zoom)+45};
+ const night=nightLevel();
  prepareScenery();paintScenery(sceneryCache.ground);
  for(const s of skids)if(visible(s.x,s.y,6)){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.angle);ctx.globalAlpha=Math.min(.4,s.life/11000*.5);rect(-3,-1,6,2,'#182d28');ctx.restore();}
- drawRoadTurnGuidance();
- paintScenery(sceneryCache.roofs);
- drawPickups();drawJobWaypoint();
+ if(!night)drawRoadTurnGuidance();
+ if(sceneryCache.hasRoofs)paintScenery(sceneryCache.roofs);
+ if(!night){drawPickups();drawJobWaypoint();}
  for(const c of parked)drawCar(c);for(const c of traffic)drawCar(c);for(const c of police)drawCar(c);drawCar(player);
  for(const t of trees)if(visible(t.x,t.y,t.r+10))drawTree(t);
  for(const p of particles){ctx.globalAlpha=Math.min(1,p.life/220);rect(p.x,p.y,p.size||2,p.size||2,p.color||'#f1d38e');}ctx.globalAlpha=1;
+ if(night){drawNightLighting(night);drawRoadTurnGuidance();drawPickups();drawJobWaypoint();}
  drawExplosions();
  // A small floating chevron keeps your car easy to find without covering it.
  if(!started||simTime<6500){const bob=Math.sin(performance.now()/230)*2;ctx.save();ctx.translate(renderedPlayer.x,renderedPlayer.y-24+bob);ctx.beginPath();ctx.moveTo(-5,-5);ctx.lineTo(0,0);ctx.lineTo(5,-5);ctx.strokeStyle='#edfac1';ctx.lineWidth=2;ctx.stroke();ctx.restore();}
@@ -3177,6 +3450,9 @@ atlas.addEventListener('wheel',e=>{e.preventDefault();zoomMap(e.deltaY>0?1.12:1/
 function updateHUD(){
  updateModeHUD();
  updatePowerHUD();
+ const night=dayCycleMs>=DAY_PHASE_MS,timeLeft=Math.ceil((DAY_PHASE_MS-dayCycleMs%DAY_PHASE_MS)/1000),clock=$('dayCycle');
+ const clockText=(night?'Night':'Day')+' · '+Math.floor(timeLeft/60)+':'+String(timeLeft%60).padStart(2,'0');
+ clock.hidden=!started;if(clock.textContent!==clockText){clock.textContent=clockText;clock.dataset.phase=night?'night':'day';}
  const forward=player.vx*Math.cos(player.angle)+player.vy*Math.sin(player.angle),speedValue=Math.hypot(player.vx,player.vy),speed=speedKmh(speedValue);
  $('speed').textContent=speed;$('speedFill').style.width=Math.min(100,speedValue/(stats().maxSpeed*(turbo.active?stats().boostMultiplier:1)*(powerActive('speed')?1.4:1))*100)+'%';$('gear').textContent=speed<2?'N':forward<-.008?'R':'D';$('distance').textContent=kmText(progress.earnedMm)+' km';$('wallet').textContent=kmText(balanceMm())+' km';$('turboFill').style.width=(turbo.charge*100)+'%';$('turboMeter').classList.toggle('boosting',turbo.active);$('turboStatus').textContent=powerActive('nitro')?'INFINITE NITRO':turbo.active?'BOOSTING':turbo.depleted?'RECHARGING':turbo.charge>.99?'TURBO READY':'TURBO '+Math.floor(turbo.charge*100)+'%';
  const r=closestRoad(player.x,player.y),surface=surfaceAt(player.x,player.y),feature=featureAt(roadIndex(player.x,0),roadIndex(player.y,1));$('district').textContent=neighbourhood(player.x,player.y);
