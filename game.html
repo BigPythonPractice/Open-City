@@ -2950,6 +2950,40 @@ function createNightLightTextures(){
  return {pool,beam};
 }
 let nightLightTextures=null;
+let underglowTextures=null;
+function underglowColor(lighting,time=simTime){
+ return lighting.id==='spectrum'?'hsl('+((time/55+145)%360)+' 85% 76%)':lighting.color;
+}
+function createUnderglowTextures(){
+ const width=72,height=54,mask=document.createElement('canvas'),light=document.createElement('canvas');
+ mask.width=light.width=width*2;mask.height=light.height=height*2;
+ const g=mask.getContext('2d');
+ for(const side of [-1,1]){
+  g.setTransform(width,0,0,40,width,height+side*14);
+  const spill=g.createRadialGradient(0,0,0,0,0,1);
+  spill.addColorStop(0,'#ffffffb8');spill.addColorStop(.30,'#ffffff82');
+  spill.addColorStop(.58,'#ffffff39');spill.addColorStop(.80,'#ffffff12');spill.addColorStop(1,'#ffffff00');
+  g.fillStyle=spill;g.fillRect(-1,-1,2,2);
+ }
+ // Keep the pool on the ground when compositing it over the night shade.
+ const {hw,hh}=VEHICLE_TYPES.sedan;
+ g.setTransform(1,0,0,1,0,0);g.globalCompositeOperation='destination-out';
+ g.fillStyle='#fff';g.beginPath();g.roundRect(width-hw*2,height-hh*2,hw*4,hh*4,8);g.fill();
+ return {mask,light,width,height,color:null};
+}
+function drawNightUnderglow(){
+ if(player.model!=='sedan'||!equippedAppearance.lighting.color)return;
+ const textures=underglowTextures||(underglowTextures=createUnderglowTextures());
+ const {mask,light,width,height}=textures,color=underglowColor(equippedAppearance.lighting,Math.floor(simTime/110)*110);
+ if(textures.color!==color){
+  const g=light.getContext('2d');
+  g.clearRect(0,0,light.width,light.height);g.drawImage(mask,0,0);
+  g.globalCompositeOperation='source-in';g.fillStyle=color;g.fillRect(0,0,light.width,light.height);
+  g.globalCompositeOperation='source-over';textures.color=color;
+ }
+ ctx.save();ctx.translate(renderedPlayer.x,renderedPlayer.y);ctx.rotate(renderedPlayer.angle);
+ ctx.drawImage(light,-width/2,-height/2,width,height);ctx.restore();
+}
 const nightMap={canvas:document.createElement('canvas'),build:-1};
 function prepareNightMap(pool){
  const {l,t,r,b,builds}=sceneryCache;
@@ -2986,6 +3020,7 @@ function drawNightLighting(level){
  const {pool,beam}=nightLightTextures;
  prepareNightMap(pool);
  ctx.save();ctx.globalAlpha=level;paintScenery(nightMap.canvas);
+ drawNightUnderglow();
  for(const c of traffic)drawVehicleLights(c,beam);
  for(const c of police)drawVehicleLights(c,beam);
  drawVehicleLights(player,beam);
@@ -3216,7 +3251,7 @@ function paintVehicle(g,c,custom=false,x=c.x,y=c.y,angle=c.angle,look=equippedAp
  g.save();g.translate(x,y);g.rotate(angle);
  if(custom&&ghosting())g.globalAlpha=.6;
  if(custom&&look.lighting.color){
-  const light=look.lighting.id==='spectrum'?'hsl('+((simTime/55+145)%360)+' 85% 76%)':look.lighting.color;
+  const light=underglowColor(look.lighting);
   g.save();g.shadowColor=light;g.shadowBlur=13;g.globalAlpha=.28;round(-18,-11,36,22,7,light);g.restore();
   g.save();g.globalAlpha=.8;round(-12,-10,24,2,1,light);round(-12,8,24,2,1,light);g.restore();
  }
