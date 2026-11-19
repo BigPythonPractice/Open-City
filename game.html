@@ -75,7 +75,7 @@
 <div class="modal" id="pauseModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><button class="iconbtn close" data-close aria-label="Resume driving">×</button><div class="eyebrow">TAKE YOUR TIME</div><h2 id="pauseTitle">Parked for a moment.</h2><p>The city will be right here.</p><button class="start" id="resumeBtn">Keep driving <span>↗</span></button></section></div>
 <div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b>W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b>S / ↓</b></div><div class="help-row"><span>Steer</span><b>A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b>SPACE</b></div><div class="help-row"><span>Recover to a clear street</span><b>R</b></div><div class="help-row"><span>Garage / city map</span><b>G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b>SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b>C / V</b></div><div class="help-row"><span>Accept a bus or truck job</span><b>E</b></div><div class="help-row"><span>Pause</span><b>ESC</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances and motorbikes. Vehicles follow lanes, brake for corners and give way at crossings. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open M and use Find nearby to pin an airport, old town, highway or off-road area. Drive to earn spendable kilometres. Upgrade your car in the garage. Turbo recharges after use. While actively boosting (Shift + accelerate), hitting another car makes it explode and clears it from your path—including parked cars and police. Every police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; Shift + accelerate, even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Bus and truck jobs have no time limit. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Press E or Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn bonus KM. Jobs and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Performance upgrades work on every vehicle; cosmetics stay on your free-roam and police-chase car.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
 <div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><button data-landscape="airport">✈ Airport</button><button data-landscape="oldtown">Old town</button><button data-landscape="highway">Highway</button><button data-landscape="offroad">Off-road</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOUR LOCATION</span><span>Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
-<div class="modal" id="garageModal" hidden><section class="dialog garage-dialog" role="dialog" aria-modal="true" aria-labelledby="garageTitle"><button class="iconbtn close" data-close aria-label="Close garage">×</button><div class="garage-head"><div><div class="eyebrow">NORTHSIDE CUSTOMS / YOUR GARAGE</div><h2 id="garageTitle">Make it yours.</h2></div><div class="bank"><small>AVAILABLE TO SPEND</small><strong id="garageBank">0.00 <span>km</span></strong></div></div><p class="garage-intro">Performance upgrades apply to every vehicle. Cosmetics dress your free-roam and police-chase car. Preview any look, then buy it once and switch freely.</p><div class="garage-layout"><section class="vehicle-card" aria-label="Your car"><div class="vehicle-heading"><span>THE RUNABOUT</span><span id="buildStatus">YOUR BUILD</span></div><canvas id="garageCar" width="640" height="400" aria-label="Preview of your equipped paint and cosmetics"></canvas><div class="vehicle-name" id="vehicleName"></div><div class="preview-actions" id="previewActions" hidden></div><div class="vehicle-stats" id="vehicleStats"></div><p class="garage-save" id="garageSave">Progress saved in this browser.</p></section><div class="garage-shop"><div class="garage-tabs" aria-label="Upgrade category"><button class="garage-tab" data-shop-tab="paint" aria-pressed="true" aria-controls="styleShop">Paint</button><button class="garage-tab" data-shop-tab="livery" aria-pressed="false" aria-controls="styleShop">Liveries</button><button class="garage-tab" data-shop-tab="wheels" aria-pressed="false" aria-controls="styleShop">Wheels</button><button class="garage-tab" data-shop-tab="lighting" aria-pressed="false" aria-controls="styleShop">Lights</button><button class="garage-tab" data-shop-tab="detail" aria-pressed="false" aria-controls="styleShop">Body</button><button class="garage-tab" data-shop-tab="performance" aria-pressed="false" aria-controls="performanceShop">Performance</button></div><div id="performanceShop"></div><div id="styleShop" hidden></div><p class="garage-feedback" id="garageFeedback" role="status" aria-live="polite">A little more road. A little more you.</p></div></div><div class="garage-bottom"><span>The city is paused. Cosmetic previews are free. Bought items are yours to equip and remove any time.</span><button class="start" data-close>Back to the city <span>↗</span></button></div></section></div>
+<div class="modal" id="garageModal" hidden><section class="dialog garage-dialog" role="dialog" aria-modal="true" aria-labelledby="garageTitle"><button class="iconbtn close" data-close aria-label="Close garage">×</button><div class="garage-head"><div><div class="eyebrow" id="garageEyebrow">NORTHSIDE CUSTOMS / CAR GARAGE</div><h2 id="garageTitle">Make it yours.</h2></div><div class="bank"><small>AVAILABLE TO SPEND</small><strong id="garageBank">0.00 <span>km</span></strong></div></div><p class="garage-intro" id="garageIntro">This garage belongs to the active vehicle. Its performance and style progress are saved independently.</p><div class="garage-layout"><section class="vehicle-card" id="garageVehicleCard" aria-label="Your car"><div class="vehicle-heading"><span id="garageVehicleHeading">THE RUNABOUT</span><span id="buildStatus">YOUR BUILD</span></div><canvas id="garageCar" width="640" height="400" aria-label="Preview of your equipped paint and cosmetics"></canvas><div class="vehicle-name" id="vehicleName"></div><div class="preview-actions" id="previewActions" hidden></div><div class="vehicle-stats" id="vehicleStats"></div><p class="garage-save" id="garageSave">Progress saved in this browser.</p></section><div class="garage-shop"><div class="garage-tabs" aria-label="Upgrade category"><button class="garage-tab" data-shop-tab="paint" aria-pressed="true" aria-controls="styleShop">Paint</button><button class="garage-tab" data-shop-tab="livery" aria-pressed="false" aria-controls="styleShop">Liveries</button><button class="garage-tab" data-shop-tab="wheels" aria-pressed="false" aria-controls="styleShop">Wheels</button><button class="garage-tab" data-shop-tab="lighting" aria-pressed="false" aria-controls="styleShop">Lights</button><button class="garage-tab" data-shop-tab="detail" aria-pressed="false" aria-controls="styleShop">Body</button><button class="garage-tab" data-shop-tab="performance" aria-pressed="false" aria-controls="performanceShop">Performance</button></div><div id="performanceShop"></div><div id="styleShop" hidden></div><p class="garage-feedback" id="garageFeedback" role="status" aria-live="polite">A little more road. A little more you.</p></div></div><div class="garage-bottom"><span>The city is paused. Cosmetic previews are free. Bought items stay with this vehicle and can be equipped any time.</span><button class="start" data-close>Back to the city <span>↗</span></button></div></section></div>
 <section class="job-card" id="jobCard" aria-label="Current driving job" hidden>
  <div class="job-heading"><span class="eyebrow" id="jobEyebrow">CITY TRANSIT</span><span id="jobStage"></span></div>
  <h2 id="jobTitle"></h2><div class="job-distance" id="jobDistance"></div>
@@ -87,10 +87,10 @@
 <div class="modal" id="modeModal" hidden><section class="dialog mode-dialog" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
  <button class="iconbtn close" data-close aria-label="Close game modes">×</button>
  <div class="eyebrow">ONE CITY. FOUR WAYS TO DRIVE.</div><h2 id="modeTitle">Take a different road.</h2>
- <p class="mode-intro">Explore, escape, or lend the city a hand. Your engine, turbo, cooling and brake upgrades travel with you.</p>
+ <p class="mode-intro">Explore, escape, or lend the city a hand. Car, Bus and Truck each have their own saved performance build.</p>
  <div class="mode-grid" id="modeCards"></div>
  <div class="mode-foot"><span><kbd>C</kbd> cycle modes · <kbd>V</kbd> open this menu</span><span>Relaxed jobs · No time limits</span></div>
- <p class="mode-note">Press E to accept a job. Accepted jobs wait for you when you switch modes. Your custom paint, wheels, lights and body kit stay on your free-roam and police-chase car.</p>
+ <p class="mode-note">Press E to accept a job. Accepted jobs wait when you switch modes. Press G after choosing a mode to open that vehicle’s garage; Free Roam and Police Chase share the Car garage.</p>
 </section></div>
 
 <script>
@@ -99,6 +99,7 @@
 const $=id=>document.getElementById(id),canvas=$('game');
 let ctx=canvas.getContext('2d',{alpha:false});
 const mini=$('mini'),mctx=mini.getContext('2d'), atlas=$('atlas'),actx=atlas.getContext('2d');
+const helpCopy=$('helpModal').querySelector('p');helpCopy.textContent=helpCopy.textContent.replace('Upgrade your car in the garage.','Press G to upgrade the vehicle you are currently driving.').replace('Performance upgrades work on every vehicle; cosmetics stay on your free-roam and police-chase car.','Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam and Police Chase share the Car garage.');
 const TAU=Math.PI*2,STEP=1000/120,SPACING=500,HALF=65,LANE=22,WORLD_SEED=4271,MINIMAP_SPAN=1250;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
@@ -608,6 +609,83 @@ const CATEGORIES={
  lighting:{name:'Lights',title:'Leave a little glow.',description:'Light up the street beneath your car.',items:LIGHTS,owned:'ownedLights',field:'lighting',stock:'off'},
  detail:{name:'Body',title:'Build it your way.',description:'Mix and match accessories. Every part is cosmetic.',items:DETAILS,owned:'ownedDetails'}
 };
+const BUS_PAINTS=[
+ {id:'transit-gold',name:'Transit gold',color:'#d5b866',price:0,description:'The city fleet’s warm original finish.'},
+ {id:'harbour-blue',name:'Harbour blue',color:'#5f9ca8',price:2,description:'Cool blue for cross-town routes.'},
+ {id:'park-mint',name:'Park mint',color:'#78ad83',price:4,description:'A fresh green public-service coat.'},
+ {id:'coral-line',name:'Coral line',color:'#cf7f6a',price:7,description:'Warm coral that stands out at every stop.'},
+ {id:'night-service',name:'Night service',color:'#45536d',price:11,description:'Deep navy for the late route.'}
+];
+const BUS_LIVERIES=[
+ {id:'bus-none',name:'Clean fleet',price:0,description:'A simple city-service finish.'},
+ {id:'city-ribbon',name:'City ribbon',price:3,description:'A bright cream route stripe down both sides.'},
+ {id:'green-loop',name:'Green loop',price:6,description:'A mint band inspired by the park route.'},
+ {id:'heritage-transit',name:'Heritage transit',price:10,description:'Classic cream and burgundy fleet bands.'},
+ {id:'night-express',name:'Night express',price:15,description:'Electric blue express markings.'}
+];
+const BUS_WHEELS=[
+ {id:'bus-steel',name:'Fleet steel',price:0,color:'#89938c',description:'Durable standard bus wheels.'},
+ {id:'bus-whitecap',name:'White wheel caps',price:4,color:'#e8e5cf',description:'Bright, traditional hub covers.'},
+ {id:'bus-chrome',name:'Chrome hubs',price:8,color:'#d5dfdd',description:'Polished hubs for every axle.'},
+ {id:'bus-black',name:'Black route wheels',price:12,color:'#303935',description:'Low-key dark wheel centres.'}
+];
+const BUS_LIGHTS=[
+ {id:'bus-lights-off',name:'Standard markers',price:0,color:null,description:'Factory route and marker lighting.'},
+ {id:'amber-markers',name:'Amber markers',price:4,color:'#f0bd69',description:'Warm marker lights along the body.'},
+ {id:'blue-interior',name:'Blue cabin glow',price:7,color:'#85cfff',description:'A cool glow through the passenger cabin.'},
+ {id:'mint-interior',name:'Mint cabin glow',price:10,color:'#91e4bc',description:'Soft mint light for evening routes.'}
+];
+const BUS_DETAILS=[
+ {id:'route-board',name:'Digital route board',description:'A bright destination board over the windscreen.',price:3},
+ {id:'roof-vents',name:'Roof ventilation',description:'Twin rooftop climate units.',price:6},
+ {id:'bike-rack',name:'Front bike rack',description:'A folding rack for two bicycles.',price:9},
+ {id:'wheel-skirts',name:'Rear wheel skirts',description:'Colour-matched covers over the rear axle.',price:13}
+];
+const TRUCK_PAINTS=[
+ {id:'freight-sage',name:'Freight sage',color:'#8bb0a3',price:0,description:'The dependable original work-truck finish.'},
+ {id:'haul-red',name:'Haul red',color:'#bd665a',price:2,description:'Strong red for busy loading bays.'},
+ {id:'fleet-white',name:'Fleet white',color:'#dddcc9',price:4,description:'A clean commercial white.'},
+ {id:'road-blue',name:'Road blue',color:'#557d9a',price:7,description:'Deep blue for long-distance work.'},
+ {id:'industrial-black',name:'Industrial black',color:'#414b48',price:11,description:'Dark graphite for heavy freight.'}
+];
+const TRUCK_LIVERIES=[
+ {id:'truck-none',name:'Unmarked cargo',price:0,description:'A clean cab and cargo box.'},
+ {id:'northside-logistics',name:'Northside Logistics',price:3,description:'Cream fleet bars and a depot mark.'},
+ {id:'hazard-stripe',name:'Hazard stripe',price:6,description:'High-visibility amber cargo stripes.'},
+ {id:'cold-chain',name:'Cold chain',price:10,description:'Icy blue refrigerated-freight graphics.'},
+ {id:'cross-country',name:'Cross-country',price:15,description:'A bold sunset line for the longest hauls.'}
+];
+const TRUCK_WHEELS=[
+ {id:'truck-steel',name:'Work steel',price:0,color:'#7c8780',description:'Stock heavy-duty wheels.'},
+ {id:'truck-chrome',name:'Chrome truck hubs',price:5,color:'#d7dfdc',description:'Polished centres across all axles.'},
+ {id:'truck-bronze',name:'Bronze haulers',price:9,color:'#b98b53',description:'Warm bronze commercial rims.'},
+ {id:'truck-black',name:'Black steel',price:12,color:'#303936',description:'Dark wheels built for hard miles.'}
+];
+const TRUCK_LIGHTS=[
+ {id:'truck-lights-off',name:'Factory lamps',price:0,color:null,description:'Standard work lights and markers.'},
+ {id:'amber-beacons',name:'Amber beacons',price:4,color:'#f2b755',description:'Rooftop safety beacons and side markers.'},
+ {id:'ice-markers',name:'Ice markers',price:7,color:'#8ed8f4',description:'Cool blue cargo-box markers.'},
+ {id:'red-markers',name:'Red markers',price:10,color:'#f08072',description:'A vivid red perimeter glow.'}
+];
+const TRUCK_DETAILS=[
+ {id:'bull-bar',name:'Front bull bar',description:'A sturdy polished guard around the cab.',price:4},
+ {id:'cab-lights',name:'Cab roof lamps',description:'Four round lamps above the windscreen.',price:7},
+ {id:'toolbox',name:'Side toolbox',description:'A metal storage box behind the cab.',price:9},
+ {id:'mudflaps',name:'Long-haul mudflaps',description:'Heavy flaps behind the rear axle.',price:12}
+];
+function fleetCategories(type,paints,liveries,wheels,lights,details){return {
+ paint:{name:'Paint',title:type+' paint.',description:'A dedicated colour collection for this '+type.toLowerCase()+'.',items:paints,owned:'ownedPaints',field:'paint',stock:paints[0].id},
+ livery:{name:'Liveries',title:type+' liveries.',description:'Fleet graphics designed around this body.',items:liveries,owned:'ownedLiveries',field:'livery',stock:liveries[0].id},
+ wheels:{name:'Wheels',title:'Built for the route.',description:'Vehicle-specific wheel finishes.',items:wheels,owned:'ownedWheels',field:'wheels',stock:wheels[0].id},
+ lighting:{name:'Lights',title:'Light the way.',description:'Marker and cabin lighting for this '+type.toLowerCase()+'.',items:lights,owned:'ownedLights',field:'lighting',stock:lights[0].id},
+ detail:{name:'Body',title:'Working details.',description:'Mix and match practical visual accessories.',items:details,owned:'ownedDetails'}
+};}
+const GARAGE_CATEGORIES={car:CATEGORIES,bus:fleetCategories('Bus',BUS_PAINTS,BUS_LIVERIES,BUS_WHEELS,BUS_LIGHTS,BUS_DETAILS),truck:fleetCategories('Truck',TRUCK_PAINTS,TRUCK_LIVERIES,TRUCK_WHEELS,TRUCK_LIGHTS,TRUCK_DETAILS)};
+const GARAGE_VEHICLES={
+ car:{name:'Car',vehicle:'The Runabout',model:'sedan',mode:'free',intro:'Free Roam and Police Chase share this Car build. Bus and Truck upgrades are separate.'},
+ bus:{name:'Bus',vehicle:'City Bus',model:'bus',mode:'bus',intro:'Performance, paint and fleet details apply only to your City Bus.'},
+ truck:{name:'Truck',vehicle:'Delivery Truck',model:'truck',mode:'truck',intro:'Performance, paint and freight details apply only to your Delivery Truck.'}
+};
 const ENGINE_PRICES=[2,6,12,24,40],TURBO_PRICES=[4,8,16,28,44];
 const UPGRADES={
  engine:{name:'Engine tune',prices:ENGINE_PRICES,description:'More top speed and acceleration, with the same steering and drift feel.',spec:n=>'+'+(n*10)+'% top speed'},
@@ -655,7 +733,26 @@ function cleanJob(raw,mode,accepted=true){
  return {version:2,id:raw.id,index:raw.index,accepted,stops};
 }
 
-function freshProgress(){return {version:1,cosmeticVersion:2,earnedMm:0,spentMm:0,engine:0,turbo:0,cooling:0,brakes:0,policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,paint:'ivory',livery:'none',wheels:'stock',lighting:'off',ownedPaints:['ivory'],ownedLiveries:['none'],ownedWheels:['stock'],ownedLights:['off'],ownedDetails:[],equippedDetails:[]};}
+function freshGarage(kind){
+ const categories=GARAGE_CATEGORIES[kind],build={performance:{engine:0,turbo:0,cooling:0,brakes:0},equippedDetails:[]};
+ for(const cat of Object.values(categories)){build[cat.owned]=cat.stock?[cat.stock]:[];if(cat.field)build[cat.field]=cat.stock;}
+ return build;
+}
+function cleanGarage(raw,kind,legacy=false){
+ const clean=freshGarage(kind),categories=GARAGE_CATEGORIES[kind];if(!raw)return clean;
+ const performance=raw.performance&&typeof raw.performance==='object'?raw.performance:legacy?raw:{};
+ for(const [key,u]of Object.entries(UPGRADES))if(Number.isInteger(performance[key])&&performance[key]>=0&&performance[key]<=u.prices.length)clean.performance[key]=performance[key];
+ for(const cat of Object.values(categories)){
+  clean[cat.owned]=[...new Set([...(cat.stock?[cat.stock]:[]),...(Array.isArray(raw[cat.owned])?raw[cat.owned]:[]).filter(id=>cat.items.some(c=>c.id===id))])];
+  if(cat.field)clean[cat.field]=clean[cat.owned].includes(raw[cat.field])?raw[cat.field]:cat.stock;
+ }
+ clean.equippedDetails=[...new Set((Array.isArray(raw.equippedDetails)?raw.equippedDetails:[]).filter(id=>clean.ownedDetails.includes(id)))];
+ if(legacy&&raw.cosmeticVersion!==2){for(const [oldId,category,id]of [['stripes','livery','stripes'],['glow','lighting','mint']]){
+  const cat=categories[category];if(Array.isArray(raw.ownedDetails)&&raw.ownedDetails.includes(oldId)){if(!clean[cat.owned].includes(id))clean[cat.owned].push(id);if(Array.isArray(raw.equippedDetails)&&raw.equippedDetails.includes(oldId))clean[cat.field]=id;}
+ }}
+ return clean;
+}
+function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
 function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);if(!raw)return freshProgress();const p=JSON.parse(raw);
@@ -664,16 +761,8 @@ function loadProgress(){
   clean.jobSerial=Number.isSafeInteger(p.jobSerial)&&p.jobSerial>=0?p.jobSerial:0;
   for(const mode of JOB_MODES){const job=cleanJob(p.jobs?.[mode],mode),offer=cleanJob(p.offers?.[mode],mode,false);if(job){clean.jobs[mode]=job;clean.jobSerial=Math.max(clean.jobSerial,job.id);}if(offer&&(!job||job.index===job.stops.length)){clean.offers[mode]=offer;clean.jobSerial=Math.max(clean.jobSerial,offer.id);}const total=p.completedJobs?.[mode];if(Number.isSafeInteger(total)&&total>=0)clean.completedJobs[mode]=total;}
   if(p.worldVersion===1&&p.position&&['x','y','angle'].every(k=>Number.isFinite(p.position[k])&&Math.abs(p.position[k])<1e12))clean.position={x:p.position.x,y:p.position.y,angle:p.position.angle};
-  for(const [key,u]of Object.entries(UPGRADES))if(Number.isInteger(p[key])&&p[key]>=0&&p[key]<=u.prices.length)clean[key]=p[key];
-  for(const cat of Object.values(CATEGORIES)){
-   clean[cat.owned]=[...new Set([...(cat.stock?[cat.stock]:[]),...(Array.isArray(p[cat.owned])?p[cat.owned]:[]).filter(id=>cat.items.some(c=>c.id===id))])];
-   if(cat.field)clean[cat.field]=clean[cat.owned].includes(p[cat.field])?p[cat.field]:cat.stock;
-  }
-  clean.equippedDetails=[...new Set((Array.isArray(p.equippedDetails)?p.equippedDetails:[]).filter(id=>clean.ownedDetails.includes(id)))];
-  // Preserve purchases made before liveries and lighting had their own slots.
-  if(p.cosmeticVersion!==2){for(const [legacy,category,id]of [['stripes','livery','stripes'],['glow','lighting','mint']]){
-   const cat=CATEGORIES[category];if(Array.isArray(p.ownedDetails)&&p.ownedDetails.includes(legacy)){if(!clean[cat.owned].includes(id))clean[cat.owned].push(id);if(Array.isArray(p.equippedDetails)&&p.equippedDetails.includes(legacy))clean[cat.field]=id;}
-  }}
+  if(p.garageVersion===1&&p.garages&&typeof p.garages==='object')for(const kind of Object.keys(GARAGE_VEHICLES))clean.garages[kind]=cleanGarage(p.garages[kind],kind);
+  else clean.garages.car=cleanGarage(p,'car',true);
   return clean;
  }catch(error){if(error.name!=='SyntaxError')savingAvailable=false;return freshProgress();}
 }
@@ -692,7 +781,7 @@ function powerActive(type){return powers[type]>0;}
 function ghosting(){return powerActive('phase')||powers.exitBodies.size>0;}
 function ignoresCollision(a,b){const other=a===player?b:b===player?a:null;return !!other&&(powerActive('phase')||powers.exitBodies.has(other));}
 function syncTurboAvailability(){
- const available=progress.turbo>0||powerActive('nitro');document.body.classList.toggle('turbo-owned',available);
+ const available=garageState().performance.turbo>0||powerActive('nitro');document.body.classList.toggle('turbo-owned',available);
  $('turboMeter').hidden=$('turboHint').hidden=$('touchBoost').hidden=!available;
 }
 function activatePower(type){
@@ -764,11 +853,14 @@ function drawPickups(){
 function drawPickupMapMarkers(g,m){for(const p of pickups){const x=(p.x-m.left)*m.scale,y=(p.y-m.top)*m.scale;g.save();g.translate(x,y);g.rotate(Math.PI/4);g.fillStyle=POWER_TYPES[p.type].color;g.strokeStyle='#183b32';g.lineWidth=1.5;g.fillRect(-5,-5,10,10);g.strokeRect(-5,-5,10,10);g.restore();}}
 
 let shopTab='paint',previewSelection=null,equippedAppearance=null;
+function garageKindForMode(mode=progress.mode){return mode==='bus'?'bus':mode==='truck'?'truck':'car';}
+function garageState(modeOrKind=progress.mode){const kind=Object.hasOwn(GARAGE_VEHICLES,modeOrKind)?modeOrKind:garageKindForMode(modeOrKind);return progress.garages[kind];}
+function garageCategories(kind=garageKindForMode()){return GARAGE_CATEGORIES[kind];}
 function balanceMm(){return progress.earnedMm-progress.spentMm;}
 function kmText(mm){return (Math.floor(mm/10000)/100).toFixed(2);}
 function priceText(km){return Number.isInteger(km)?km.toFixed(0):km.toFixed(1);}
 function affordable(km){return balanceMm()>=Math.round(km*1000000);}
-function stats(mode=progress.mode){const def=GAME_MODES[mode];return {maxSpeed:.34*(1+.1*progress.engine)*def.pace,acceleration:.00046*(1+.12*progress.engine)*def.accel,boostMultiplier:1.35,boostSeconds:progress.turbo?progress.turbo+1:0,rechargeSeconds:6-progress.cooling,brakeMultiplier:(1+.15*progress.brakes)*def.brake};}
+function stats(mode=progress.mode){const def=GAME_MODES[mode],performance=garageState(mode).performance;return {maxSpeed:.34*(1+.1*performance.engine)*def.pace,acceleration:.00046*(1+.12*performance.engine)*def.accel,boostMultiplier:1.35,boostSeconds:performance.turbo?performance.turbo+1:0,rechargeSeconds:6-performance.cooling,brakeMultiplier:(1+.15*performance.brakes)*def.brake};}
 function saveProgress(){
  progress.position={x:player.x,y:player.y,angle:player.angle};
  try{localStorage.setItem(SAVE_KEY,JSON.stringify(progress));savingAvailable=true;progressDirty=false;}
@@ -786,77 +878,83 @@ function earnDistance(metres){
  const amount=metres*1000+distanceRemainder,whole=Math.floor(amount);distanceRemainder=amount-whole;
  progress.earnedMm=Math.min(Number.MAX_SAFE_INTEGER,progress.earnedMm+whole);distance=progress.earnedMm/1000;progressDirty=true;
 }
-function appearance(build=progress){return {paint:PAINTS.find(p=>p.id===build.paint)||PAINTS[0],livery:build.livery,wheels:WHEELS.find(p=>p.id===build.wheels)||WHEELS[0],lighting:LIGHTS.find(p=>p.id===build.lighting)||LIGHTS[0],details:build.equippedDetails};}
+function appearance(build=garageState(),kind=garageKindForMode()){
+ const categories=garageCategories(kind);return {paint:categories.paint.items.find(p=>p.id===build.paint)||categories.paint.items[0],livery:build.livery,wheels:categories.wheels.items.find(p=>p.id===build.wheels)||categories.wheels.items[0],lighting:categories.lighting.items.find(p=>p.id===build.lighting)||categories.lighting.items[0],details:build.equippedDetails};
+}
 function applyBuild(){
  equippedAppearance=appearance();installModeVehicle();
  syncTurboAvailability();
 }
-function tryOn(category,id){
- const build={...progress,equippedDetails:[...progress.equippedDetails]},cat=CATEGORIES[category];
+function tryOn(category,id,kind=garageKindForMode()){
+ const source=garageState(kind),build={...source,equippedDetails:[...source.equippedDetails]},cat=garageCategories(kind)[category];
  if(cat.field)build[cat.field]=id;else build.equippedDetails=build.equippedDetails.includes(id)?build.equippedDetails.filter(d=>d!==id):[...build.equippedDetails,id];
- return appearance(build);
+ return appearance(build,kind);
 }
-function isEquipped(category,id){const cat=CATEGORIES[category];return cat.field?progress[cat.field]===id:progress.equippedDetails.includes(id);}
+function isEquipped(category,id,kind=garageKindForMode()){const build=garageState(kind),cat=garageCategories(kind)[category];return cat.field?build[cat.field]===id:build.equippedDetails.includes(id);}
 function stages(level,max){return '<span class="stages" aria-label="Level '+level+' of '+max+'">'+Array.from({length:max},(_,i)=>'<i class="'+(level>i?'filled':'')+'"></i>').join('')+'</span>';}
 function shopButton(action,id,label,price,owned=false,equipped=false,locked=false){
  const disabled=locked||(!owned&&(!Number.isFinite(price)||!affordable(price)));
  return '<button class="shop-button '+(equipped?'equipped':owned?'owned':'')+'" data-shop-action="'+action+'" data-item="'+id+'" '+(disabled?'disabled':'')+'><span>'+label+'</span><span>'+ (locked?'—':owned?(equipped?'✓':'↗'):Number.isFinite(price)?priceText(price)+' km':'✓')+'</span></button>';
 }
-function cosmeticButton(category,item){const cat=CATEGORIES[category],owned=progress[cat.owned].includes(item.id),equipped=isEquipped(category,item.id);return shopButton(category,item.id,equipped?(category==='detail'?'Remove':'Equipped'):owned?'Equip':'Buy & equip',item.price,owned,equipped);}
+function cosmeticButton(category,item,kind=garageKindForMode()){const build=garageState(kind),cat=garageCategories(kind)[category],owned=build[cat.owned].includes(item.id),equipped=isEquipped(category,item.id,kind);return shopButton(category,item.id,equipped?(category==='detail'?'Remove':'Equipped'):owned?'Equip':'Buy & equip',item.price,owned,equipped);}
 function renderGarage(){
  const focused=document.activeElement,focusAction=focused?.dataset.shopAction,focusPreview=focused?.dataset.previewCategory,focusItem=focused?.dataset.item;
+ const kind=garageKindForMode(),vehicle=GARAGE_VEHICLES[kind],build=garageState(kind),categories=garageCategories(kind),performance=build.performance;
+ $('garageEyebrow').textContent='NORTHSIDE CUSTOMS / '+vehicle.name.toUpperCase()+' GARAGE';$('garageVehicleHeading').textContent=vehicle.vehicle.toUpperCase();$('garageIntro').textContent=vehicle.intro+' Purchases use the shared kilometre wallet.';$('garageVehicleCard').setAttribute('aria-label','Your '+vehicle.name);$('garageCar').setAttribute('aria-label','Preview of your '+vehicle.name.toLowerCase()+' paint and cosmetics');
  $('garageBank').innerHTML=kmText(balanceMm())+' <span>km</span>';
  $('performanceShop').innerHTML=Object.entries(UPGRADES).map(([id,u])=>{
-  const level=progress[id],max=u.prices.length,cost=u.prices[level],locked=!!u.requires&&!progress[u.requires],next=Math.min(max,level+1),missing=Number.isFinite(cost)&&!affordable(cost)?'Drive '+(Math.ceil((Math.round(cost*1000000)-balanceMm())/10000)/100).toFixed(2)+' km more to unlock.':'';
+  const level=performance[id],max=u.prices.length,cost=u.prices[level],locked=!!u.requires&&!performance[u.requires],next=Math.min(max,level+1),missing=Number.isFinite(cost)&&!affordable(cost)?'Drive '+(Math.ceil((Math.round(cost*1000000)-balanceMm())/10000)/100).toFixed(2)+' km more to unlock.':'';
   return '<article class="upgrade"><div class="upgrade-top"><h3>'+u.name+'</h3>'+stages(level,max)+'</div><p>'+u.description+'</p><div class="spec"><span>'+(level?'Stage '+level:'Stock')+'</span><span>→</span><b>'+u.spec(next)+'</b></div>'+shopButton('upgrade',id,locked?'Unlock turbo first':level===max?'Fully upgraded':'Install stage '+next,cost,false,false,locked)+'<p class="shop-note">'+(level===max?'Complete. Enjoy the road.':missing||'One purchase installs the next stage.')+'</p></article>';
  }).join('');
- const cat=CATEGORIES[shopTab];
+ const cat=categories[shopTab];
  if(cat){
-  $('styleShop').innerHTML='<div class="collection-head"><div><h3>'+cat.title+'</h3><p>'+cat.description+'</p></div><span>'+progress[cat.owned].length+' / '+cat.items.length+' owned</span></div><div class="custom-grid">'+cat.items.map(item=>{
-   const selected=previewSelection?.category===shopTab&&previewSelection.id===item.id,equipped=isEquipped(shopTab,item.id);
-   return '<article class="custom-card '+(equipped?'selected ':'')+(selected?'previewing':'')+'"><button class="item-preview" data-preview-category="'+shopTab+'" data-item="'+item.id+'" aria-label="Preview '+item.name+'" aria-pressed="'+selected+'"><canvas width="320" height="160" aria-hidden="true"></canvas><span>'+(selected?'Previewing':'Preview ↗')+'</span></button><div class="custom-copy"><h4>'+item.name+'</h4><p>'+item.description+'</p>'+cosmeticButton(shopTab,item)+'</div></article>';
+  $('styleShop').innerHTML='<div class="collection-head"><div><h3>'+cat.title+'</h3><p>'+cat.description+'</p></div><span>'+build[cat.owned].length+' / '+cat.items.length+' owned</span></div><div class="custom-grid">'+cat.items.map(item=>{
+   const selected=previewSelection?.category===shopTab&&previewSelection.id===item.id,equipped=isEquipped(shopTab,item.id,kind);
+   return '<article class="custom-card '+(equipped?'selected ':'')+(selected?'previewing':'')+'"><button class="item-preview" data-preview-category="'+shopTab+'" data-item="'+item.id+'" aria-label="Preview '+item.name+' on your '+vehicle.name+'" aria-pressed="'+selected+'"><canvas width="320" height="160" aria-hidden="true"></canvas><span>'+(selected?'Previewing':'Preview ↗')+'</span></button><div class="custom-copy"><h4>'+item.name+'</h4><p>'+item.description+'</p>'+cosmeticButton(shopTab,item,kind)+'</div></article>';
   }).join('')+'</div>';
  }
- const preview=previewSelection&&CATEGORIES[previewSelection.category].items.find(p=>p.id===previewSelection.id),look=preview?tryOn(previewSelection.category,preview.id):equippedAppearance;
+ const preview=previewSelection&&categories[previewSelection.category].items.find(p=>p.id===previewSelection.id),look=preview?tryOn(previewSelection.category,preview.id,kind):equippedAppearance;
  $('buildStatus').textContent=preview?'TRYING ON':'YOUR BUILD';
  $('vehicleName').textContent=look.paint.name;
- const parts=[LIVERIES.find(l=>l.id===look.livery)?.name,look.wheels.name,look.lighting.color?look.lighting.name:null,...look.details.map(id=>DETAILS.find(d=>d.id===id)?.name)].filter(Boolean);
+ const parts=[categories.livery.items.find(l=>l.id===look.livery)?.name,look.wheels.name,look.lighting.color?look.lighting.name:null,...look.details.map(id=>categories.detail.items.find(d=>d.id===id)?.name)].filter(Boolean);
  const summary=document.createElement('small');summary.textContent=parts.join(' · ');$('vehicleName').append(summary);
  $('previewActions').hidden=!preview;
- if(preview)$('previewActions').innerHTML='<p>'+(previewSelection.category==='detail'&&isEquipped('detail',preview.id)?'Preview without ':'Trying on ')+preview.name+'.</p>'+cosmeticButton(previewSelection.category,preview)+'<button class="preview-reset" data-clear-preview>Back to my build</button>';
- const st=stats('free'),owned=Object.values(CATEGORIES).reduce((n,c)=>n+progress[c.owned].filter(id=>id!==c.stock).length,0),total=Object.values(CATEGORIES).reduce((n,c)=>n+c.items.length-(c.stock?1:0),0);
- $('vehicleStats').innerHTML=[['Top speed',speedKmh(st.maxSpeed)+' km/h'],['Turbo',progress.turbo?st.boostSeconds+'s · '+st.rechargeSeconds+'s recharge':'Not installed'],['Collection',owned+' / '+total],['Lifetime',kmText(progress.earnedMm)+' km']].map(([label,value])=>'<div class="vehicle-stat"><span>'+label+'</span><b>'+value+'</b></div>').join('');
+ if(preview)$('previewActions').innerHTML='<p>'+(previewSelection.category==='detail'&&isEquipped('detail',preview.id,kind)?'Preview without ':'Trying on ')+preview.name+'.</p>'+cosmeticButton(previewSelection.category,preview,kind)+'<button class="preview-reset" data-clear-preview>Back to my build</button>';
+ const statMode=kind==='car'?(progress.mode==='police'?'police':'free'):kind,st=stats(statMode),owned=Object.values(categories).reduce((n,c)=>n+build[c.owned].filter(id=>id!==c.stock).length,0),total=Object.values(categories).reduce((n,c)=>n+c.items.length-(c.stock?1:0),0);
+ $('vehicleStats').innerHTML=[['Top speed',speedKmh(st.maxSpeed)+' km/h'],['Turbo',performance.turbo?st.boostSeconds+'s · '+st.rechargeSeconds+'s recharge':'Not installed'],['Collection',owned+' / '+total],['Lifetime',kmText(progress.earnedMm)+' km']].map(([label,value])=>'<div class="vehicle-stat"><span>'+label+'</span><b>'+value+'</b></div>').join('');
  $('garageSave').textContent=savingAvailable?'Progress saved in this browser.':'Saving is unavailable here. Your progress lasts while this tab stays open.';$('garageSave').classList.toggle('problem',!savingAvailable);
  for(const b of document.querySelectorAll('[data-shop-tab]'))b.setAttribute('aria-pressed',String(b.dataset.shopTab===shopTab));
  $('performanceShop').hidden=shopTab!=='performance';$('styleShop').hidden=shopTab==='performance';
- drawGarageCar(look);
+ drawGarageCar(look,kind);
  if(cat)for(const button of $('styleShop').querySelectorAll('[data-preview-category]')){
-  const g=button.querySelector('canvas').getContext('2d'),look=tryOn(shopTab,button.dataset.item);g.fillStyle='#254139';g.fillRect(0,0,320,160);g.save();g.translate(160,80);g.scale(6,6);paintVehicle(g,{...player,color:look.paint.color,x:0,y:0,angle:-.2,hit:0,braking:false},true,0,0,-.2,look);g.restore();
+  const g=button.querySelector('canvas').getContext('2d'),look=tryOn(shopTab,button.dataset.item,kind),scale=kind==='car'?6:4;g.fillStyle='#254139';g.fillRect(0,0,320,160);g.save();g.translate(160,80);g.scale(scale,scale);paintVehicle(g,garagePreviewVehicle(kind,look),true,0,0,-.2,look);g.restore();
  }
  if(focusAction||focusPreview){const attr=focusAction?'shopAction':'previewCategory',value=focusAction||focusPreview,selector=focusAction?'[data-shop-action]':'[data-preview-category]',replacement=[...$('garageModal').querySelectorAll(selector)].find(b=>b.dataset[attr]===value&&b.dataset.item===focusItem);if(replacement&&!replacement.disabled)replacement.focus({preventScroll:true});else $('garageModal').querySelector('[data-shop-tab="'+shopTab+'"]').focus({preventScroll:true});}
 }
 function purchase(action,id){
  // Legacy entry points remain compatible with the original three accessories.
- if(action==='detail'&&id==='stripes'){action='livery';id=progress.livery==='stripes'?'none':'stripes';}
- if(action==='detail'&&id==='glow'){action='lighting';id=progress.lighting==='mint'?'off':'mint';}
+ const kind=garageKindForMode(),build=garageState(kind),categories=garageCategories(kind),performance=build.performance;
+ if(kind==='car'&&action==='detail'&&id==='stripes'){action='livery';id=build.livery==='stripes'?'none':'stripes';}
+ if(kind==='car'&&action==='detail'&&id==='glow'){action='lighting';id=build.lighting==='mint'?'off':'mint';}
  let price=0,message='',apply;
  if(action==='upgrade'){
-  const u=Object.hasOwn(UPGRADES,id)?UPGRADES[id]:null;if(!u||progress[id]>=u.prices.length||u.requires&&!progress[u.requires])return false;
-  const level=progress[id];price=u.prices[level];apply=()=>{progress[id]++;if(id==='turbo'){turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;}};message=u.name+' stage '+(level+1)+' installed.';
+  const u=Object.hasOwn(UPGRADES,id)?UPGRADES[id]:null;if(!u||performance[id]>=u.prices.length||u.requires&&!performance[u.requires])return false;
+  const level=performance[id];price=u.prices[level];apply=()=>{performance[id]++;if(id==='turbo'){turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;}};message=GARAGE_VEHICLES[kind].name+' '+u.name.toLowerCase()+' stage '+(level+1)+' installed.';
  }else{
-  const cat=Object.hasOwn(CATEGORIES,action)?CATEGORIES[action]:null,item=cat?.items.find(p=>p.id===id);if(!item)return false;
-  price=progress[cat.owned].includes(id)?0:item.price;const equipped=isEquipped(action,id);
-  apply=()=>{if(!progress[cat.owned].includes(id))progress[cat.owned].push(id);if(cat.field)progress[cat.field]=id;else progress.equippedDetails=equipped?progress.equippedDetails.filter(d=>d!==id):[...progress.equippedDetails,id];};
+  const cat=Object.hasOwn(categories,action)?categories[action]:null,item=cat?.items.find(p=>p.id===id);if(!item)return false;
+  price=build[cat.owned].includes(id)?0:item.price;const equipped=isEquipped(action,id,kind);
+  apply=()=>{if(!build[cat.owned].includes(id))build[cat.owned].push(id);if(cat.field)build[cat.field]=id;else build.equippedDetails=equipped?build.equippedDetails.filter(d=>d!==id):[...build.equippedDetails,id];};
   message=item.name+(action==='detail'&&equipped?' removed. Re-equip it any time.':' equipped. Make it yours.');
  }
  if(!affordable(price)){$('garageFeedback').textContent='Drive '+(Math.ceil((Math.round(price*1000000)-balanceMm())/10000)/100).toFixed(2)+' km more to unlock.';return false;}
  progress.spentMm+=Math.round(price*1000000);apply();previewSelection=null;progressDirty=true;applyBuild();saveProgress();updateHUD();renderGarage();$('garageFeedback').textContent=message;return true;
 }
-function drawGarageCar(look=equippedAppearance){
+function garagePreviewVehicle(kind,look){const vehicle=GARAGE_VEHICLES[kind],type=VEHICLE_TYPES[vehicle.model];return {model:vehicle.model,hw:type.hw,hh:type.hh,invMass:type.invMass,color:look.paint.color,x:0,y:0,angle:-.2,hit:0,braking:false,kind:'preview'};}
+function drawGarageCar(look=equippedAppearance,kind=garageKindForMode()){
  const g=$('garageCar').getContext('2d'),w=640,h=400;g.clearRect(0,0,w,h);g.fillStyle='#223e35';g.fillRect(0,0,w,h);
  g.strokeStyle='#adc39c0e';g.lineWidth=1;for(let x=0;x<w;x+=32){g.beginPath();g.moveTo(x,0);g.lineTo(x,h);g.stroke();}for(let y=0;y<h;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(w,y);g.stroke();}
  g.strokeStyle='#bcd19c1a';g.lineWidth=2;g.beginPath();g.ellipse(w/2,h/2,190,130,0,0,TAU);g.stroke();
- g.save();g.translate(w/2,h/2);g.scale(10,10);paintVehicle(g,{...player,color:look.paint.color,x:0,y:0,angle:-.32,hit:0,braking:false},true,0,0,-.32,look);g.restore();
+ const scale=kind==='car'?10:kind==='bus'?7.5:8;g.save();g.translate(w/2,h/2);g.scale(scale,scale);paintVehicle(g,garagePreviewVehicle(kind,look),true,0,0,-.32,look);g.restore();
 }
 
 let viewW=innerWidth,viewH=innerHeight,pixelRatio=1,zoom=1.55;
@@ -886,7 +984,7 @@ const jobNavigation={key:'',x:NaN,y:NaN,points:[],timer:0,guidance:{segments:[],
 function currentJob(){return JOB_MODES.includes(progress.mode)?progress.jobs[progress.mode]||null:null;}
 function currentOffer(){return JOB_MODES.includes(progress.mode)?progress.offers[progress.mode]||null:null;}
 function jobTarget(){const job=currentJob();return job?.accepted?job.stops[job.index]||null:null;}
-function modeVehicle(mode=progress.mode){const def=GAME_MODES[mode],type=VEHICLE_TYPES[def.model];return {model:def.model,hw:type.hw,hh:type.hh,invMass:def.model==='sedan'?1.2:type.invMass,color:def.model==='sedan'?(equippedAppearance?.paint.color||'#e8e8cd'):def.color};}
+function modeVehicle(mode=progress.mode){const def=GAME_MODES[mode],type=VEHICLE_TYPES[def.model],kind=garageKindForMode(mode),look=appearance(garageState(kind),kind);return {model:def.model,hw:type.hw,hh:type.hh,invMass:def.model==='sedan'?1.2:type.invMass,color:look.paint.color};}
 function installModeVehicle(){Object.assign(player,modeVehicle());}
 function setGameMode(mode,announce=true){
  if(!Object.hasOwn(GAME_MODES,mode)||mode===progress.mode)return false;
@@ -900,7 +998,7 @@ function setGameMode(mode,announce=true){
   placement=choices.find(p=>insideLoaded(p.x,p.y,50)&&clearSpot({...candidate,...p}));
  }
  if(!placement){toast('No room to change vehicles here. Move to a clearer street and press C.');return false;}
- progress.mode=mode;progress.policeEnabled=mode==='police';installModeVehicle();
+ progress.mode=mode;progress.policeEnabled=mode==='police';applyBuild();
  if(Math.hypot(placement.x-oldPos.x,placement.y-oldPos.y)>.5){Object.assign(player,placement,{vx:0,vy:0});camera.x=player.x;camera.y=player.y;powers.exitBodies.clear();}
  player.hit=0;snapshotBody(player);interpolatePlayer();turbo.active=false;shake=0;
  Object.assign(service,{jobId:null,ms:0,retryIn:0});jobNavigation.key='';jobNavigation.points=[];
@@ -1147,8 +1245,8 @@ function updateModeHUD(){
 function renderModeMenu(){
  $('modeCards').innerHTML=MODE_ORDER.map((id,n)=>{const m=GAME_MODES[id],job=progress.jobs[id],active=id===progress.mode;return '<button class="mode-card '+(active?'selected':'')+'" data-mode="'+id+'" aria-pressed="'+active+'"><span class="mode-card-top"><span>0'+(n+1)+'</span><span>'+(active?'CURRENT MODE':job&&job.index<job.stops.length?'RESUME JOB':'SELECT MODE')+'</span></span><canvas width="360" height="120" aria-hidden="true"></canvas><strong>'+m.name+'</strong><span class="mode-description">'+m.description+'</span><span class="mode-reward">'+m.reward+'</span></button>';}).join('');
  for(const button of $('modeCards').querySelectorAll('[data-mode]')){
-  const id=button.dataset.mode,m=GAME_MODES[id],g=button.querySelector('canvas').getContext('2d');g.clearRect(0,0,360,120);g.save();g.translate(180,60);g.scale(id==='bus'?3.5:4,3.5);
-  const car=makeCar(0,0,-.12,m.model==='sedan'?equippedAppearance.paint.color:m.color,'traffic',m.model);paintVehicle(g,car,m.model==='sedan',0,0,-.12);g.restore();
+  const id=button.dataset.mode,m=GAME_MODES[id],kind=garageKindForMode(id),look=appearance(garageState(kind),kind),g=button.querySelector('canvas').getContext('2d');g.clearRect(0,0,360,120);g.save();g.translate(180,60);g.scale(id==='bus'?3.5:4,3.5);
+  const car=makeCar(0,0,-.12,look.paint.color,'traffic',m.model);paintVehicle(g,car,true,0,0,-.12,look);g.restore();
  }
 }
 function showJobMap(){const target=jobTarget();if(!target)return;openModal('mapModal');mapView.x=target.x;mapView.y=target.y;mapView.span=2600;drawAtlas();}
@@ -1559,7 +1657,7 @@ function updatePlayer(dt){
  const surface=surfaceAt(player.x,player.y),grass=surface==='grass'&&!powerActive('phase'),dirt=surface==='dirt';
  // Original game's acceleration, rolling drag, steering and lateral-grip settings.
  const st=stats(),speedPower=powerActive('speed')?1.4:1,infiniteNitro=powerActive('nitro');
- const wantsBoost=(progress.turbo>0||infiniteNitro)&&keys.shift&&accel&&!brake&&!handbrake&&!grass&&!dirt&&forwardSpeed>.04;
+ const wantsBoost=(garageState().performance.turbo>0||infiniteNitro)&&keys.shift&&accel&&!brake&&!handbrake&&!grass&&!dirt&&forwardSpeed>.04;
  turbo.active=!!(wantsBoost&&(infiniteNitro||turbo.charge>0&&!turbo.depleted));
  if(infiniteNitro){turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;}
  else if(turbo.active){turbo.charge=Math.max(0,turbo.charge-dt/(st.boostSeconds*1000));turbo.rechargeDelay=650;if(turbo.charge<=0){turbo.depleted=true;turbo.active=false;}}
@@ -2011,7 +2109,7 @@ function drawTree(t){circle(t.x+6,t.y+8,t.r+2,'#284d3a34');circle(t.x,t.y,t.r,t.
 function drawCar(c){
  const x=lerp(c.prevX,c.x,renderAlpha),y=lerp(c.prevY,c.y,renderAlpha);
  if(!visible(x,y,c.hw+12))return;
- paintVehicle(ctx,c,c===player&&c.model==='sedan',x,y,lerp(c.prevAngle,c.angle,renderAlpha));
+ paintVehicle(ctx,c,c===player,x,y,lerp(c.prevAngle,c.angle,renderAlpha));
 }
 function paintTrafficVehicle(g,c,x,y,angle){
  const hw=c.hw,hh=c.hh,model=c.model,body=c.hit?'#f3d9ad':c.color;
@@ -2031,11 +2129,11 @@ function paintTrafficVehicle(g,c,x,y,angle){
  round(-hw,-hh,hw*2,hh*2,model==='hatchback'?5:3,'#263e36');round(-hw+1,-hh+1,hw*2-2,hh*2-2,3,body);
  fill(-hw+4,-hh+1.5,hw*2-9,1,'#ffffff70');fill(-hw+3,hh-2,hw*2-6,1,'#20392f55');
  if(model==='truck'){
-  round(-hw+2,-hh+1,hw+9,hh*2-2,1,'#c6c9b7');fill(-hw+3,-hh+2,hw+7,2,'#f0edd6');
+  round(-hw+2,-hh+1,hw+9,hh*2-2,1,body);fill(-hw+3,-hh+2,hw+7,2,'#ffffff55');
   for(let n=-hw+6;n<6;n+=5)fill(n,-hh+4,1,hh*2-8,'#8e9e9470');fill(11,-hh+2,3,hh*2-4,'#3b4e45');
   round(15,-hh+2,hw-17,hh*2-4,2,body);round(hw-8,-hh+3,4,hh*2-6,1,'#355b5b');
  }else if(model==='bus'){
-  round(-hw+6,-hh+4,hw*2-18,hh*2-8,2,'#e2ddba');
+  round(-hw+6,-hh+4,hw*2-18,hh*2-8,2,body);
   for(let n=-hw+7;n<hw-9;n+=7){fill(n,-hh+2,5,2,'#355656');fill(n,hh-4,5,2,'#355656');}
   round(hw-8,-hh+3,5,hh*2-6,1,'#315354');round(-8,-5,10,10,2,'#8f9f96');fill(-6,-3,6,1,'#647b71');fill(-6,0,6,1,'#647b71');
   round(8,-4,8,8,1,'#c8cbb7');fill(-hw+3,-hh+4,2,hh*2-8,'#57766c');
@@ -2054,11 +2152,46 @@ function paintTrafficVehicle(g,c,x,y,angle){
  fill(hw-12,-hh-1,3,2,body);fill(hw-12,hh-1,3,2,body);g.restore();
 }
 
-function paintVehicle(g,c,custom=false,x=c.x,y=c.y,angle=c.angle,look=equippedAppearance){
- if(!custom&&c.kind!=='police'&&c.model&&c.model!=='sedan'){
-  g.save();if(c===player&&ghosting())g.globalAlpha=.6;paintTrafficVehicle(g,c,x,y,angle);g.restore();
-  if(c===player){g.save();g.translate(x,y);g.rotate(angle);if(turbo.active){g.fillStyle='#99e6d5';g.beginPath();g.moveTo(-c.hw,-4);g.lineTo(-c.hw-15-Math.sin(simTime*.08)*3,0);g.lineTo(-c.hw,4);g.fill();}if(ghosting()){g.strokeStyle='#9be4dc';g.lineWidth=1.4;g.strokeRect(-c.hw-2,-c.hh-3,c.hw*2+4,c.hh*2+6);}g.restore();}return;
+function paintFleetVehicle(g,c,custom,x,y,angle,look){
+ const hw=c.hw,hh=c.hh,model=c.model,body=custom?look.paint.color:c.color,fill=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(x,y,w,h);},round=(x,y,w,h,r,color)=>{g.fillStyle=color;g.beginPath();g.roundRect(x,y,w,h,r);g.fill();},dot=(x,y,r,color)=>{g.fillStyle=color;g.beginPath();g.arc(x,y,r,0,TAU);g.fill();};
+ if(custom&&look.lighting.color){g.save();g.translate(x,y);g.rotate(angle);const light=look.lighting.color;g.shadowColor=light;g.shadowBlur=16;g.globalAlpha=.24;round(-hw+2,-hh-3,hw*2-4,hh*2+6,4,light);g.restore();}
+ g.save();if(c===player&&ghosting())g.globalAlpha=.6;paintTrafficVehicle(g,{...c,color:body},x,y,angle);g.restore();
+ if(custom){
+  g.save();g.translate(x,y);g.rotate(angle);g.beginPath();g.roundRect(-hw+1,-hh+1,hw*2-2,hh*2-2,3);g.clip();
+  if(model==='bus')switch(look.livery){
+   case 'city-ribbon':fill(-hw+2,-hh+5,hw*2-4,3,'#f1e8bb');fill(-hw+2,hh-7,hw*2-4,3,'#f1e8bb');break;
+   case 'green-loop':fill(-hw+2,-2,hw*2-4,4,'#92d4a2');fill(4,-hh+2,5,hh*2-4,'#e7efc8');break;
+   case 'heritage-transit':fill(-hw+2,-hh+4,hw*2-4,2.5,'#f1e5bd');fill(-hw+2,hh-6.5,hw*2-4,2.5,'#7d4e4a');fill(-6,-hh+2,3,hh*2-4,'#f1e5bd');break;
+   case 'night-express':fill(-hw+2,-3,hw*2-4,6,'#79c8f1');fill(-hw+6,-1,hw*2-18,2,'#e7f4d9');break;
+  }else switch(look.livery){
+   case 'northside-logistics':fill(-hw+3,-hh+3,hw+4,3,'#eee5c4');fill(-hw+3,hh-6,hw+4,3,'#eee5c4');fill(-8,-hh+2,3,hh*2-4,'#365c52');break;
+   case 'hazard-stripe':for(let n=-hw+4;n<5;n+=7){g.save();g.translate(n,0);g.rotate(-.5);fill(-1.5,-hh*1.5,3,hh*3,'#f1bd5a');g.restore();}break;
+   case 'cold-chain':fill(-hw+3,-3,hw+5,6,'#9ed9ed');fill(-hw+5,-1,hw+1,2,'#f0f5df');break;
+   case 'cross-country':fill(-hw+3,-hh+3,hw+6,2.3,'#e77850');fill(-hw+3,-.8,hw+6,2.3,'#edc769');fill(-hw+3,hh-5,hw+6,2.3,'#72a89d');break;
+  }
+  g.restore();
+  g.save();g.translate(x,y);g.rotate(angle);
+  const axles=model==='truck'?[-hw+6,-hw+14,hw-7]:[-hw+9,hw-9];if(!look.wheels.id.endsWith('steel'))for(const axle of axles)for(const side of [-1,1])round(axle-2.5,side>0?hh-1.5:-hh-1.5,5,3,1,look.wheels.color);
+  if(look.lighting.color){g.globalAlpha=.9;for(const px of [-hw+5,0,hw-5]){dot(px,-hh-.5,1,look.lighting.color);dot(px,hh+.5,1,look.lighting.color);}g.globalAlpha=1;}
+  const has=id=>look.details.includes(id);
+  if(model==='bus'){
+   if(has('route-board')){round(hw-13,-6,8,12,1,'#203a35');g.fillStyle='#f1cc67';g.font='bold 3px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('CITY',hw-9,0);}
+   if(has('roof-vents'))for(const px of [-12,5]){round(px,-5,9,10,2,'#bfc8bb');fill(px+2,-3,5,1,'#6e8178');fill(px+2,2,5,1,'#6e8178');}
+   if(has('bike-rack')){fill(hw+1,-7,2,14,'#b9c4bb');fill(hw+3,-6,1,12,'#718078');}
+   if(has('wheel-skirts'))for(const px of [-hw+9,hw-9]){round(px-5,-hh-1,10,3,1,body);round(px-5,hh-2,10,3,1,body);}
+  }else{
+   if(has('bull-bar')){g.strokeStyle='#d6dfda';g.lineWidth=1.2;g.strokeRect(hw-3,-hh-1,5,hh*2+2);fill(hw,-hh+2,2,2,'#eef2df');fill(hw,hh-4,2,2,'#eef2df');}
+   if(has('cab-lights'))for(const py of [-7,-2.5,2.5,7])dot(hw-12,py,1.4,'#f3e2a5');
+   if(has('toolbox')){round(4,-hh-1,7,hh*2+2,1,'#b7c0ba');fill(5,-hh+.5,5,.7,'#f1f0dc');}
+   if(has('mudflaps'))for(const py of [-hh,hh-2])fill(-hw-1,py,5,2,'#283832');
+  }
+  g.restore();
  }
+ if(c===player){g.save();g.translate(x,y);g.rotate(angle);if(turbo.active){g.fillStyle='#99e6d5';g.beginPath();g.moveTo(-hw,-4);g.lineTo(-hw-15-Math.sin(simTime*.08)*3,0);g.lineTo(-hw,4);g.fill();}if(ghosting()){g.strokeStyle='#9be4dc';g.lineWidth=1.4;g.strokeRect(-hw-2,-hh-3,hw*2+4,hh*2+6);}g.restore();}
+}
+
+function paintVehicle(g,c,custom=false,x=c.x,y=c.y,angle=c.angle,look=equippedAppearance){
+ if(c.kind!=='police'&&c.model&&c.model!=='sedan'){paintFleetVehicle(g,c,custom,x,y,angle,look);return;}
  const fill=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(x,y,w,h);};
  const round=(x,y,w,h,r,color)=>{g.fillStyle=color;g.beginPath();g.roundRect(x,y,w,h,r);g.fill();};
  const dot=(x,y,r,color)=>{g.fillStyle=color;g.beginPath();g.arc(x,y,r,0,TAU);g.fill();};
@@ -2271,7 +2404,7 @@ function loop(now){
 if(progress.position)Object.assign(player,progress.position);snapshotBody(player);safePosition={x:player.x,y:player.y,angle:player.angle};camera.x=player.x;camera.y=player.y;interpolatePlayer();
 applyBuild();streamWorld(true);resize();if(!clearSpot(player))recover();rebuildDynamic();updateHUD();updatePoliceHUD();requestAnimationFrame(loop);
 // Opt-in local diagnostics; not enabled during normal play.
-if(new URLSearchParams(location.search).has('test'))window.cityTest={trafficJunctions,updateTrafficJunctions,refreshTrafficJunctions,trafficRearLimit,GAME_MODES,MODE_ORDER,JOB_MODES,service,jobNavigation,modeVehicle,setGameMode,cycleGameMode,currentJob,currentOffer,jobTarget,createJobOffer,ensureJobOffer,acceptJob,changeJobOffer,JOB_BANDS,JOB_ROUTE_COLOR,jobLengthKm,jobLegKm,updateJob,finishJobStop,cityJobType,findJobSite,streetSite,nearbyRoadStops,cleanJob,updateModeHUD,renderModeMenu,showJobMap,OLD_TOWNS,AIRPORTS,AIRCRAFT,oldTownStyle,airportKind,dressBuilding,drawBuilding,drawAircraft,SPEED_KMH,speedKmh,VEHICLE_TYPES,TRAFFIC_MIX,highwayRoute,refillTraffic,routeAt,projectRoute,updateTraffic,senseTraffic,MAX_POLICE,POLICE_ROLES,POWER_TYPES,powers,pickups,pickupState,powerActive,ghosting,activatePower,tickPowers,finishGhostExit,spawnPickup,updatePickups,ignoresCollision,maintainPursuit,spawnPoliceUnit,policeTarget,nearDrivingView,protectVisibleVehicle,regionType,featureAt,getScene,sceneCache,activeScenes,navigation,gridEdge,nearestDriveRoad,navigationPath,surfaceAt,findLandscape,exploration,roadAnchors,CATEGORIES,UPGRADES,appearance,tryOn,paintVehicle,generateBlock,worldHash,worldWindow,chunks,previewChunks,roadCoord,roadHalf,roadIndex,streamWorld,insideLoaded,obstacles,staticHash,dynamicHash,mapView,police,policeState,setPoliceEnabled,deployPolice,planPolice,segmentClear,updatePolice,updatePlayer,progress,turbo,stats,earnDistance,purchase,balanceMm,saveProgress,renderGarage,applyBuild,SAVE_KEY,player,traffic,parked,buildings,boundaries,blocks,keys,xs,ys,contact,physics,recover,clearSpot,closestRoad,onGrass,start,openModal,closeModal,rebuildDynamic,updateHUD,draw,drawAtlas,clearKeys,get state(){return {started,activeModal,simTime,distance,camera:{...camera},world:{infinite:true,loaded:chunks.size,preview:previewChunks.size,generated:worldWindow.generated,center:{i:worldWindow.i,j:worldWindow.j},radius:worldWindow.radius},counts:{blocks:blocks.length,buildings:buildings.length,traffic:traffic.length,parked:parked.length}};}};
+if(new URLSearchParams(location.search).has('test'))window.cityTest={trafficJunctions,updateTrafficJunctions,refreshTrafficJunctions,trafficRearLimit,GAME_MODES,MODE_ORDER,JOB_MODES,service,jobNavigation,modeVehicle,setGameMode,cycleGameMode,currentJob,currentOffer,jobTarget,createJobOffer,ensureJobOffer,acceptJob,changeJobOffer,JOB_BANDS,JOB_ROUTE_COLOR,jobLengthKm,jobLegKm,updateJob,finishJobStop,cityJobType,findJobSite,streetSite,nearbyRoadStops,cleanJob,updateModeHUD,renderModeMenu,showJobMap,OLD_TOWNS,AIRPORTS,AIRCRAFT,oldTownStyle,airportKind,dressBuilding,drawBuilding,drawAircraft,SPEED_KMH,speedKmh,VEHICLE_TYPES,TRAFFIC_MIX,highwayRoute,refillTraffic,routeAt,projectRoute,updateTraffic,senseTraffic,MAX_POLICE,POLICE_ROLES,POWER_TYPES,powers,pickups,pickupState,powerActive,ghosting,activatePower,tickPowers,finishGhostExit,spawnPickup,updatePickups,ignoresCollision,maintainPursuit,spawnPoliceUnit,policeTarget,nearDrivingView,protectVisibleVehicle,regionType,featureAt,getScene,sceneCache,activeScenes,navigation,gridEdge,nearestDriveRoad,navigationPath,surfaceAt,findLandscape,exploration,roadAnchors,CATEGORIES,GARAGE_CATEGORIES,GARAGE_VEHICLES,garageKindForMode,garageState,UPGRADES,appearance,tryOn,paintVehicle,generateBlock,worldHash,worldWindow,chunks,previewChunks,roadCoord,roadHalf,roadIndex,streamWorld,insideLoaded,obstacles,staticHash,dynamicHash,mapView,police,policeState,setPoliceEnabled,deployPolice,planPolice,segmentClear,updatePolice,updatePlayer,progress,turbo,stats,earnDistance,purchase,balanceMm,saveProgress,renderGarage,applyBuild,SAVE_KEY,player,traffic,parked,buildings,boundaries,blocks,keys,xs,ys,contact,physics,recover,clearSpot,closestRoad,onGrass,start,openModal,closeModal,rebuildDynamic,updateHUD,draw,drawAtlas,clearKeys,get state(){return {started,activeModal,simTime,distance,camera:{...camera},world:{infinite:true,loaded:chunks.size,preview:previewChunks.size,generated:worldWindow.generated,center:{i:worldWindow.i,j:worldWindow.j},radius:worldWindow.radius},counts:{blocks:blocks.length,buildings:buildings.length,traffic:traffic.length,parked:parked.length}};}};
 })();
 </script>
 </body>
