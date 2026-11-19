@@ -651,9 +651,9 @@ const TRUCK_PAINTS=[
 const TRUCK_LIVERIES=[
  {id:'truck-none',name:'Unmarked cargo',price:0,description:'A clean cab and cargo box.'},
  {id:'northside-logistics',name:'Northside Logistics',price:3,description:'Cream fleet bars and a depot mark.'},
- {id:'hazard-stripe',name:'Hazard stripe',price:6,description:'High-visibility amber cargo stripes.'},
+ {id:'hazard-stripe',name:'Hazard stripe',price:6,description:'Amber chevrons at the cargo-box ends.'},
  {id:'cold-chain',name:'Cold chain',price:10,description:'Icy blue refrigerated-freight graphics.'},
- {id:'cross-country',name:'Cross-country',price:15,description:'A bold sunset line for the longest hauls.'}
+ {id:'cross-country',name:'Cross-country',price:15,description:'A sunset-and-mountain mural for the longest hauls.'}
 ];
 const TRUCK_WHEELS=[
  {id:'truck-steel',name:'Work steel',price:0,color:'#7c8780',description:'Stock heavy-duty wheels.'},
@@ -665,7 +665,7 @@ const TRUCK_LIGHTS=[
  {id:'truck-lights-off',name:'Factory lamps',price:0,color:null,description:'Standard work lights and markers.'},
  {id:'amber-beacons',name:'Amber beacons',price:4,color:'#f2b755',description:'Rooftop safety beacons and side markers.'},
  {id:'ice-markers',name:'Ice markers',price:7,color:'#8ed8f4',description:'Cool blue cargo-box markers.'},
- {id:'red-markers',name:'Red markers',price:10,color:'#f08072',description:'A vivid red perimeter glow.'}
+ {id:'red-markers',name:'Red markers',price:10,color:'#f08072',description:'Small red marker lamps along the cargo box.'}
 ];
 const TRUCK_DETAILS=[
  {id:'bull-bar',name:'Front bull bar',description:'A sturdy polished guard around the cab.',price:4},
@@ -2153,41 +2153,115 @@ function paintTrafficVehicle(g,c,x,y,angle){
 }
 
 function paintFleetVehicle(g,c,custom,x,y,angle,look){
- const hw=c.hw,hh=c.hh,model=c.model,body=custom?look.paint.color:c.color,fill=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(x,y,w,h);},round=(x,y,w,h,r,color)=>{g.fillStyle=color;g.beginPath();g.roundRect(x,y,w,h,r);g.fill();},dot=(x,y,r,color)=>{g.fillStyle=color;g.beginPath();g.arc(x,y,r,0,TAU);g.fill();};
- if(custom&&look.lighting.color){g.save();g.translate(x,y);g.rotate(angle);const light=look.lighting.color;g.shadowColor=light;g.shadowBlur=16;g.globalAlpha=.24;round(-hw+2,-hh-3,hw*2-4,hh*2+6,4,light);g.restore();}
- g.save();if(c===player&&ghosting())g.globalAlpha=.6;paintTrafficVehicle(g,{...c,color:body},x,y,angle);g.restore();
- if(custom){
-  g.save();g.translate(x,y);g.rotate(angle);g.beginPath();g.roundRect(-hw+1,-hh+1,hw*2-2,hh*2-2,3);g.clip();
-  if(model==='bus')switch(look.livery){
-   case 'city-ribbon':fill(-hw+2,-hh+5,hw*2-4,3,'#f1e8bb');fill(-hw+2,hh-7,hw*2-4,3,'#f1e8bb');break;
-   case 'green-loop':fill(-hw+2,-2,hw*2-4,4,'#92d4a2');fill(4,-hh+2,5,hh*2-4,'#e7efc8');break;
-   case 'heritage-transit':fill(-hw+2,-hh+4,hw*2-4,2.5,'#f1e5bd');fill(-hw+2,hh-6.5,hw*2-4,2.5,'#7d4e4a');fill(-6,-hh+2,3,hh*2-4,'#f1e5bd');break;
-   case 'night-express':fill(-hw+2,-3,hw*2-4,6,'#79c8f1');fill(-hw+6,-1,hw*2-18,2,'#e7f4d9');break;
-  }else switch(look.livery){
-   case 'northside-logistics':fill(-hw+3,-hh+3,hw+4,3,'#eee5c4');fill(-hw+3,hh-6,hw+4,3,'#eee5c4');fill(-8,-hh+2,3,hh*2-4,'#365c52');break;
-   case 'hazard-stripe':for(let n=-hw+4;n<5;n+=7){g.save();g.translate(n,0);g.rotate(-.5);fill(-1.5,-hh*1.5,3,hh*3,'#f1bd5a');g.restore();}break;
-   case 'cold-chain':fill(-hw+3,-3,hw+5,6,'#9ed9ed');fill(-hw+5,-1,hw+1,2,'#f0f5df');break;
-   case 'cross-country':fill(-hw+3,-hh+3,hw+6,2.3,'#e77850');fill(-hw+3,-.8,hw+6,2.3,'#edc769');fill(-hw+3,hh-5,hw+6,2.3,'#72a89d');break;
-  }
-  g.restore();
-  g.save();g.translate(x,y);g.rotate(angle);
-  const axles=model==='truck'?[-hw+6,-hw+14,hw-7]:[-hw+9,hw-9];if(!look.wheels.id.endsWith('steel'))for(const axle of axles)for(const side of [-1,1])round(axle-2.5,side>0?hh-1.5:-hh-1.5,5,3,1,look.wheels.color);
-  if(look.lighting.color){g.globalAlpha=.9;for(const px of [-hw+5,0,hw-5]){dot(px,-hh-.5,1,look.lighting.color);dot(px,hh+.5,1,look.lighting.color);}g.globalAlpha=1;}
-  const has=id=>look.details.includes(id);
-  if(model==='bus'){
-   if(has('route-board')){round(hw-13,-6,8,12,1,'#203a35');g.fillStyle='#f1cc67';g.font='bold 3px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText('CITY',hw-9,0);}
-   if(has('roof-vents'))for(const px of [-12,5]){round(px,-5,9,10,2,'#bfc8bb');fill(px+2,-3,5,1,'#6e8178');fill(px+2,2,5,1,'#6e8178');}
-   if(has('bike-rack')){fill(hw+1,-7,2,14,'#b9c4bb');fill(hw+3,-6,1,12,'#718078');}
-   if(has('wheel-skirts'))for(const px of [-hw+9,hw-9]){round(px-5,-hh-1,10,3,1,body);round(px-5,hh-2,10,3,1,body);}
-  }else{
-   if(has('bull-bar')){g.strokeStyle='#d6dfda';g.lineWidth=1.2;g.strokeRect(hw-3,-hh-1,5,hh*2+2);fill(hw,-hh+2,2,2,'#eef2df');fill(hw,hh-4,2,2,'#eef2df');}
-   if(has('cab-lights'))for(const py of [-7,-2.5,2.5,7])dot(hw-12,py,1.4,'#f3e2a5');
-   if(has('toolbox')){round(4,-hh-1,7,hh*2+2,1,'#b7c0ba');fill(5,-hh+.5,5,.7,'#f1f0dc');}
-   if(has('mudflaps'))for(const py of [-hh,hh-2])fill(-hw-1,py,5,2,'#283832');
-  }
-  g.restore();
+ if(!custom||!['bus','truck'].includes(c.model)){paintTrafficVehicle(g,c,x,y,angle);return;}
+ const hw=c.hw,hh=c.hh,bus=c.model==='bus',body=c.hit?'#f3d9ad':look.paint.color,has=id=>look.details.includes(id),light=look.lighting.color;
+ const fill=(px,py,w,h,color)=>{g.fillStyle=color;g.fillRect(px,py,w,h);};
+ const round=(px,py,w,h,r,color)=>{g.fillStyle=color;g.beginPath();g.roundRect(px,py,w,h,r);g.fill();};
+ const dot=(px,py,r,color)=>{g.fillStyle=color;g.beginPath();g.arc(px,py,r,0,TAU);g.fill();};
+ const line=(points,color,width)=>{g.strokeStyle=color;g.lineWidth=width;g.beginPath();points.forEach(([px,py],n)=>n?g.lineTo(px,py):g.moveTo(px,py));g.stroke();};
+ const label=(text,px,py,size,color)=>{g.fillStyle=color;g.font='bold '+size+'px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(text,px,py);};
+ const lamp=(px,py,color)=>{dot(px,py,2.1,color+'24');round(px-.7,py-.7,1.4,1.4,.4,color);};
+ g.save();g.translate(x,y);g.rotate(angle);g.lineJoin=g.lineCap='round';if(c===player&&ghosting())g.globalAlpha*=.6;
+ round(-hw+3,-hh+3,hw*2,hh*2,4,'#1e352e55');round(-hw,-hh+2,hw*2,hh*2-4,3,'#263b35');
+ // Keep dark tyre shoulders around the hub finish; bright wheels should not
+ // turn into rectangular blocks stuck to the outside of the vehicle.
+ const axles=bus?[-hw+9,hw-9]:[-hw+6,-hw+14,hw-7];
+ for(const axle of axles)for(const side of [-1,1]){
+  const py=side*hh;round(axle-3.7,py-1.8,7.4,3.6,1.2,'#23352f');round(axle-2.4,py-.8,4.8,1.6,.6,look.wheels.color);
+  if(!look.wheels.id.endsWith('black'))fill(axle-1.8,py-.65,3.2,.4,'#eef1da99');
  }
- if(c===player){g.save();g.translate(x,y);g.rotate(angle);if(turbo.active){g.fillStyle='#99e6d5';g.beginPath();g.moveTo(-hw,-4);g.lineTo(-hw-15-Math.sin(simTime*.08)*3,0);g.lineTo(-hw,4);g.fill();}if(ghosting()){g.strokeStyle='#9be4dc';g.lineWidth=1.4;g.strokeRect(-hw-2,-hh-3,hw*2+4,hh*2+6);}g.restore();}
+ if(bus){
+  round(-hw,-hh,hw*2,hh*2,3.5,'#2c443c');round(-hw+1,-hh+1,hw*2-2,hh*2-2,3,body);
+  round(-hw+5,-hh+4.7,hw*2-15,hh*2-9.4,2,'#f0efda20');
+  // Liveries are clipped to the roof panel. Glass and fittings are painted
+  // afterwards, so every combination reads as a finished vehicle.
+  g.save();g.beginPath();g.roundRect(-hw+4,-hh+4.5,hw*2-14,hh*2-9,2);g.clip();
+  switch(look.livery){
+   case 'city-ribbon':
+    for(const side of [-1,1]){g.beginPath();g.moveTo(-hw+4,side*4.6);g.lineTo(hw-20,side*4.6);g.quadraticCurveTo(hw-12,side*4.6,hw-10,side*1.5);g.strokeStyle='#f3e9c5';g.lineWidth=2;g.stroke();}break;
+   case 'green-loop':
+    round(-hw+4,-5.8,hw*2-14,11.6,2,'#397963');line([[-hw+5,4],[hw-20,4],[hw-11,-3]],'#a8d6a6',2.5);line([[-hw+5,-4],[hw-16,-4]],'#e9edcc',.7);break;
+   case 'heritage-transit':
+    round(-hw+4,-5.8,hw*2-14,11.6,2,'#ede1bc');for(const side of [-1,1])fill(-hw+4,side*4.5-.7,hw*2-14,1.4,'#875953');break;
+   case 'night-express':
+    round(-hw+4,-5.8,hw*2-14,11.6,2,'#2f4359');for(const side of [-1,1])line([[-hw+5,side*4.5],[hw-11,side*4.5]],'#83cee3',1.2);
+    for(let n=0;n<3;n++)line([[-hw+6+n*4,-2.8],[-hw+8+n*4,2.8]],'#adcfd6',1.3);break;
+  }
+  g.restore();
+  const cabin=look.lighting.id==='blue-interior'||look.lighting.id==='mint-interior';
+  for(let px=-hw+7;px<hw-10;px+=7)for(const side of [-1,1]){
+   const py=side>0?hh-4.2:-hh+1.7;round(px,py,5.3,2.5,.6,'#315450');fill(px+.5,py+.35,4.2,.6,'#8db6ae88');
+   if(cabin){fill(px+.4,py+.4,4.5,1.7,light+'80');fill(px+.8,py+.7,3.7,.45,light);}
+  }
+  round(hw-7,-hh+2.7,4.3,hh*2-5.4,1.3,'#2b4e4e');fill(hw-6.3,-hh+3.5,.8,hh*2-7,'#a0c4b16b');
+  round(-hw+1.8,-hh+4,2.2,hh*2-8,.7,'#46675d');
+  if(look.livery!=='night-express')label(look.livery==='green-loop'?'E':'BUS',-hw+13,0,3.2,look.livery==='green-loop'?'#e4eed1':'#465c4d');
+  for(const px of [-6,10]){
+   if(has('roof-vents')){
+    round(px-4.4,-3.2,10,7.4,1.6,'#25423840');round(px-5,-3.8,10,7.6,1.5,'#c7cfc0');fill(px-3.8,-3.2,7.6,.6,'#eef0d8');
+    for(let n=0;n<4;n++)fill(px-3,-2.4+n*1.4,6,.55,'#72877a');
+   }else{round(px-3,-2.4,6,4.8,1,'#b9c5ae');fill(px-2,-1.4,4,.6,'#758c7e');fill(px-2,.5,4,.6,'#758c7e');}
+  }
+  if(has('route-board')){g.save();g.translate(hw-10,0);g.rotate(Math.PI/2);round(-6.4,-1.8,12.8,3.6,.7,'#233b33');label('12 CITY',0,.1,2.3,'#f2d281');g.restore();}
+  if(has('bike-rack')){
+   for(const py of [-5.2,5.2])line([[hw-1,py],[hw+4,py]],'#778d83',1.1);
+   line([[hw+4,-7],[hw+4,7]],'#c7cec1',1.3);for(const py of [-4,0,4])line([[hw+2,py],[hw+5,py]],'#a8b9ac',.8);
+  }
+  if(has('wheel-skirts'))for(const side of [-1,1]){
+   const py=side>0?hh-.5:-hh-1.7;round(-hw+4.5,py,9,2.2,1,body);fill(-hw+5.5,py+.3,7,.45,'#f4efcf55');
+  }
+  if(look.lighting.id==='amber-markers')for(const px of [-hw+4,0,hw-3])for(const side of [-1,1])lamp(px,side*(hh-.8),light);
+ }else{
+  // A box truck has three distinct parts: cargo roof, exposed chassis and cab.
+  // Freight graphics belong on the cargo roof, never across the windscreen.
+  round(-hw,-hh,hw+10,hh*2,1.8,'#344b40');round(-hw+1,-hh+1,hw+8,hh*2-2,1.2,body);fill(-hw+2,-hh+2,hw+6,hh*2-4,'#e4e9d222');
+  for(let px=-hw+6;px<7;px+=5)fill(px,-hh+3,.6,hh*2-6,'#294b4326');
+  fill(-hw+2,-hh+1.5,hw+6,.7,'#f1edce70');fill(-hw+2,hh-2.2,hw+6,.7,'#28453a66');
+  g.save();g.beginPath();g.roundRect(-hw+2,-hh+2,hw+6,hh*2-4,1);g.clip();
+  switch(look.livery){
+   case 'northside-logistics':
+    round(-hw+5,-4.8,hw-1,9.6,1.2,'#ece3c4');label('NORTHSIDE',(-hw+9)/2,-.8,3,'#365c50');label('LOGISTICS',(-hw+9)/2,2.2,1.6,'#587664');
+    for(const side of [-1,1])fill(-hw+2,side*6.6-.35,hw+6,.7,'#eee6cc');break;
+   case 'hazard-stripe':
+    for(const px of [-hw+2,3]){g.save();g.beginPath();g.rect(px,-hh+2,4,hh*2-4);g.clip();fill(px,-hh+2,4,hh*2-4,'#36443c');for(let py=-hh-4;py<hh+4;py+=5)line([[px,py],[px+4,py+4]],'#edbd64',2.3);g.restore();}
+    label('03',-10,0,5,'#52665a');break;
+   case 'cold-chain':
+    round(-hw+3,-hh+3,hw+4,hh*2-6,1,'#e1e9dc');for(const side of [-1,1])fill(-hw+3,side*5.9-.6,hw+4,1.2,'#91bfcd');
+    for(let n=0;n<6;n++){const a=n*TAU/6,dx=Math.cos(a),dy=Math.sin(a);line([[-10,0],[-10+dx*4,dy*4]],'#6297aa',.7);line([[-10+dx*2.3-dy*.9,dy*2.3+dx*.9],[-10+dx*3,dy*3],[-10+dx*2.3+dy*.9,dy*2.3-dx*.9]],'#6297aa',.6);}break;
+   case 'cross-country':
+    round(-hw+3,-6.8,hw+4,13.6,1,'#3a5963');dot(-19,-2.5,2.8,'#e8bb72');
+    g.beginPath();g.moveTo(-hw+3,5.8);g.lineTo(-18,-.3);g.lineTo(-12,2.5);g.lineTo(-6,-3.8);g.lineTo(4,4.8);g.lineTo(4,6.8);g.lineTo(-hw+3,6.8);g.closePath();g.fillStyle='#86a992';g.fill();
+    line([[-hw+3,5.6],[-11,5.6],[4,2.2]],'#d58d68',1.2);break;
+  }
+  g.restore();
+  fill(10,-hh+3,4,hh*2-6,'#2b4037');fill(11,-hh+4,1,hh*2-8,'#6b8172');
+  round(14,-hh+.8,hw-14,hh*2-1.6,2.8,'#2e493f');round(15,-hh+1.8,hw-16,hh*2-3.6,2,body);
+  fill(16,-hh+2.2,hw-19,.7,'#ececd280');round(hw-6,-hh+3.2,3.8,hh*2-6.4,1,'#305451');fill(hw-5.5,-hh+4,.7,hh*2-8,'#97b9ac88');
+  if(has('toolbox'))for(const py of [-7.8,3.3]){round(10.2,py,3.5,4.5,.5,'#aabbb0');fill(10.7,py+.5,2.5,.5,'#e3e6d3');fill(11.6,py+2,.7,1,'#4f6b5d');}
+  if(has('mudflaps'))for(const side of [-1,1]){round(-hw+.5,side*hh-1.8,1.8,3.6,.3,'#26372f');fill(-hw+.7,side*hh+.7,1.4,.4,'#a6afa0');}
+  if(has('bull-bar')){
+   line([[hw-.5,-hh+3],[hw+2.5,-hh+3],[hw+2.5,hh-3],[hw-.5,hh-3]],'#c4cfc4',1.1);
+   for(const py of [-3,3])line([[hw-.5,py],[hw+2.5,py]],'#92a99b',.8);
+  }
+  if(has('cab-lights'))for(const py of [-5.7,-1.9,1.9,5.7]){dot(hw-8.6,py,1.1,'#3e5548');dot(hw-8.6,py,.7,'#f0dfb2');}
+  if(light){
+   for(const px of [-hw+3,-10,7])for(const side of [-1,1])lamp(px,side*(hh-.8),light);
+   if(look.lighting.id==='amber-beacons')for(const side of [-1,1]){
+    round(16,side*5.4-1.8,2.8,3.6,.7,'#46574a');round(16.4,side*5.4-1.4,2,2.8,.5,Math.sin(simTime/180+side*Math.PI/2)>.1?'#f5d58c':'#c5934f');
+   }
+  }
+ }
+ // Finish with lamps and mirrors, outside the livery masks. No decorative
+ // rectangle surrounds the vehicle; only the ghost power draws its outline.
+ for(const side of [-1,1]){
+  round(hw-1.9,side>0?hh-4.5:-hh+2,1.6,2.5,.5,'#f2e9c0');round(-hw+.2,side>0?hh-4.5:-hh+2,1.3,2.5,.3,c.braking?'#ff8d6f':'#a7614f');
+  round(hw-10,side>0?hh-.2:-hh-1.3,3.2,1.6,.6,'#3b5749');fill(hw-9.6,side>0?hh+.1:-hh-1,2.3,.6,'#b8c5b3');
+ }
+ if(c===player){
+  if(turbo.active){g.fillStyle='#99e6d5';g.beginPath();g.moveTo(-hw,-4);g.lineTo(-hw-15-Math.sin(simTime*.08)*3,0);g.lineTo(-hw,4);g.fill();}
+  if(ghosting()){g.strokeStyle='#9be4dc';g.lineWidth=1.4;g.strokeRect(-hw-2,-hh-3,hw*2+4,hh*2+6);}
+ }
+ g.restore();
 }
 
 function paintVehicle(g,c,custom=false,x=c.x,y=c.y,angle=c.angle,look=equippedAppearance){
