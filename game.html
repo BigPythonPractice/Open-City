@@ -1160,7 +1160,21 @@ function drawPickups(){
   textAt(power.symbol,0,7,23,power.color);textAt('PICKUP',0,34,6,power.color);ctx.restore();
  }
 }
-function drawPickupMapMarkers(g,m){for(const p of pickups){const x=(p.x-m.left)*m.scale,y=(p.y-m.top)*m.scale;g.save();g.translate(x,y);g.rotate(Math.PI/4);g.fillStyle=POWER_TYPES[p.type].color;g.strokeStyle='#183b32';g.lineWidth=1.5;g.fillRect(-5,-5,10,10);g.strokeRect(-5,-5,10,10);g.restore();}}
+function drawPickupMapMarkers(g,m,showSymbol=false){
+ const half=showSymbol?11:5;
+ for(const p of pickups){
+  const power=POWER_TYPES[p.type],x=(p.x-m.left)*m.scale,y=(p.y-m.top)*m.scale;
+  g.save();g.translate(x,y);g.rotate(Math.PI/4);
+  g.fillStyle=power.color;g.strokeStyle='#183b32';g.lineWidth=showSymbol?4:1.5;
+  g.fillRect(-half,-half,half*2,half*2);g.strokeRect(-half,-half,half*2,half*2);
+  if(showSymbol){
+   g.rotate(-Math.PI/4);g.fillStyle='#183b32';g.font='bold 17px Arial';g.lineWidth=.65;
+   g.textAlign='center';g.textBaseline='middle';
+   g.fillText(power.symbol,0,0);g.strokeText(power.symbol,0,0);
+  }
+  g.restore();
+ }
+}
 
 let shopTab='paint',previewSelection=null,equippedAppearance=null;
 function garageKindForMode(mode=progress.mode){return mode==='bus'?'bus':mode==='truck'?'truck':'car';}
@@ -3416,7 +3430,7 @@ function drawMini(elapsed=0){
  minimapView.offsetY=lerp(minimapView.offsetY,offsetY,blend);
  const m=mapProjection(x+minimapView.offsetX,y+minimapView.offsetY,MINIMAP_SPAN,w,h);
  // Pan a cached terrain image each frame; only the route and markers redraw live.
- drawMinimapTerrain(m,w,h);drawExplorationMapMarker(mctx,m,7);drawPickupMapMarkers(mctx,m);drawJobMap(mctx,m,routeStart);
+ drawMinimapTerrain(m,w,h);drawExplorationMapMarker(mctx,m,7);drawJobMap(mctx,m,routeStart);
  mctx.fillStyle='#ede9d0';
  for(const c of traffic){
   const px=(lerp(c.prevX,c.x,renderAlpha)-m.left)*m.scale,py=(lerp(c.prevY,c.y,renderAlpha)-m.top)*m.scale;
@@ -3427,6 +3441,7 @@ function drawMini(elapsed=0){
   if(px<0||px>w||py<0||py>h)continue;
   mctx.fillStyle='#e69b8a';mctx.beginPath();mctx.arc(px,py,4,0,TAU);mctx.fill();
  }
+ drawPickupMapMarkers(mctx,m,true);
  const px=(x-m.left)*m.scale,py=(y-m.top)*m.scale;
  mctx.beginPath();mctx.arc(px,py,20,0,TAU);mctx.fillStyle='#e7f2b41a';mctx.fill();playerMapMarker(mctx,px,py,1.45,angle);
 }
