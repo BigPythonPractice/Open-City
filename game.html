@@ -92,12 +92,54 @@
  .mode-foot{margin-top:12px}
 }
 
+.trophy-dialog{width:min(930px,100%);padding:24px;background:linear-gradient(155deg,#263f35,#17342f 60%)}
+.trophy-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-right:47px}
+.trophy-head h2{font-size:30px;margin:0 0 5px}
+.trophy-head p{margin:0;line-height:1.45;color:#bccfc0}
+.trophy-bank{min-width:142px;text-align:right;padding:9px 13px;background:#122e26;border:1px solid #e4c97852;border-radius:10px}
+.trophy-bank span{display:block;color:#cdd9c5;font-size:10px;margin-bottom:3px}
+.trophy-bank strong{font-size:19px;color:#f1d992;font-variant-numeric:tabular-nums}
+.trophy-feedback{min-height:1.25em;margin:8px 0 6px!important;color:#f5dea6!important;font-size:12px!important}
+.trophy-shelf{padding:13px 14px;margin-bottom:14px;border:1px solid #e4c97836;border-radius:13px;background:#142d2588}
+.trophy-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+.trophy-section-heading h3{font-size:15px;margin:0;color:#eff1da}
+.trophy-section-heading span,.trophy-empty{font-size:11px;color:#c1d0bc}
+.trophy-empty{margin:0}
+.trophy-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.trophy-item{position:relative;display:grid;gap:4px;justify-items:center;align-content:center;min-width:0;min-height:116px;padding:8px;color:#e9f0dd;background:#223e34;border:1px solid #c1d4b935;border-radius:10px;text-align:center}
+.trophy-item canvas{display:block;width:88px;height:60px;max-width:100%;object-fit:contain}
+.trophy-name{font-size:13px;font-weight:700;line-height:1.2}
+.trophy-item-meta{display:flex;align-items:center;justify-content:center;gap:4px 7px;flex-wrap:wrap;font-size:10px;font-variant-numeric:tabular-nums}
+.trophy-price{color:#f2d88f;font-weight:700}
+.trophy-state{color:#cde3bc}
+.trophy-item[data-state="locked"]{background:#273733;border-color:#b1bbb32c;color:#c3ccc7}
+.trophy-item[data-state="locked"] canvas{filter:grayscale(1);opacity:.72}
+.trophy-item[data-state="locked"] .trophy-price,.trophy-item[data-state="locked"] .trophy-state{color:#c6cec9}
+.trophy-item[data-state="locked"]:hover{border-color:#bac7bd77}
+.trophy-item[data-state="available"]:hover{border-color:#e4c9789c;background:#2d4839}
+.trophy-item[data-state="owned"]{border-color:#e4c97855;background:#243f32}
+.trophy-item.trophy-shake{border-color:#ebb884;animation:trophy-shake .32s ease-in-out}
+.trophy-item.trophy-awarded{animation:trophy-award .85s ease-out}
+.trophy-item.trophy-awarded::after{content:"";position:absolute;inset:5px;border:1px solid #f3d981;border-radius:9px;pointer-events:none;animation:trophy-ring .85s ease-out both}
+@keyframes trophy-shake{25%,75%{transform:translateX(-4px)}50%{transform:translateX(4px)}}
+@keyframes trophy-award{0%{transform:scale(.96)}30%{transform:scale(1.04);box-shadow:0 0 25px #efd67375}100%{transform:none;box-shadow:none}}
+@keyframes trophy-ring{0%{opacity:0;transform:scale(.88)}25%{opacity:1}100%{opacity:0;transform:scale(1.14)}}
+.trophy-confirm-cover{position:absolute;inset:0;display:grid;place-items:center;z-index:1;padding:20px;background:#0b231bd9}
+.trophy-confirm{width:min(350px,100%);border-color:#e4c97860;padding:22px}
+.trophy-confirm h3{margin:0 0 6px;font-size:19px}
+.trophy-confirm p{margin:0 0 14px;line-height:1.55}
+.trophy-confirm-actions{display:flex;gap:8px}
+.trophy-confirm-actions button{flex:1;border:1px solid #dae5cd55;border-radius:8px;padding:10px;background:#2b493b;color:#eef3dd;font-weight:700;font-size:12px}
+.trophy-confirm-actions button:last-child{color:#213026;background:#efd28a;border-color:#efd28a}
+@media(max-width:760px){.trophy-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:460px){.trophy-dialog{padding:17px}.trophy-head{align-items:flex-start;flex-direction:column}.trophy-bank{text-align:left}.trophy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.trophy-item.trophy-awarded,.trophy-item.trophy-shake,.trophy-item.trophy-awarded::after{animation:none}}
 </style>
 </head>
 <body>
 <canvas id="game" tabindex="0" aria-label="Top-down free roam driving game. Use W A S D or arrow keys to drive, Space to drift, R to recover, M for the map, and Escape to pause."></canvas>
 <div class="vignette"></div>
-<header class="top"><div class="brand"><div class="brand-icon" aria-hidden="true">↗</div><div><div class="brand-name">OPEN CITY</div><span class="brand-sub">ENDLESS ROADS. YOUR WAY.</span></div></div><nav class="top-right" aria-label="Game controls"><button class="pill" id="modeMenuBtn" title="Choose game mode (V)" aria-haspopup="dialog"><span class="live-dot"></span><span id="modeName">FREE ROAM</span><span class="menu-caret" aria-hidden="true">⌄</span></button><button class="iconbtn" id="garageBtn" title="Garage (G)" aria-label="Open upgrade garage"><svg viewBox="0 0 20 20"><path d="M12 2a5 5 0 0 0-5 7l-5 5a2 2 0 0 0 4 4l5-5a5 5 0 0 0 7-5l-4 2-3-3z"/></svg></button><button class="iconbtn" id="mapBtn" title="City map (M)" aria-label="Open city map"><svg viewBox="0 0 20 20"><path d="m2 4 5-2 6 2 5-2v14l-5 2-6-2-5 2zM7 2v14M13 4v14"/></svg></button><button class="iconbtn" id="helpBtn" title="Driving controls" aria-label="Driving controls">?</button><button class="iconbtn" id="pauseBtn" title="Pause (Esc)" aria-label="Pause game">Ⅱ</button></nav></header>
+<header class="top"><div class="brand"><div class="brand-icon" aria-hidden="true">↗</div><div><div class="brand-name">OPEN CITY</div><span class="brand-sub">ENDLESS ROADS. YOUR WAY.</span></div></div><nav class="top-right" aria-label="Game controls"><button class="pill" id="modeMenuBtn" title="Choose game mode (V)" aria-haspopup="dialog"><span class="live-dot"></span><span id="modeName">FREE ROAM</span><span class="menu-caret" aria-hidden="true">⌄</span></button><button class="iconbtn" id="garageBtn" title="Garage (G)" aria-label="Open upgrade garage"><svg viewBox="0 0 20 20"><path d="M12 2a5 5 0 0 0-5 7l-5 5a2 2 0 0 0 4 4l5-5a5 5 0 0 0 7-5l-4 2-3-3z"/></svg></button><button type="button" class="iconbtn" id="trophyBtn" title="Trophy Room (B)" aria-label="Open Trophy Room (B)" aria-haspopup="dialog"><span aria-hidden="true">★</span></button><button class="iconbtn" id="mapBtn" title="City map (M)" aria-label="Open city map"><svg viewBox="0 0 20 20"><path d="m2 4 5-2 6 2 5-2v14l-5 2-6-2-5 2zM7 2v14M13 4v14"/></svg></button><button class="iconbtn" id="helpBtn" title="Driving controls" aria-label="Driving controls">?</button><button class="iconbtn" id="pauseBtn" title="Pause (Esc)" aria-label="Pause game">Ⅱ</button></nav></header>
 <div class="location"><div class="eyebrow">YOU ARE EXPLORING</div><strong id="district">Garden Quarter</strong><small id="street">Juniper Avenue</small><small id="destinationHint" class="destination-hint" hidden></small><small id="pickupHint" class="pickup-hint" hidden></small></div>
 <div class="police-control"><button class="police-toggle cycle-mode" id="cycleModeBtn" title="Cycle through game modes (C)"><span class="police-key">C</span> NEXT: <b id="nextModeName">Police chase</b><span aria-hidden="true">↗</span></button><span class="pursuit-status" id="pursuitStatus" role="status" hidden></span></div>
 <section class="intro" id="intro"><div class="eyebrow">THE CITY KEEPS GOING</div><h1>Every turn<br>is <em>yours.</em></h1><p>Roam endless streets, outrun the police, carry passengers, or deliver freight. Every kilometre and completed job helps build your ride.</p><button class="start" id="startBtn">Let's drive <span aria-hidden="true">↗</span></button><button class="intro-modes" id="introModesBtn">Choose a game mode · V</button><div class="intro-footer"><span>WASD / ARROWS TO DRIVE</span><i>JUST EXPLORE.</i></div></section>
@@ -108,7 +150,7 @@
 <div class="toast" id="toast" role="status"></div>
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
 <div class="modal" id="pauseModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><button class="iconbtn close" data-close aria-label="Resume driving">×</button><div class="eyebrow">TAKE YOUR TIME</div><h2 id="pauseTitle">Parked for a moment.</h2><p>The city will be right here.</p><button class="start" id="resumeBtn">Keep driving <span>↗</span></button></section></div>
-<div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b>W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b>S / ↓</b></div><div class="help-row"><span>Steer</span><b>A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b>SPACE</b></div><div class="help-row"><span>Recover to a clear street</span><b>R</b></div><div class="help-row"><span>Garage / city map</span><b>G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b>SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b>C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b>E</b></div><div class="help-row"><span>Pause</span><b>ESC</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances and motorbikes. Vehicles follow lanes, brake for corners and give way at crossings. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open M and use Find nearby to pin an airport, old town, highway or off-road area. Drive to earn spendable kilometres. Press G to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting (Shift + accelerate), hitting another car makes it explode and clears it from your path—including parked cars and police. Every police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; Shift + accelerate, even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Press E or Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
+<div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b>W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b>S / ↓</b></div><div class="help-row"><span>Steer</span><b>A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b>SPACE</b></div><div class="help-row"><span>Recover to a clear street</span><b>R</b></div><div class="help-row"><span>Garage / city map</span><b>G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b>SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b>C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b>E</b></div><div class="help-row"><span>Trophy Room</span><b>B</b></div><div class="help-row"><span>Pause</span><b>ESC</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances and motorbikes. Vehicles follow lanes, brake for corners and give way at crossings. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open M and use Find nearby to pin an airport, old town, highway or off-road area. Drive to earn spendable kilometres. Press G to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting (Shift + accelerate), hitting another car makes it explode and clears it from your path—including parked cars and police. Every police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; Shift + accelerate, even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Press E or Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
 <div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><button data-landscape="airport">✈ Airport</button><button data-landscape="oldtown">Old town</button><button data-landscape="highway">Highway</button><button data-landscape="offroad">Off-road</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOUR LOCATION</span><span>Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
 <div class="modal" id="garageModal" hidden><section class="dialog garage-dialog" role="dialog" aria-modal="true" aria-labelledby="garageTitle"><button class="iconbtn close" data-close aria-label="Close garage">×</button><div class="garage-head"><div><div class="eyebrow" id="garageEyebrow">NORTHSIDE CUSTOMS / CAR GARAGE</div><h2 id="garageTitle">Make it yours.</h2></div><div class="bank"><small>AVAILABLE TO SPEND</small><strong id="garageBank">0.00 <span>km</span></strong></div></div><p class="garage-intro" id="garageIntro">This garage belongs to the active vehicle. Its performance and style progress are saved independently.</p><div class="garage-layout"><section class="vehicle-card" id="garageVehicleCard" aria-label="Your car"><div class="vehicle-heading"><span id="garageVehicleHeading">THE RUNABOUT</span><span id="buildStatus">YOUR BUILD</span></div><canvas id="garageCar" width="640" height="400" aria-label="Preview of your equipped paint and cosmetics"></canvas><div class="vehicle-name" id="vehicleName"></div><div class="preview-actions" id="previewActions" hidden></div><div class="vehicle-stats" id="vehicleStats"></div><p class="garage-save" id="garageSave">Progress saved in this browser.</p></section><div class="garage-shop"><div class="garage-tabs" aria-label="Upgrade category"><button class="garage-tab" data-shop-tab="paint" aria-pressed="true" aria-controls="styleShop">Paint</button><button class="garage-tab" data-shop-tab="livery" aria-pressed="false" aria-controls="styleShop">Liveries</button><button class="garage-tab" data-shop-tab="wheels" aria-pressed="false" aria-controls="styleShop">Wheels</button><button class="garage-tab" data-shop-tab="lighting" aria-pressed="false" aria-controls="styleShop">Lights</button><button class="garage-tab" data-shop-tab="detail" aria-pressed="false" aria-controls="styleShop">Body</button><button class="garage-tab" data-shop-tab="performance" aria-pressed="false" aria-controls="performanceShop">Performance</button></div><div id="performanceShop"></div><div id="styleShop" hidden></div><p class="garage-feedback" id="garageFeedback" role="status" aria-live="polite">A little more road. A little more you.</p></div></div><div class="garage-bottom"><span>The city is paused. Cosmetic previews are free. Bought items stay with this vehicle and can be equipped any time.</span><button class="start" data-close>Back to the city <span>↗</span></button></div></section></div>
 <section class="job-card" id="jobCard" aria-label="Current driving job" hidden>
@@ -131,6 +173,33 @@
  <div class="mode-foot"><span><kbd>C</kbd> Cycle modes</span><span><kbd>V</kbd> Mode picker</span><span><kbd>E</kbd> Accept a job</span></div>
  <p class="mode-note">Jobs have no time limits and resume when you return to their mode.</p>
 </section></div>
+
+<div class="modal" id="trophyModal" hidden>
+ <section class="dialog trophy-dialog" id="trophyDialog" role="dialog" aria-modal="true" aria-labelledby="trophyTitle">
+  <button class="iconbtn close" data-close aria-label="Close Trophy Room">×</button>
+  <header class="trophy-head">
+   <div><h2 id="trophyTitle">Trophy Room</h2><p>Spend your KMs on cosmetic collectibles.</p></div>
+   <div class="trophy-bank"><span>Available balance</span><strong id="trophyBalance">0 KM</strong></div>
+  </header>
+  <p class="trophy-feedback" id="trophyFeedback" role="status"></p>
+  <section class="trophy-shelf" aria-labelledby="trophyOwnedTitle">
+   <div class="trophy-section-heading"><h3 id="trophyOwnedTitle">Owned</h3><span id="trophySpent"></span></div>
+   <p class="trophy-empty" id="trophyEmpty">Your purchased trophies appear here.</p>
+   <div class="trophy-grid" id="trophyOwned"></div>
+  </section>
+  <section aria-labelledby="trophyShopTitle">
+   <div class="trophy-section-heading"><h3 id="trophyShopTitle">Shop</h3><span id="trophyRemaining"></span></div>
+   <div class="trophy-grid" id="trophyShop"></div>
+  </section>
+ </section>
+ <div class="trophy-confirm-cover" id="trophyConfirmation" hidden>
+  <section class="dialog trophy-confirm" role="dialog" aria-modal="true" aria-labelledby="trophyConfirmTitle" aria-describedby="trophyConfirmCopy">
+   <h3 id="trophyConfirmTitle">Confirm purchase</h3>
+   <p id="trophyConfirmCopy"></p>
+   <div class="trophy-confirm-actions"><button type="button" id="trophyCancel">Cancel</button><button type="button" id="trophyBuy">Buy trophy</button></div>
+  </section>
+ </div>
+</div>
 
 <script>
 (()=>{
@@ -580,6 +649,20 @@ function projectRoute(c){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
+const TROPHIES=[
+ {id:'gold-bar',name:'Gold bar',price:2500},
+ {id:'gold-stack',name:'Gold bar stack',price:8000},
+ {id:'diamond',name:'Diamond',price:15000},
+ {id:'platinum',name:'Platinum',price:20000},
+ {id:'watch',name:'Rolex-style watch',price:25000},
+ {id:'speedboat',name:'Speedboat',price:60000},
+ {id:'superyacht',name:'Superyacht',price:90000},
+ {id:'private-jet',name:'Private jet',price:120000},
+ {id:'helicopter',name:'Helicopter',price:150000},
+ {id:'mansion',name:'Luxury mansion',price:200000},
+ {id:'island',name:'Island',price:300000},
+ {id:'rocket',name:'Space rocket',price:500000}
+];
 const PAINTS=[
  {id:'ivory',name:'Original ivory',color:'#e8e8cd',price:0,description:'The original warm cream.'},
  {id:'papaya',name:'Papaya',color:'#e89a59',price:.5,description:'Warm orange for sunny streets.'},
@@ -824,12 +907,14 @@ function cleanGarage(raw,kind,legacy=false){
  }}
  return clean;
 }
-function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
+function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
 function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);if(!raw)return freshProgress();const p=JSON.parse(raw);
   if(!p||p.version!==1||!Number.isSafeInteger(p.earnedMm)||p.earnedMm<0||!Number.isSafeInteger(p.spentMm)||p.spentMm<0||p.spentMm>p.earnedMm)return freshProgress();
   const clean=freshProgress();clean.earnedMm=p.earnedMm;clean.spentMm=p.spentMm;clean.mode=Object.hasOwn(GAME_MODES,p.mode)?p.mode:(p.policeEnabled===true?'police':'free');clean.policeEnabled=clean.mode==='police';
+  const owned=new Set(Array.isArray(p.ownedTrophies)?p.ownedTrophies:[]);
+  clean.ownedTrophies=TROPHIES.filter(item=>owned.has(item.id)).map(item=>item.id);
   clean.jobSerial=Number.isSafeInteger(p.jobSerial)&&p.jobSerial>=0?p.jobSerial:0;
   for(const mode of JOB_MODES){const job=cleanJob(p.jobs?.[mode],mode),offer=cleanJob(p.offers?.[mode],mode,false);if(job){clean.jobs[mode]=job;clean.jobSerial=Math.max(clean.jobSerial,job.id);}if(offer&&(!job||job.index===job.stops.length)){clean.offers[mode]=offer;clean.jobSerial=Math.max(clean.jobSerial,offer.id);}const total=p.completedJobs?.[mode];if(Number.isSafeInteger(total)&&total>=0)clean.completedJobs[mode]=total;}
   if(p.worldVersion===1&&p.position&&['x','y','angle'].every(k=>Number.isFinite(p.position[k])&&Math.abs(p.position[k])<1e12))clean.position={x:p.position.x,y:p.position.y,angle:p.position.angle};
@@ -933,6 +1018,190 @@ function kmText(mm){return (Math.floor(mm/10000)/100).toFixed(2);}
 function priceText(km){return Number.isInteger(km)?km.toFixed(0):km.toFixed(1);}
 function affordable(km){return balanceMm()>=Math.round(km*1000000);}
 function stats(mode=progress.mode){const def=GAME_MODES[mode],performance=garageState(mode).performance;return {maxSpeed:.34*(1+.1*performance.engine)*def.pace,acceleration:.00046*(1+.12*performance.engine)*def.accel,boostMultiplier:1.35,boostSeconds:performance.turbo?performance.turbo+1:0,rechargeSeconds:6-performance.cooling,brakeMultiplier:(1+.15*performance.brakes)*def.brake};}
+const trophyKmFormat=new Intl.NumberFormat('en-US',{maximumFractionDigits:2});
+const trophyKm=km=>trophyKmFormat.format(km)+' KM';
+let trophyPending=null,trophyAudio=null;
+
+function trophyCard(item,owned){
+ const locked=!owned&&!affordable(item.price);
+ const state=owned?'owned':locked?'locked':'available';
+ const tag=owned?'article':'button';
+ const controls=owned?'tabindex="-1" data-trophy-owned':'type="button" data-trophy-buy';
+ return '<'+tag+' class="trophy-item" data-state="'+state+'" '+controls+'="'+item.id+'">'+
+  '<canvas width="224" height="152" aria-hidden="true"></canvas>'+
+  '<strong class="trophy-name">'+item.name+'</strong>'+
+  '<span class="trophy-item-meta"><span class="trophy-price">'+trophyKm(item.price)+'</span>'+
+  '<span class="trophy-state">'+(owned?'Owned':locked?'Locked':'Available')+'</span></span></'+tag+'>';
+}
+function renderTrophyRoom(){
+ const owned=TROPHIES.filter(item=>progress.ownedTrophies.includes(item.id));
+ const available=TROPHIES.filter(item=>!progress.ownedTrophies.includes(item.id));
+ $('trophyBalance').textContent=trophyKm(Math.floor(balanceMm()/10000)/100);
+ $('trophySpent').textContent=trophyKm(owned.reduce((sum,item)=>sum+item.price,0))+' spent on trophies';
+ $('trophyEmpty').hidden=owned.length>0;
+ $('trophyRemaining').textContent=available.length?available.length+' remaining':'Collection complete';
+ $('trophyOwned').innerHTML=owned.map(item=>trophyCard(item,true)).join('');
+ $('trophyShop').innerHTML=available.map(item=>trophyCard(item,false)).join('');
+ for(const card of $('trophyDialog').querySelectorAll('[data-trophy-buy],[data-trophy-owned]')){
+  drawTrophyIcon(card.querySelector('canvas').getContext('2d'),card.dataset.trophyBuy||card.dataset.trophyOwned);
+ }
+}
+function showTrophyShortfall(item,card){
+ const remaining=Math.ceil((Math.round(item.price*1000000)-balanceMm())/10000)/100;
+ const message=trophyKm(remaining)+' still needed';
+ card.querySelector('.trophy-state').textContent=message;
+ card.classList.remove('trophy-shake');void card.offsetWidth;card.classList.add('trophy-shake');
+ $('trophyFeedback').textContent=item.name+' · '+message;
+}
+function requestTrophyPurchase(card){
+ if(activeModal!=='trophyModal'||trophyPending)return;
+ const item=TROPHIES.find(entry=>entry.id===card.dataset.trophyBuy);
+ if(!item||progress.ownedTrophies.includes(item.id))return;
+ if(!affordable(item.price)){showTrophyShortfall(item,card);return;}
+ trophyPending={item,card};
+ $('trophyConfirmCopy').textContent='Buy '+item.name+' for '+trophyKm(item.price)+'? Purchases are final.';
+ $('trophyDialog').inert=true;
+ $('trophyConfirmation').hidden=false;
+ $('trophyCancel').focus();
+}
+function dismissTrophyConfirmation(restoreFocus=false){
+ if(!trophyPending)return;
+ const {card}=trophyPending;
+ trophyPending=null;
+ $('trophyConfirmation').hidden=true;
+ $('trophyDialog').inert=false;
+ if(restoreFocus&&card.isConnected)card.focus({preventScroll:true});
+}
+function playTrophyCelebration(){
+ const Audio=window.AudioContext||window.webkitAudioContext;
+ if(!Audio)return;
+ try{
+  const c=trophyAudio??(trophyAudio=new Audio());
+  if(c.state==='suspended')c.resume().catch(()=>{});
+  for(const [index,pitch] of [523.25,659.25,783.99,1046.5].entries()){
+   const tone=c.createOscillator(),volume=c.createGain(),start=c.currentTime+index*.055;
+   tone.type='sine';tone.frequency.value=pitch;
+   volume.gain.setValueAtTime(.001,start);volume.gain.exponentialRampToValueAtTime(.075,start+.015);
+   volume.gain.exponentialRampToValueAtTime(.001,start+.19);
+   tone.connect(volume);volume.connect(c.destination);tone.start(start);tone.stop(start+.2);
+  }
+ }catch{}
+}
+function confirmTrophyPurchase(){
+ if(activeModal!=='trophyModal'||!trophyPending)return false;
+ const {item,card}=trophyPending;
+ dismissTrophyConfirmation(true);
+ if(progress.ownedTrophies.includes(item.id))return false;
+ if(!affordable(item.price)){showTrophyShortfall(item,card);return false;}
+ const cost=Math.round(item.price*1000000);
+ progress.spentMm+=cost;progress.ownedTrophies.push(item.id);
+ progressDirty=true;saveProgress();
+ if(!savingAvailable){
+  // Commit ownership and the wallet debit together, or leave both as they were.
+  progress.spentMm-=cost;progress.ownedTrophies.pop();
+  $('trophyFeedback').textContent='Could not save the purchase. Try again when browser storage is available.';
+  return false;
+ }
+ $('wallet').textContent=kmText(balanceMm())+' km';
+ renderTrophyRoom();
+ $('trophyFeedback').textContent=item.name+' added to your collection.';
+ const award=$('trophyOwned').querySelector('[data-trophy-owned="'+item.id+'"]');
+ if(award){
+  award.classList.add('trophy-awarded');
+  award.focus();
+ }
+ playTrophyCelebration();
+ return true;
+}
+function drawTrophyIcon(g,id){
+ g.save();g.setTransform(2,0,0,2,112,76);g.clearRect(-56,-38,112,76);
+ const path=(vertices)=>{
+  g.beginPath();g.moveTo(vertices[0],vertices[1]);
+  for(let i=2;i<vertices.length;i+=2)g.lineTo(vertices[i],vertices[i+1]);
+ };
+ const shape=(color,...vertices)=>{path(vertices);g.closePath();g.fillStyle=color;g.fill();};
+ const round=(color,x,y,w,h,r=2)=>{g.fillStyle=color;g.beginPath();g.roundRect(x,y,w,h,r);g.fill();};
+ const oval=(color,x,y,rx,ry)=>{g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,TAU);g.fill();};
+ const line=(color,width,...vertices)=>{path(vertices);g.strokeStyle=color;g.lineWidth=width;g.stroke();};
+ const bar=(x,y,metal=false)=>{
+  g.save();g.translate(x,y);
+  shape(metal?'#768e95':'#aa7337',-24,5,19,5,28,-4,23,13,-26,13);
+  shape(metal?'#f0f5e9':'#ffe5a0',-24,5,-17,-11,22,-11,28,-4,19,5);
+  shape(metal?'#98b2b6':'#c18b42',19,5,28,-4,23,13,17,13);
+  round(metal?'#c6d7d5':'#dbb05c',-10,-6,23,4,1);
+  g.restore();
+ };
+ oval('#0c27298c',0,26,37,5);
+ switch(id){
+  case 'gold-bar':bar(0,-2);break;
+  case 'gold-stack':bar(-12,8);bar(13,3);bar(-1,-11);break;
+  case 'platinum':
+   bar(0,-2,true);
+   g.font='bold 10px Arial';g.textAlign='center';g.fillStyle='#4d6c70';g.fillText('Pt',3,0);break;
+  case 'diamond':
+   shape('#a5e5ec',-19,-24,18,-24,29,-9,0,27,-29,-9);
+   shape('#e5fcf2',-19,-24,-7,-9,8,-24);shape('#f3ffff',8,-24,-7,-9,29,-9,18,-24);
+   shape('#76b6db',-29,-9,-7,-9,0,27);shape('#54a3bc',29,-9,8,-9,0,27);break;
+  case 'watch':
+   round('#a77e44',-9,-32,18,64,4);
+   for(const y of [-28,-21,19,26])round('#e7bc68',-7,y,14,4,1);
+   oval('#b88a49',0,0,21,20);oval('#f5d98c',0,0,18,17);
+   oval('#254f47',0,0,14,13);round('#d7aa63',19,-3,5,6,1);
+   line('#fbebbe',1.8,-5,-6,0,0,6,-3);
+   for(const [x,y] of [[0,-10],[10,0],[0,10],[-10,0]])oval('#f7e1a2',x,y,1,1);
+   break;
+  case 'speedboat':
+   oval('#699f9f',0,17,42,9);
+   shape('#e3eee0',-40,2,40,-6,31,8,18,14,-30,14);
+   shape('#eab35f',-36,6,34,0,30,5,20,11,-32,11);
+   shape('#5a92a0',-15,0,-5,-11,12,-12,23,-3);
+   line('#afded7',1.5,-40,20,-13,20,0,17,24,17);break;
+  case 'superyacht':
+   oval('#659d9e',0,19,46,9);
+   shape('#e9e9d7',-42,2,42,-1,33,11,23,15,-35,15);
+   round('#a5ced0',-30,-5,52,8,3);round('#e6e8da',-24,-14,38,10,3);round('#9cc3c8',-16,-22,23,8,2);
+   line('#597f89',2,-37,7,35,6);line('#e5e9d4',1.4,-10,-22,-10,-28,3,-28);
+   line('#b4dcd1',1.4,-43,22,-12,22,1,19,35,19);break;
+  case 'private-jet':
+   g.rotate(-.26);
+   shape('#9fbfc4',-10,-3,-25,-28,-16,-30,10,-4,10,4,-16,30,-25,28,-10,3);
+   shape('#b3ced0',-29,0,-38,-14,-30,-16,-14,-2,-14,2,-30,16,-38,14);
+   shape('#e9eddd',-39,-3,22,-6,36,-4,45,0,36,4,22,6,-39,3);
+   round('#4e8190',23,-3,10,6,2);
+   for(let x=-12;x<=17;x+=7)round('#83a8ad',x,-1.5,3,3,1);
+   break;
+  case 'helicopter':
+   shape('#a6b8a0',-40,-12,-7,-7,-8,2,-39,-5);
+   round('#d2b673',-12,-12,43,22,8);
+   round('#67949a',10,-9,18,10,4);
+   line('#d9e5d8',2.5,-31,-23,30,-23);line('#2e5353',2.5,0,-23,0,-12);
+   line('#c8d2b9',2,-3,10,-5,17,31,17);line('#c8d2b9',2,20,10,23,17);
+   line('#c8d2b9',2,-37,-15,-41,-2);break;
+  case 'mansion':
+   round('#a58766',-41,20,82,4,1);
+   round('#e5d5ac',-34,-7,68,27,1);
+   shape('#77958b',-40,-7,0,-28,40,-7);
+   shape('#385b50',-44,-6,0,-30,44,-6,37,-6,0,-24,-37,-6);
+   for(const x of [-28,-17,13,24])round('#769ba0',x,-2,6,9,1);
+   round('#5c6f5b',-6,2,12,18,1);
+   for(const x of [-13,10])round('#f5e6b9',x,-6,3,26,1);
+   break;
+  case 'island':
+   oval('#6baba6',0,10,43,15);oval('#dfc385',0,6,34,12);oval('#6d9e6b',-4,2,24,8);
+   line('#87664a',3,4,7,6,-8,13,-20);
+   shape('#7ab982',13,-20,0,-31,-12,-22,-3,-24);
+   shape('#9dc786',13,-20,25,-28,37,-19,25,-22);
+   shape('#55956c',13,-20,28,-12,35,-4,23,-14);
+   line('#c1e1ce',1.4,-35,22,-24,22,-18,20,11,20);break;
+  case 'rocket':
+   shape('#8db6b6',-12,7,-19,13,-19,23,-7,20,7,20,19,23,19,13,12,7);
+   shape('#eeeada',-11,18,-11,-5,-8,-19,0,-33,8,-19,11,-5,11,18);
+   shape('#d68f64',-8,-19,0,-33,8,-19);
+   oval('#548894',0,-6,5.5,5.5);
+   shape('#e49a5d',-7,19,7,19,0,33);shape('#ffe1a0',-3,19,3,19,0,28);break;
+ }
+ g.restore();
+}
 function saveProgress(){
  progress.position={x:player.x,y:player.y,angle:player.angle};
  try{localStorage.setItem(SAVE_KEY,JSON.stringify(progress));savingAvailable=true;progressDirty=false;}
@@ -1465,14 +1734,45 @@ function drawJobWaypoint(){
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2800);}
 function clearKeys(){turbo.active=false;for(const k of Object.keys(keys))delete keys[k];document.querySelectorAll('.held').forEach(b=>b.classList.remove('held'));}
 function start(){if(started)return;started=true;$('intro').hidden=true;document.body.classList.add('driving');canvas.focus({preventScroll:true});if(progress.policeEnabled){deployPolice();toast('Police pursuit on. Keep moving.');}else if(JOB_MODES.includes(progress.mode))toast(GAME_MODES[progress.mode].name+(jobTarget()?' · Your accepted job is ready to resume.':' · Press E to accept a job.')); else toast('Welcome to '+neighbourhood(player.x,player.y)+'. Take any turn.');ensureJobOffer();updateHUD();updatePoliceHUD();}
-function closeModal(){if(!activeModal)return;$(activeModal).hidden=true;activeModal=null;clearKeys();$('pauseBtn').textContent='Ⅱ';$('pauseBtn').setAttribute('aria-label','Pause game');if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});else canvas.focus({preventScroll:true});last=performance.now();accumulator=0;}
-function openModal(id){if(activeModal===id){closeModal();return;}if(activeModal)$(activeModal).hidden=true;else previousFocus=document.activeElement;activeModal=id;$(id).hidden=false;$('toast').classList.remove('show');clearKeys();$('pauseBtn').textContent='▶';$('pauseBtn').setAttribute('aria-label','Resume game');if(id==='mapModal'){mapView.x=player.x;mapView.y=player.y;drawAtlas();}if(id==='garageModal'){previewSelection=null;saveProgress();renderGarage();}if(id==='modeModal')renderModeMenu();$(id).querySelector('button').focus();}
+function closeModal(){
+ if(!activeModal)return;
+ if(activeModal==='trophyModal')dismissTrophyConfirmation();
+ $(activeModal).hidden=true;activeModal=null;clearKeys();
+ $('pauseBtn').textContent='Ⅱ';$('pauseBtn').setAttribute('aria-label','Pause game');
+ if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});else canvas.focus({preventScroll:true});
+ last=performance.now();accumulator=0;
+}
+function openModal(id){
+ if(activeModal===id){closeModal();return;}
+ if(activeModal==='trophyModal')dismissTrophyConfirmation();
+ if(activeModal)$(activeModal).hidden=true;else previousFocus=document.activeElement;
+ activeModal=id;$(id).hidden=false;$('toast').classList.remove('show');clearKeys();
+ $('pauseBtn').textContent='▶';$('pauseBtn').setAttribute('aria-label','Resume game');
+ if(id==='mapModal'){mapView.x=player.x;mapView.y=player.y;drawAtlas();}
+ if(id==='garageModal'){previewSelection=null;saveProgress();renderGarage();}
+ if(id==='modeModal')renderModeMenu();
+ if(id==='trophyModal'){
+  $('trophyFeedback').textContent='';
+  renderTrophyRoom();$('trophyDialog').scrollTop=0;
+ }
+ $(id).querySelector('button').focus();
+}
 $('cycleModeBtn').onclick=()=>{if(!activeModal){cycleGameMode();canvas.focus({preventScroll:true});}};
 $('modeMenuBtn').onclick=$('introModesBtn').onclick=()=>openModal('modeModal');
 $('jobMapBtn').onclick=showJobMap;$('newJobBtn').onclick=()=>{changeJobOffer();canvas.focus({preventScroll:true});};
 $('acceptJobBtn').onclick=()=>{acceptJob();canvas.focus({preventScroll:true});};
 $('modeCards').addEventListener('click',e=>{const button=e.target.closest('[data-mode]');if(!button)return;if(button.dataset.mode===progress.mode||setGameMode(button.dataset.mode)){closeModal();if(!started)start();else canvas.focus({preventScroll:true});}});
 $('garageBtn').onclick=$('walletBtn').onclick=()=>openModal('garageModal');
+$('trophyBtn').onclick=()=>openModal('trophyModal');
+$('trophyShop').addEventListener('click',e=>{
+ const card=e.target.closest('[data-trophy-buy]');
+ if(card)requestTrophyPurchase(card);
+});
+$('trophyCancel').onclick=()=>dismissTrophyConfirmation(true);
+$('trophyBuy').onclick=confirmTrophyPurchase;
+$('trophyConfirmation').addEventListener('click',e=>{
+ if(e.target===$('trophyConfirmation'))dismissTrophyConfirmation(true);
+});
 $('garageModal').addEventListener('click',e=>{
  const tab=e.target.closest('[data-shop-tab]');if(tab){shopTab=tab.dataset.shopTab;previewSelection=null;renderGarage();return;}
  if(e.target.closest('[data-clear-preview]')){previewSelection=null;renderGarage();$('garageFeedback').textContent='Back to your equipped build.';$('garageModal').querySelector('[data-shop-tab="'+shopTab+'"]').focus({preventScroll:true});return;}
@@ -1484,13 +1784,24 @@ document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal();}));
 addEventListener('keydown',e=>{
  const key=e.key.toLowerCase();if(e.metaKey||e.ctrlKey||e.altKey)return;
- if(activeModal&&key==='tab'){const buttons=[...$(activeModal).querySelectorAll('button')].filter(b=>!b.disabled&&b.getClientRects().length),first=buttons[0],end=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){end.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===end){first.focus();e.preventDefault();}return;}
+ if(activeModal&&key==='tab'){
+  const focusScope=activeModal==='trophyModal'&&trophyPending?'trophyConfirmation':activeModal;
+  const buttons=[...$(focusScope).querySelectorAll('button')].filter(b=>!b.disabled&&b.getClientRects().length);
+  const first=buttons[0],end=buttons.at(-1);
+  const focused=document.activeElement;
+  const fromTrophyCard=focusScope==='trophyModal'&&!buttons.includes(focused);
+  if(e.shiftKey&&(focused===first||fromTrophyCard)){end?.focus();e.preventDefault();}
+  else if(!e.shiftKey&&(focused===end||fromTrophyCard)){first?.focus();e.preventDefault();}
+  return;
+ }
  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){if(key!==' '||document.activeElement.tagName!=='BUTTON')e.preventDefault();}
- if(e.repeat&&['r','m','g','c','v','e','escape','p'].includes(key))return;
+ if(e.repeat&&['r','m','g','b','c','v','e','escape','p'].includes(key))return;
  if(activeModal==='mapModal'&&['arrowup','arrowdown','arrowleft','arrowright','+','=','-'].includes(key)){e.preventDefault();if(key==='+'||key==='=')zoomMap(.75);else if(key==='-')zoomMap(1/.75);else{mapView.x+=(key==='arrowright'?1:key==='arrowleft'?-1:0)*mapView.span*.12;mapView.y+=(key==='arrowdown'?1:key==='arrowup'?-1:0)*mapView.span*.12;mapView.dirty=true;}return;}
+ if(key==='escape'&&activeModal==='trophyModal'&&trophyPending){dismissTrophyConfirmation(true);return;}
  if(key==='escape'||key==='p'){activeModal?closeModal():started&&openModal('pauseModal');return;}
  if(key==='m'){openModal('mapModal');return;}
  if(key==='g'){openModal('garageModal');return;}
+ if(key==='b'){openModal('trophyModal');return;}
  if(key==='v'){openModal('modeModal');return;}
  if(key==='c'){if(!activeModal)cycleGameMode();return;}
  if(activeModal)return;
