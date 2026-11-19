@@ -59,10 +59,11 @@
 .job-clean{--clean-color:#c9edad;margin-top:9px;color:var(--clean-color);font-size:11px}
 .job-clean[data-band="yellow"]{--clean-color:#f1d27e}
 .job-clean[data-band="red"]{--clean-color:#f7a19a}
-.job-clean-label{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
-.job-clean-label strong{font-variant-numeric:tabular-nums}
-.job-clean-track{height:3px;margin-top:5px;border-radius:3px;background:#ffffff20;overflow:hidden}
-.job-clean-track i{display:block;width:100%;height:100%;background:var(--clean-color);transition:width .15s ease}
+.job-bonus-row{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.job-bonus-row strong{font-variant-numeric:tabular-nums}
+.job-takedown,.job-distance-bonus{margin-top:9px;font-size:11px}
+.job-takedown{color:#e2bef8}
+.job-distance-bonus{color:#eee2ac}
 .mode-dialog{width:min(880px,100%);padding:26px}
 .mode-dialog h2{font-size:clamp(24px,4vw,32px);margin:0 42px 7px 0}
 .mode-intro{margin:0 42px 18px 0;max-width:570px}
@@ -159,9 +160,10 @@
  <h2 id="jobTitle"></h2><div class="job-distance" id="jobDistance"></div>
  <div class="job-cargo" id="jobCargo"></div><div class="job-reward" id="jobReward"></div>
  <div class="job-clean" id="jobClean" hidden>
-  <div class="job-clean-label" role="status"><span>Clean driving bonus</span><strong id="jobCleanValue">100%</strong></div>
-  <div class="job-clean-track" aria-hidden="true"><i id="jobCleanFill"></i></div>
+  <div class="job-bonus-row" role="status"><span>Clean driving bonus</span><strong id="jobCleanValue">100%</strong></div>
  </div>
+ <div class="job-bonus-row job-takedown" id="jobTakedown" role="status" hidden><span>Takedown bonus</span><strong id="jobTakedownValue">0% · +0 KM</strong></div>
+ <div class="job-bonus-row job-distance-bonus" id="jobDistanceBonus" hidden><span>Distance bonus</span><strong id="jobDistanceBonusValue"></strong></div>
  <p id="jobInstruction"></p><div class="job-progress" id="jobProgress" role="progressbar" aria-label="Boarding or loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="jobProgressFill"></i></div>
  <button class="job-accept" id="acceptJobBtn" hidden><span id="acceptJobLabel">Accept job</span><kbd>E</kbd></button>
  <div class="job-actions"><button id="jobMapBtn">Show on map ↗</button><button id="newJobBtn" class="next-job" aria-keyshortcuts="N" title="Find a new job with a pickup near your current location"><span id="newJobLabel">Next job</span><kbd id="newJobKey" aria-hidden="true">N</kbd></button></div>
@@ -835,6 +837,7 @@ const UPGRADES={
 let savingAvailable=true,progressDirty=false,saveClock=0,distanceRemainder=0;
 const RIDE_REWARD_KM=15,TRUCK_REWARD_KM=60;
 const CLEAN_DRIVING_START=100,CLEAN_DRIVING_PENALTY=5,CLEAN_CONTACT_GAP=180;
+const TAKEDOWN_BONUS_PERCENT=5;
 const cleanDrivingContacts=new WeakMap();
 const CLEAN_COLLISION_KINDS=new Set(['building','traffic','parked','police']);
 const GAME_MODES={
@@ -856,13 +859,13 @@ function busStopService(job,index=job.index){
  return {onboard:0,board:0,drop:0,bonus:0};
 }
 function busJobReward(job){return 20+BUS_BOARDING.slice(0,job.stops.length-1).reduce((sum,n)=>sum+n*5,0);}
-function cleanDrivingReward(mode,job){
- const fare=mode==='bus'?busJobReward(job):mode==='uber'?RIDE_REWARD_KM:TRUCK_REWARD_KM;
- return fare*job.cleanDriving/CLEAN_DRIVING_START;
-}
+function jobBaseReward(mode,job){return mode==='bus'?busJobReward(job):mode==='uber'?RIDE_REWARD_KM:TRUCK_REWARD_KM;}
+function cleanDrivingReward(mode,job){return jobBaseReward(mode,job)*job.cleanDriving/CLEAN_DRIVING_START;}
+function takedownReward(mode,job){return jobBaseReward(mode,job)*job.takedowns*TAKEDOWN_BONUS_PERCENT/100;}
 // KM follow the existing distance-earned scale (0.8 metres per world unit).
 const JOB_BANDS=[{name:'Regional',min:8,max:14,weight:.50},{name:'Long haul',min:20,max:40,weight:.38},{name:'Cross-country',min:60,max:100,weight:.12}];
 const RIDE_BANDS=[{min:2,max:5,weight:1}];
+const STALE_OFFER_PICKUP_KM=20;
 const SCENIC_JOB_CHANCE=.25,SCENIC_JOB_AREAS=['oldtown','park','offroad'];
 const JOB_ROUTE_COLOR='#d65cff';
 const jobLegKm=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)*.0008;
@@ -871,6 +874,10 @@ const jobStopRadius=mode=>mode==='uber'?27:40;
 const RIDE_BAY={halfLength:32,halfWidth:15},SERVICE_BAY={halfLength:49,halfWidth:20};
 const jobBaySize=mode=>mode==='uber'?RIDE_BAY:SERVICE_BAY;
 function jobLengthKm(job){return job.stops.slice(1).reduce((sum,p,n)=>sum+jobLegKm(job.stops[n],p),0);}
+function jobDistanceBonus(mode,job){
+ const tenths=Math.round(jobLengthKm(job)*10);
+ return {percent:tenths/10,km:jobBaseReward(mode,job)*tenths/1000};
+}
 function jobJourneyName(job){const longest=Math.max(...job.stops.slice(1).map((p,n)=>jobLegKm(job.stops[n],p)));return longest>=60?'Cross-country':longest>=20?'Long haul':'Regional';}
 function cleanJob(raw,mode,accepted=true){
  if(!JOB_MODES.includes(mode)||!raw||!Array.isArray(raw.stops))return null;
@@ -886,6 +893,7 @@ function cleanJob(raw,mode,accepted=true){
   if(n){const km=jobLegKm(stops[n-1],p);if(!bands.some(b=>km>=b.min&&km<=b.max))return null;}
  }
  const job={version:2,id:raw.id,index:raw.index,accepted,stops};
+ if(accepted)job.takedowns=Number.isSafeInteger(raw.takedowns)&&raw.takedowns>=0?raw.takedowns:0;
  if(accepted&&job.index>0){
   const score=raw.cleanDriving;
   job.cleanDriving=Number.isInteger(score)&&score>=0&&score<=CLEAN_DRIVING_START?score:CLEAN_DRIVING_START;
@@ -1343,6 +1351,11 @@ function recordJobCollision(other){
  job.cleanDriving=Math.max(0,job.cleanDriving-CLEAN_DRIVING_PENALTY);
  progressDirty=true;queueProgressSave();
 }
+function recordJobTakedown(){
+ const job=currentJob();
+ if(!started||!job?.accepted||job.index>=job.stops.length||job.takedowns===Number.MAX_SAFE_INTEGER)return;
+ job.takedowns++;progressDirty=true;queueProgressSave();
+}
 function modeVehicle(mode=progress.mode){const def=GAME_MODES[mode],type=VEHICLE_TYPES[def.model],kind=garageKindForMode(mode),look=appearance(garageState(kind),kind);return {model:def.model,hw:type.hw,hh:type.hh,invMass:def.model==='sedan'?1.2:type.invMass,color:look.paint.color};}
 function installModeVehicle(){Object.assign(player,modeVehicle());}
 function setGameMode(mode,announce=true){
@@ -1363,7 +1376,11 @@ function setGameMode(mode,announce=true){
  Object.assign(service,{jobId:null,ms:0,retryIn:0});jobNavigation.key='';jobNavigation.points=[];
  if(!progress.policeEnabled){police.length=0;Object.assign(policeState,{hits:0,reinforcements:0,reinforceIn:POLICE_BACKUP_DELAY,scanIn:0,dispatchFor:0});}
  else if(started)deployPolice();
- rebuildDynamic();if(started)ensureJobOffer();progressDirty=true;saveProgress();updatePoliceHUD();updateHUD();
+ rebuildDynamic();
+ const offer=currentOffer();
+ if(offer&&!jobTarget()&&jobLegKm(player,offer.stops[0])>STALE_OFFER_PICKUP_KM)delete progress.offers[mode];
+ if(started)ensureJobOffer();
+ progressDirty=true;saveProgress();updatePoliceHUD();updateHUD();
  if(activeModal==='modeModal')renderModeMenu();if(activeModal==='mapModal'){mapView.dirty=true;drawAtlas();}
  if(announce)toast(GAME_MODES[mode].name+(JOB_MODES.includes(mode)?' · '+(jobTarget()?'Your next stop is marked on the map.':'Press E to accept your next job.'):mode==='police'?' · Keep moving.':' · The city is yours.'));
  return true;
@@ -1527,7 +1544,7 @@ function ensureJobOffer(){if(!JOB_MODES.includes(progress.mode)||jobTarget())ret
 function acceptJob(){
  if(!started||activeModal||jobTarget())return false;
  const offer=currentOffer();if(!offer)return false;
- const job={...offer,accepted:true};progress.jobs[progress.mode]=job;delete progress.offers[progress.mode];
+ const job={...offer,accepted:true,takedowns:0};progress.jobs[progress.mode]=job;delete progress.offers[progress.mode];
  Object.assign(service,{jobId:job.id,ms:0,retryIn:0});jobNavigation.key='';progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
  const message=progress.mode==='bus'?'Bus job accepted · '+job.stops.length+' stops total. First pickup marked in purple.':progress.mode==='uber'?'Ride accepted · Meet your passenger at the purple marker.':'Job accepted · Your pickup is marked in purple. No time limit.';
  toast(message);return true;
@@ -1546,13 +1563,16 @@ function finishJobStop(){
  else if(mode==='uber'){bonus=last?RIDE_REWARD_KM:0;message=last?'Ride complete':'Passenger aboard. Head to the drop-off.';}
  else{bonus=last?TRUCK_REWARD_KM:0;message=last?'Materials delivered':isScenicStop(job.stops[1])?'Materials loaded. Head to the drop-off.':'Materials loaded. Head to the shop.';}
  const cleanBonus=last?cleanDrivingReward(mode,job):0;
+ const takedownBonus=last?takedownReward(mode,job):0;
+ const distanceBonus=last?jobDistanceBonus(mode,job).km:0;
+ const rewardMetres=Math.round((bonus+cleanBonus+takedownBonus+distanceBonus)*1000);
  // Advance first, then save the new stage and its reward together. Holding the
  // brake, changing modes or reloading cannot collect the same delivery twice.
  if(index===0)job.cleanDriving=CLEAN_DRIVING_START;
  job.index++;service.ms=0;jobNavigation.key='';if(last){progress.completedJobs[mode]++;ensureJobOffer();}
- if(bonus||cleanBonus)earnDistance((bonus+cleanBonus)*1000);
+ if(rewardMetres)earnDistance(rewardMetres);
  progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
- toast(message+(bonus?' · +'+bonus+' KM':'')+(cleanBonus?' · +'+cleanBonus+' KM clean driving':'')+(last?(mode==='uber'?' · Press E for the next ride.':' · Press E when you want another job.'):''));
+ toast(message+(bonus?' · +'+bonus+' KM':'')+(cleanBonus?' · +'+cleanBonus+' KM clean driving':'')+(takedownBonus?' · +'+takedownBonus+' KM takedowns':'')+(distanceBonus?' · +'+distanceBonus+' KM distance':'')+(last?(mode==='uber'?' · Press E for the next ride.':' · Press E when you want another job.'):''));
 }
 function insideJobBay(target){
  const {halfLength,halfWidth}=jobBaySize(progress.mode),dx=player.x-target.x,dy=player.y-target.y;
@@ -1688,8 +1708,12 @@ function updateModeHUD(){
   const band=score>=70?'green':score>30?'yellow':'red';
   if(cleanPanel.dataset.band!==band)cleanPanel.dataset.band=band;
   put('jobCleanValue',score+'% · +'+cleanDrivingReward(mode,job)+' KM');
-  $('jobCleanFill').style.width=score+'%';
  }
+ $('jobTakedown').hidden=!target;
+ if(target)put('jobTakedownValue',job.takedowns*TAKEDOWN_BONUS_PERCENT+'% · +'+takedownReward(mode,job)+' KM');
+ const displayedJob=target?job:offer,distanceBonus=displayedJob?jobDistanceBonus(mode,displayedJob):null;
+ $('jobDistanceBonus').hidden=!distanceBonus;
+ if(distanceBonus)put('jobDistanceBonusValue',distanceBonus.percent+'% · +'+distanceBonus.km+' KM');
  const newJobButton=$('newJobBtn');
  put('newJobLabel',rideMode?(target?'End ride':'Next ride'):(target?'End job':'Next job'));
  $('newJobKey').hidden=!!target;
@@ -1701,7 +1725,7 @@ function updateModeHUD(){
   const offerType=offer&&(busMode?jobJourneyName(offer)+(scenic?' · Final stop at '+destination.name:''):rideMode?'1 passenger':'Depot → '+(scenic?destination.name:'shop'));
   put('jobTitle',offerTitle||'Finding a clear pickup…');
   put('jobStage','AWAITING ACCEPTANCE');
-  put('jobDistance',offer?'≈ '+jobLengthKm(offer).toFixed(1)+' km':'');
+  put('jobDistance',offer?'≈ '+distanceBonus.percent.toFixed(1)+' km':'');
   put('jobCargo',offer?offerType+' · pickup '+jobLegKm(player,offer.stops[0]).toFixed(1)+' km away':'Drive towards another street for an offer.');
   put('jobReward',busMode?(offer?'Drop-off bonuses · '+busJobReward(offer)+' KM total':'Earn bonuses at passenger drop-offs'):rideMode?'Ride fare · '+RIDE_REWARD_KM+' KM':'Delivery bonus · '+TRUCK_REWARD_KM+' KM');
   let instruction='Keep exploring for a nearby pickup. Jobs start when you accept them.';
@@ -2201,7 +2225,7 @@ function resolve(a,b,hit){
  if(a.destroyed||b.destroyed||ignoresCollision(a,b))return;
  if(a.kind==='traffic')a.bumpFor=1800;if(b.kind==='traffic')b.bumpFor=1800;
  const target=a===player?b:b===player?a:null;
- if(turbo.active&&target&&destroyVehicle(target))return;
+ if(turbo.active&&target&&destroyVehicle(target)){recordJobTakedown();return;}
  const sum=a.invMass+b.invMass;if(!sum)return;
  if(target)recordJobCollision(target);
  // Parked cars rest until contact wakes them, including during chain collisions.
