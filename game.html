@@ -867,6 +867,8 @@ const JOB_ROUTE_COLOR='#d65cff';
 const jobLegKm=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)*.0008;
 const isScenicStop=stop=>stop.site.startsWith('scenic:');
 const jobStopRadius=mode=>mode==='uber'?27:40;
+const RIDE_BAY={halfLength:32,halfWidth:15},SERVICE_BAY={halfLength:49,halfWidth:20};
+const jobBaySize=mode=>mode==='uber'?RIDE_BAY:SERVICE_BAY;
 function jobLengthKm(job){return job.stops.slice(1).reduce((sum,p,n)=>sum+jobLegKm(job.stops[n],p),0);}
 function jobJourneyName(job){const longest=Math.max(...job.stops.slice(1).map((p,n)=>jobLegKm(job.stops[n],p)));return longest>=60?'Cross-country':longest>=20?'Long haul':'Regional';}
 function cleanJob(raw,mode,accepted=true){
@@ -1551,13 +1553,19 @@ function finishJobStop(){
  progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
  toast(message+(bonus?' · +'+bonus+' KM':'')+(cleanBonus?' · +'+cleanBonus+' KM clean driving':'')+(last?(mode==='uber'?' · Press E for the next ride.':' · Press E when you want another job.'):''));
 }
+function insideJobBay(target){
+ const {halfLength,halfWidth}=jobBaySize(progress.mode),dx=player.x-target.x,dy=player.y-target.y;
+ const cos=Math.cos(target.angle),sin=Math.sin(target.angle);
+ return Math.abs(dx*cos+dy*sin)<=halfLength&&Math.abs(-dx*sin+dy*cos)<=halfWidth;
+}
 function updateJob(dt){
  if(!started||activeModal||!JOB_MODES.includes(progress.mode))return;
  const job=currentJob(),target=jobTarget();
  if(!target){service.ms=0;service.retryIn-=dt;if(service.retryIn<=0){ensureJobOffer();service.retryIn=2000;}return;}
  if(service.jobId!==job.id){service.jobId=job.id;service.ms=0;}
  const distance=Math.hypot(player.x-target.x,player.y-target.y),slow=Math.hypot(player.vx,player.vy)<.014,accelerating=keys.w||keys.arrowup;
- if(distance<jobStopRadius(progress.mode)&&slow&&!accelerating){player.vx=player.vy=0;service.ms+=dt;if(service.ms>=2200)finishJobStop();}else service.ms=0;
+ const inStopArea=distance<jobStopRadius(progress.mode)||insideJobBay(target);
+ if(inStopArea&&slow&&!accelerating){player.vx=player.vy=0;service.ms+=dt;if(service.ms>=2200)finishJobStop();}else service.ms=0;
 }
 function updateJobNavigation(){
  const target=jobTarget();
@@ -1702,7 +1710,8 @@ function updateModeHUD(){
  }else{
   put('jobTitle',target.name);
   const distance=jobLegKm(player,target)*1000,arrow=['→','↘','↓','↙','←','↖','↑','↗'][mod(Math.round(Math.atan2(target.y-player.y,target.x-player.x)/(Math.PI/4)),8)];
-  put('jobDistance',distance<jobStopRadius(mode)*.8?'◎ STOP HERE':arrow+' '+(distance<1000?Math.round(distance)+' m':(distance/1000).toFixed(1)+' km'));
+  const inStopArea=distance<jobStopRadius(mode)*.8||insideJobBay(target);
+  put('jobDistance',inStopArea?'◎ STOP HERE':arrow+' '+(distance<1000?Math.round(distance)+' m':(distance/1000).toFixed(1)+' km'));
   const step=job.index,bus=busMode?busStopService(job):null;
   put('jobStage',busMode?'Stop '+(step+1)+' of '+job.stops.length:step===0?'1 / 2 · PICK UP':'2 / 2 · DROP OFF');
   if(rideMode){
@@ -1764,7 +1773,7 @@ function drawJobMap(g,m,routeStart=null){
 function drawJobWaypoint(){
  const target=jobTarget();if(!target||!visible(target.x,target.y,110))return;
  const ride=progress.mode==='uber',color=JOB_ROUTE_COLOR;
- const halfLength=ride?32:49,halfWidth=ride?15:20;
+ const {halfLength,halfWidth}=jobBaySize(progress.mode);
  ctx.save();ctx.translate(target.x,target.y);ctx.rotate(target.angle);
  ctx.fillStyle=color+'22';ctx.fillRect(-halfLength,-halfWidth,halfLength*2,halfWidth*2);
  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash([9,5]);ctx.strokeRect(-halfLength,-halfWidth,halfLength*2,halfWidth*2);ctx.setLineDash([]);
@@ -2241,12 +2250,15 @@ function updatePlayer(dt){
  // Temporary speed expires smoothly, even while regular turbo is still active.
  if(coastingBoost)forwardSpeed=Math.max(speedLimit,forwardSpeed-dt*.00045);
  forwardSpeed=clamp(forwardSpeed,-.12,coastingBoost?Math.max(speedLimit,forwardSpeed):speedLimit);
+ const stop=!accel&&!brake&&!handbrake&&forwardSpeed!==0?jobTarget():null;
+ const assistBraking=!!stop&&insideJobBay(stop);
+ if(assistBraking)forwardSpeed=Math.sign(forwardSpeed)*Math.max(0,Math.abs(forwardSpeed)-.00025*dt);
  const steerInput=(right?1:0)-(left?1:0),speedFactor=Math.min(1,Math.abs(forwardSpeed)/.08),dir=forwardSpeed>=-.005?1:-1;
  player.angle+=steerInput*(handbrake?.0046:.0034)*GAME_MODES[progress.mode].steer*speedFactor*dir*dt;
  lateralSpeed*=Math.pow(handbrake?.88:grass?.90:dirt?.91:.78,dt/16);
  const nc=Math.cos(player.angle),ns=Math.sin(player.angle);
  player.vx=forwardSpeed*nc-lateralSpeed*ns;player.vy=forwardSpeed*ns+lateralSpeed*nc;
- player.braking=!!brake||!!handbrake;
+ player.braking=!!brake||!!handbrake||assistBraking;
  if((dirt||grass)&&Math.abs(forwardSpeed)>.08&&simTime%75<dt&&particles.length<160){for(let n=0;n<2;n++)particles.push({x:player.x-nc*17-ns*(n?6:-6),y:player.y-ns*17+nc*(n?6:-6),vx:-player.vx*.12+(random()-.5)*.025,vy:-player.vy*.12+(random()-.5)*.025,life:400+random()*160,color:grass?'#b8bd8b':'#c7b58b',size:3+random()*3});}
  if((Math.abs(lateralSpeed)>.055||(handbrake&&Math.abs(forwardSpeed)>.1))&&!grass&&simTime%25<dt){
    for(const side of [-1,1])skids.push({x:player.x-cos*10-sin*side*6,y:player.y-sin*10+cos*side*6,angle:player.angle,life:11000});
