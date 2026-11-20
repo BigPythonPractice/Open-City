@@ -732,6 +732,39 @@ function generateNature(s,road,building,obstacle,away,occupied,rng){
   s.decor=s.decor.filter(clearRock);
  }
 }
+function roundedOldTownLoop(corners){
+ const points=[];
+ for(let i=0;i<corners.length;i++){
+  const corner=corners[i],previous=corners.at(i-1),next=corners[(i+1)%corners.length];
+  const before=32/Math.hypot(previous.x-corner.x,previous.y-corner.y);
+  const after=32/Math.hypot(next.x-corner.x,next.y-corner.y);
+  const entry={x:lerp(corner.x,previous.x,before),y:lerp(corner.y,previous.y,before)};
+  const exit={x:lerp(corner.x,next.x,after),y:lerp(corner.y,next.y,after)};
+  for(let step=0;step<=6;step++){
+   const t=step/6,u=1-t;
+   points.push({x:u*u*entry.x+2*u*t*corner.x+t*t*exit.x,y:u*u*entry.y+2*u*t*corner.y+t*t*exit.y});
+  }
+ }
+ points.push(points[0]);
+ return points;
+}
+function oldTownTrafficLoops(nodes){
+ const size=nodes.length,points=nodes.flat(),loops=[];
+ function visit(start,path){
+  const node=path.at(-1),row=Math.floor(node/size),col=node%size;
+  // Alternating one-way streets give the narrow grid a shared direction.
+  const nextCol=col+(row%2?-1:1),nextRow=row+(col%2?1:-1),outgoing=[];
+  if(nextCol>=0&&nextCol<size)outgoing.push(row*size+nextCol);
+  if(nextRow>=0&&nextRow<size)outgoing.push(nextRow*size+col);
+  for(const next of outgoing){
+   if(next===start&&path.length>=4)loops.push(roundedOldTownLoop(path.map(index=>points[index])));
+   // Begin each loop at its lowest node index and use each junction once.
+   else if(next>start&&!path.includes(next))visit(start,[...path,next]);
+  }
+ }
+ for(let start=0;start<points.length;start++)visit(start,[start]);
+ return loops;
+}
 function getScene(a,b){
  const key=a+','+b;if(activeScenes.has(key))return activeScenes.get(key);if(sceneCache.has(key))return sceneCache.get(key);
  const type=regionType(a,b);if(type==='city')return null;
@@ -819,7 +852,7 @@ function getScene(a,b){
   // One familiar landmark gives each historic centre a recognisable heart.
   const hall=s.buildings.filter(b=>b.role!=='pharmacy').reduce((best,b)=>!best||Math.hypot(b.x-plaza.x,b.y-plaza.y)<Math.hypot(best.x-plaza.x,best.y-plaza.y)?b:best,null);
   if(hall){hall.label='TOWN HALL';hall.role='civic';hall.architecture=s.town.id==='sandstone'?'dome':s.town.id==='alpine'?'control':'deco';hall.height=16;}
-  const loop=[...nodes[0],nodes[1][3],nodes[2][3],...nodes[3].slice().reverse(),nodes[2][0],nodes[1][0],nodes[0][0]];s.trafficLoops.push(loop);
+  s.trafficLoops=oldTownTrafficLoops(nodes);s.trafficJunctions=nodes.flat();
   for(let n=0;n<18;n++){const p=point(.1+rng()*.8,.1+rng()*.8),q={...p,hw:12,hh:12};if(away(q,9)&&!occupied(q))s.trees.push({...p,r:9,tone:rng()});}
   s.entry=portals[0];s.showcase=plaza;
  }else generateNature(s,road,building,obstacle,away,occupied,rng);
@@ -922,7 +955,7 @@ function highwayRoute(axis,index,lane,direction){
  const a=axis===0?{x:coord-direction*lane,y:low}:{x:low,y:coord+direction*lane},b=axis===0?{x:a.x,y:high}:{x:high,y:a.y};
  const route=polyRoute(direction>0?[a,b]:[b,a]);route.closed=false;route.highway={axis,index,lane,direction};return route;
 }
-const DRIVER_PACE={chilled:.76,normal:1,speeder:1.34,emergency:1.56,gang:1};
+const DRIVER_PACE={chilled:.76,normal:1,speeder:1.48,emergency:1.56,gang:1};
 const FAST_TRAFFIC_BRAKE=.00135;
 function trafficDriver(model,id,gang){
  if(gang)return 'gang';
@@ -943,6 +976,7 @@ function trafficCandidate(route,distance,roadType,cruise,initial=false,gang=0){
  const c=makeCar(p.x,p.y,p.angle,color,'traffic',model);
  // Leave braking room when joining roads, and keep grid crossings clear.
  if(route.junctions?.some(j=>Math.abs(c.x-j.x)<100+c.hw&&Math.abs(c.y-j.y)<100+c.hw))return null;
+ if(route.spawnJunctions?.some(j=>Math.hypot(c.x-j.x,c.y-j.y)<48+c.hw))return null;
  if(route.highway&&!gang){
   const axis=1-route.highway.axis,v=axis===0?c.x:c.y,index=roadIndex(v,axis);
   if([index,index+1].some(i=>Math.abs(v-roadCoord(i,axis))<roadHalf(i,axis)+c.hw+30))return null;
@@ -1028,7 +1062,10 @@ function refillTraffic(initial=false){
   if(highways.length&&(roll<.4||!pool.length&&!scenic.length)){
    const hw=choose(highways);route=highwayRoute(hw.axis,hw.index,random()<.5?54:100,random()<.5?1:-1);roadType='highway';cruise=.28+random()*.1;
   }else if(scenic.length&&(roll<.65||!pool.length)){
-   const s=choose(scenic);route=polyRoute(s.trafficLoops[0]);roadType=s.type;cruise=s.type==='oldtown'?.11+random()*.035:s.type==='offroad'?.13+random()*.04:.16+random()*.055;
+   const s=choose(scenic),loops=s.trafficLoops;
+   route=polyRoute(loops.length>1?choose(loops):loops[0]);
+   if(s.trafficJunctions)route.spawnJunctions=s.trafficJunctions;
+   roadType=s.type;cruise=s.type==='oldtown'?.11+random()*.035:s.type==='offroad'?.13+random()*.04:.16+random()*.055;
   }else{const b=choose(pool);if(!b)continue;route=routeRect(roadCoord(b.i,0),roadCoord(b.j,1),roadCoord(b.i+1,0),roadCoord(b.j+1,1),random()>.5);}
   const c=trafficCandidate(route,random()*route.length,roadType,cruise,initial);
   if(c)traffic.push(c);
@@ -1066,7 +1103,7 @@ function spawnMotorbikeGang(count=2+Math.floor(random()*5)){
   }
  }
  candidates.sort((a,b)=>a.score-b.score);
- const speed=.58+random()*.055,gang=gangSerial+1;
+ const speed=.60+random()*.055,gang=gangSerial+1;
  for(const {route,d,front,rear} of candidates){
   const fx=Math.cos(front.angle),fy=Math.sin(front.angle);
   const from={x:rear.x-fx*55,y:rear.y-fy*55},to={x:front.x+fx*310,y:front.y+fy*310};
@@ -1077,9 +1114,10 @@ function spawnMotorbikeGang(count=2+Math.floor(random()*5)){
   const occupied=[traffic,parked,police].some(group=>group.some(blocksLaunch))||
    progress.mode!=='train'&&blocksLaunch(player);
   if(occupied||!segmentClear(from.x,from.y,to.x,to.y,12))continue;
-  const pack=[];
+  const pack=[],{axis,index,lane,direction}=route.highway;
   for(let i=0;i<count;i++){
-   const bike=trafficCandidate(route,d-i*GANG_RIDER_GAP,'highway',speed,false,gang);
+   const riderRoute=highwayRoute(axis,index,lane,direction);
+   const bike=trafficCandidate(riderRoute,d-i*GANG_RIDER_GAP,'highway',speed,false,gang);
    if(!bike)break;
    pack.push(bike);
   }
@@ -1442,7 +1480,12 @@ function railRestore(raw){
 function railSyncPlayer(){const t=railway.player;if(!t)return;const p=railSample(t);Object.assign(player,{x:p.x,y:p.y,angle:p.angle,vx:Math.cos(p.angle)*t.speed,vy:Math.sin(p.angle)*t.speed});}
 function railIntervals(t,a,b){
  let start=0;const out=[];
- for(const ref of t.pieces){const p=railGeometry(ref.id),end=start+p.length;if(end>=a&&start<=b)out.push({key:p.reservation,start,end,piece:p});start=end;}return out;
+ for(let index=0;index<t.pieces.length;index++){
+  const p=railGeometry(t.pieces[index].id),end=start+p.length;
+  if(end>=a&&start<=b)out.push({key:p.reservation,start,end,piece:p,index});
+  start=end;
+ }
+ return out;
 }
 function railOccupied(t){
  return railIntervals(t,t.d-RAIL_GAP*(RAIL_CARS-1)-37,t.d+37);
@@ -1470,11 +1513,22 @@ function railProtectJobRoute(t,target){
  for(const ref of refs)blocks.add(railGeometry(ref.id).reservation);
 }
 function railReserveTrains(trains){
- railway.reservations.clear();
- for(const key of railway.jobBlocks)railway.reservations.set(key,railway.player);
- for(const t of trains)for(const span of railOccupied(t))railway.reservations.set(span.key,t);
+ const reservations=railway.reservations,exits=[];
+ reservations.clear();
+ for(const key of railway.jobBlocks)reservations.set(key,railway.player);
+ for(const t of trains){
+  const dir=t===railway.player?railTravelDirection(t):1;
+  for(const span of railOccupied(t)){
+   reservations.set(span.key,t);
+   const exit=span.piece.kind==='j'?t.pieces[span.index+dir]:null;
+   if(exit)exits.push({key:exit.id,train:t});
+  }
+ }
+ // Keep the exit reserved until the last carriage clears the junction.
+ for(const {key,train} of exits)if(!reservations.has(key))reservations.set(key,train);
 }
-function railClearance(t,dir,braking){
+function railClearance(t,dir,braking,reserve=true){
+ if(reserve)t.blockingTrain=null;
  const lead=dir>0?t.d+38:t.d-RAIL_GAP*2-38,far=lead+dir*braking;let spans=railIntervals(t,Math.min(lead,far),Math.max(lead,far));if(dir<0)spans.reverse();
  // Reserve the exit as well as the junction. A train must never wait across
  // the points while another train needs them to leave the occupied section.
@@ -1486,11 +1540,15 @@ function railClearance(t,dir,braking){
   const span=spans[n],owner=railway.reservations.get(span.key);
   if(owner&&owner!==t){
    const previous=spans[n-1],barrier=previous?.piece.kind==='j'&&!occupied.has(previous.key)?previous:span;
-   for(const p of spans.slice(0,barrier===previous?n-1:n))railway.reservations.set(p.key,t);
+   if(reserve){
+    t.blockingTrain=owner;
+    for(const p of spans.slice(0,barrier===previous?n-1:n))railway.reservations.set(p.key,t);
+   }
    return Math.max(0,dir>0?barrier.start-lead-12:lead-barrier.end-12);
   }
  }
- for(const p of spans)railway.reservations.set(p.key,t);return Infinity;
+ if(reserve)for(const p of spans)railway.reservations.set(p.key,t);
+ return Infinity;
 }
 function railUpdatePlayer(dt){
  const t=railway.player;if(!t)return;const st=stats('train'),up=keys.w||keys.arrowup,down=keys.s||keys.arrowdown,emergency=keys[' '],previous=t.speed;
@@ -1514,7 +1572,8 @@ function railUpdatePlayer(dt){
 }
 function railRoadSpawn(){
  const tailOffset=RAIL_GAP*(RAIL_CARS-1);
- const occupied=new Set(railway.npcs.flatMap(t=>railOccupied(t).map(span=>span.key)));
+ const reserved=new Set(railway.reservations.keys());
+ for(const t of railway.npcs)for(const span of railOccupied(t))reserved.add(span.key);
  const halfW=viewW/(2*zoom),halfH=viewH/(2*zoom);
  let best=null;
  function consider(pieces,d,waypoint,score){
@@ -1532,7 +1591,7 @@ function railRoadSpawn(){
   const x=player.x+player.vx*time,y=player.y+player.vy*time;
   const edges=railPiecesIn(x-halfW,y-halfH,x+halfW,y+halfH,false);
   for(const edge of edges){
-   if(occupied.has(edge.id))continue;
+   if(reserved.has(edge.id))continue;
    let closest=Infinity,waypoint=0;
    for(const seg of edge.route.segments){
     const point=projectSegment(x,y,seg,{x:seg.x+seg.dx,y:seg.y+seg.dy});
@@ -1546,11 +1605,11 @@ function railRoadSpawn(){
     const d=arrival-time*RAIL_NPC_CRUISE;
     if(d>=tailOffset+45){consider([ref],d,waypoint,score);continue;}
     const {node,port}=railEnd(ref,-1);
-    if(occupied.has('j:'+node.key.replace(',',':')))continue;
+    if(reserved.has('j:'+node.i+':'+node.j))continue;
     for(const entry of ['E','S','W','N']){
      if(entry===port)continue;
      const previous=railOutgoing(node,entry);
-     if(occupied.has(previous.id))continue;
+     if(reserved.has(previous.id))continue;
      previous.reverse=!previous.reverse;
      const turn=railTurn(node,entry,port),turnLength=railGeometry(turn.id).length;
      const launch=railGeometry(previous.id).length+d+turnLength*RAIL_NPC_CRUISE/RAIL_NPC_TURN_SPEED;
@@ -1562,7 +1621,7 @@ function railRoadSpawn(){
  return best;
 }
 function railTrainModeSpawn(serial){
- const available=railway.local.filter(p=>p.kind==='e'&&!railway.jobBlocks.has(p.reservation)&&!railway.npcs.some(t=>t.pieces.some(r=>r.id===p.id))&&!railway.player?.pieces.some(r=>r.id===p.id));
+ const available=railway.local.filter(p=>p.kind==='e'&&!railway.reservations.has(p.reservation)&&!railway.jobBlocks.has(p.reservation)&&!railway.npcs.some(t=>t.pieces.some(r=>r.id===p.id))&&!railway.player?.pieces.some(r=>r.id===p.id));
  const candidates=[];
  for(const p of available)for(const fraction of [.22,.5,.78]){const d=p.length*fraction,pos=routeAt(p.route,d),distance=Math.hypot(pos.x-player.x,pos.y-player.y);if(distance>650&&distance<2400&&!nearDrivingView(pos.x,pos.y,240))candidates.push({id:p.id,d,...pos});}
  return candidates[Math.floor(worldHash(serial,0,970)*candidates.length)];
@@ -1590,7 +1649,7 @@ function railSpawnNPC(){
 function railUpdateNPC(t,dt){
  railEnsure(t);const target=t.target,p=railSample(t),arrival=target&&p.piece.id===target.edge?target.d-(p.ref.reverse?p.piece.length-p.local:p.local):Infinity;
  const along=p.ref.reverse?-arrival:arrival;
- if(t.wait>0){t.wait-=dt;t.speed=0;if(t.wait<=0){t.serviced=target.id;t.target=railStation(target.i+1+(t.seed%2),target.j+(t.seed%3===0?1:0));}return;}
+ if(t.wait>0){t.wait-=dt;t.speed=0;t.signal=false;t.signalWait=0;t.blockingTrain=null;if(t.wait<=0){t.serviced=target.id;t.target=railStation(target.i+1+(t.seed%2),target.j+(t.seed%3===0?1:0));}return;}
  let limit=p.piece.kind==='j'?RAIL_NPC_TURN_SPEED:RAIL_NPC_CRUISE;
  if(along>=0&&along<340){limit=Math.min(limit,Math.sqrt(2*.0003*Math.max(0,along-3)));if(along<7&&t.speed<.025){t.wait=4500;t.speed=0;return;}}
  const clearance=railClearance(t,1,t.speed*t.speed/(2*.0003)+220);t.signal=Number.isFinite(clearance);
@@ -1600,6 +1659,31 @@ function railUpdateNPC(t,dt){
  }
  if(t.signal)limit=Math.min(limit,Math.sqrt(2*.0003*Math.max(0,clearance-20)),clearance/dt);
  t.speed=limit<t.speed?Math.max(limit,t.speed-.0004*dt):Math.min(limit,t.speed+.00008*dt);if(Number.isFinite(clearance))t.speed=Math.min(t.speed,clearance/dt);t.d+=t.speed*dt;
+ t.signalWait=t.signal&&t.speed<.005?(t.signalWait||0)+dt:0;
+}
+function railYieldDeadlock(cycle){
+ const inJunction=t=>railOccupied(t).some(span=>span.piece.kind==='j');
+ cycle.sort((a,b)=>Number(inJunction(b))-Number(inJunction(a)));
+ const t=cycle.find(train=>railClearance(train,-1,300,false)===Infinity);
+ if(!t)return false;
+ // Swap the leading cab while keeping every carriage on the same track.
+ t.d=railLength(t)-t.d+RAIL_GAP*(RAIL_CARS-1);
+ t.pieces=t.pieces.slice().reverse().map(ref=>({id:ref.id,reverse:!ref.reverse}));
+ Object.assign(t,{speed:0,signal:false,signalWait:0,blockedFor:0,blockingTrain:null});
+ return true;
+}
+function railResolveNPCDeadlocks(){
+ for(const start of railway.npcs){
+  const waiting=[];
+  for(let t=start;t&&t.wait<=0&&t.signalWait>=2000&&railway.npcs.includes(t);t=t.blockingTrain){
+   const loop=waiting.indexOf(t);
+   if(loop>=0){
+    if(railYieldDeadlock(waiting.slice(loop)))return;
+    break;
+   }
+   waiting.push(t);
+  }
+ }
 }
 function railUpdate(dt){
  const railMode=progress.mode==='train',timer=railMode?'spawnIn':'roadSpawnIn',range=railMode?6500:3600;
@@ -1614,16 +1698,19 @@ function railUpdate(dt){
   const blocking=railway.jobBlocks.size>0&&railOccupied(t).some(span=>railway.jobBlocks.has(span.key));
   if(distant||blocking)railway.npcs.splice(n,1);
  }
+ const trains=playerTrain?[playerTrain,...railway.npcs]:railway.npcs;
+ for(const t of railway.npcs)railEnsure(t);railApplyManualTurn();railReserveTrains(trains);
  if(railway[timer]<=0&&railway.npcs.length<3){
   if(railSpawnNPC()){
    const jitter=worldHash(railway.serial,1,971);
    railway[timer]=railMode?30000+jitter*25000:8500+jitter*5000;
+   if(playerTrain)trains.push(railway.npcs.at(-1));
+   railReserveTrains(trains);
   }else railway[timer]=railMode?3500:2000;
  }
- const trains=playerTrain?[playerTrain,...railway.npcs]:railway.npcs;
- for(const t of railway.npcs)railEnsure(t);railApplyManualTurn();railReserveTrains(trains);
  if(progress.mode==='train'&&started)railUpdatePlayer(dt);
  for(const t of railway.npcs)railUpdateNPC(t,dt);
+ railResolveNPCDeadlocks();
 }
 function railCarriages(t){const out=[];for(let n=0;n<RAIL_CARS;n++){const p=railSample(t,t.d-n*RAIL_GAP);out.push({...p,hw:35,hh:12,kind:'rail',invMass:0,vx:Math.cos(p.angle)*t.speed,vy:Math.sin(p.angle)*t.speed,color:t.color,model:'train',carriage:n});}return out;}
 function railOnBridge(body){return body?.kind==='rail'||body?.model==='train';}
@@ -3655,21 +3742,29 @@ function updatePlayer(dt){
  }
 }
 function sameMotorbikeGang(a,b){return !!a.gang&&a.gang===b.gang;}
-function fastTraffic(c){return c.driver==='emergency'||c.driver==='speeder'||!!c.gang;}
+function recklessTraffic(c){return c.driver==='speeder'||!!c.gang;}
+function fastTraffic(c){return c.driver==='emergency'||recklessTraffic(c);}
 function trafficPassLeader(c){
- const lead=c.blocker;
- if(lead?.kind!=='traffic'||lead.destroyed||lead.reverseFor>0||lead.cityPass)return null;
+ const lead=c.blocker,reckless=recklessTraffic(c);
+ if(!lead||(lead.kind!=='traffic'&&!(reckless&&lead===player))||lead.destroyed||
+    lead.reverseFor>0||lead.cityPass||sameMotorbikeGang(c,lead))return null;
  const lane=routeAt(c.route,c.routeD),fx=Math.cos(lane.angle),fy=Math.sin(lane.angle);
  if(Math.cos(lead.angle-lane.angle)<.94)return null;
  const speed=Math.max(0,lead.vx*fx+lead.vy*fy),gain=c.cruise-speed;
  const urgent=c.driver==='emergency';
- if(gain<(urgent?.041:.059)||c.blockedGap>36+gain*(urgent?1150:900))return null;
+ if(gain<(reckless?.03:urgent?.041:.059)||c.blockedGap>36+gain*(reckless?1450:urgent?1150:900))return null;
  return {car:lead,speed,lane,fx,fy,ahead:(lead.x-c.x)*fx+(lead.y-c.y)*fy};
 }
-function tryHighwayTrafficPass(c,priority){
- const road=c.route.highway,lane=road.lane===54?100:54;
+function tryHighwayTrafficPass(c,priority,lane){
+ const road=c.route.highway,reckless=recklessTraffic(c);
  const coord=roadCoord(road.index,road.axis)+(road.axis===0?-road.direction:road.direction)*lane;
- const speed=Math.hypot(c.vx,c.vy);
+ const speed=Math.hypot(c.vx,c.vy),shoulderMove=lane>100||road.lane>100;
+ const startCross=road.axis===0?c.x:c.y,mergeLength=Math.max(75,speed*175);
+ if(shoulderMove){
+  const x=road.axis===0?coord:c.x+road.direction*mergeLength;
+  const y=road.axis===0?c.y+road.direction*mergeLength:coord;
+  if(!segmentClear(c.x,c.y,x,y,c.hh+4))return false;
+ }
  for(const other of dynamicHash.query(c,priority?420:210)){
   if(other===c||other.destroyed||ignoresCollision(c,other))continue;
   const sideways=road.axis===0?other.x:other.y,planned=other.route?.highway;
@@ -3677,21 +3772,24 @@ function tryHighwayTrafficPass(c,priority){
   const parallel=Math.abs(road.axis===0?Math.sin(other.angle):Math.cos(other.angle));
   const perpendicular=Math.abs(road.axis===0?Math.cos(other.angle):Math.sin(other.angle));
   const width=priority?other.hh*parallel+other.hw*perpendicular:other.hh;
-  if(!entering&&Math.abs(sideways-coord)>=c.hh+width+12)continue;
   const ahead=(road.axis===0?other.y-c.y:other.x-c.x)*road.direction;
+  // A move across the outer lane to or from the shoulder needs room in between.
+  const between=shoulderMove&&(sideways-startCross)*(sideways-coord)<0&&Math.abs(sideways-startCross)>c.hh+width+4;
+  if(between&&ahead>=-c.hw-other.hw-12&&ahead<=mergeLength+c.hw+other.hw)return false;
+  if(!entering&&Math.abs(sideways-coord)>=c.hh+width+(reckless?6:12))continue;
   const otherSpeed=(road.axis===0?other.vy:other.vx)*road.direction;
   const closing=ahead>=0?Math.max(0,speed-otherSpeed):Math.max(0,otherSpeed-speed);
   const length=priority?other.hw*parallel+other.hh*perpendicular:other.hw;
-  const gap=c.hw+length+(priority?46+closing*(ahead>=0?700:920):150);
+  const gap=c.hw+length+(reckless?24+closing*(ahead>=0?440:590):priority?46+closing*(ahead>=0?700:920):150);
   if(Math.abs(ahead)<gap)return false;
  }
  const seg=c.route.segments[0];if(road.axis===0)seg.x=coord;else seg.y=coord;
- road.lane=lane;c.passCooldown=c.driver==='emergency'?1450:priority?1950:3500;
+ road.lane=lane;c.passCooldown=reckless?900:c.driver==='emergency'?1450:3500;
  c.senseIn=0;trafficJunctions.timer=0;return true;
 }
 const CITY_PASS_OFFSET=2*LANE,CITY_PASS_MERGE=78;
 function cityPassReturnClear(c,lane,fx,fy,speed,time){
- const move=speed*time,x=lane.x+fx*move,y=lane.y+fy*move;
+ const move=speed*time,x=lane.x+fx*move,y=lane.y+fy*move,reckless=recklessTraffic(c);
  for(const other of dynamicHash.query(c,Math.max(155,move+time*.55+100))){
   if(other===c||other.destroyed||ignoresCollision(c,other))continue;
   const dx=other.x+other.vx*time-x,dy=other.y+other.vy*time-y,angle=other.angle-lane.angle;
@@ -3700,26 +3798,26 @@ function cityPassReturnClear(c,lane,fx,fy,speed,time){
   const ahead=dx*fx+dy*fy,length=Math.abs(Math.cos(angle))*other.hw+Math.abs(Math.sin(angle))*other.hh;
   const otherSpeed=other.vx*fx+other.vy*fy;
   const closing=ahead>=0?Math.max(0,speed-otherSpeed):Math.max(0,otherSpeed-speed);
-  if(Math.abs(ahead)<c.hw+length+16+closing*180)return false;
+  if(Math.abs(ahead)<c.hw+length+(reckless?11+closing*125:16+closing*180))return false;
  }
  return true;
 }
 function tryCityTrafficPass(c,lead){
- const entryGap=15+Math.max(0,c.hw-22)*2;
+ const reckless=recklessTraffic(c),entryGap=(reckless?11:15)+Math.max(0,c.hw-22)*2;
  if(!c.route.junctions||c.routeError>6||c.blockedGap<entryGap||lead.ahead<=0)return false;
  const {lane,fx,fy}=lead,segment=c.route.segments[lane.index];
  if(segment.len<255||Math.abs(angleDiff(lane.angle,c.angle))>.15)return false;
- const speed=c.cruise*.94,gain=speed-lead.speed;
- if(gain<.052)return false;
- const acceleration=VEHICLE_TYPES[c.model].accel*(c.driver==='emergency'?2:1.3);
+ const speed=c.cruise*(reckless?.98:.94),gain=speed-lead.speed;
+ if(gain<(reckless?.033:.052))return false;
+ const acceleration=VEHICLE_TYPES[c.model].accel*(reckless?1.55:2);
  const speedLoss=Math.max(0,speed-(c.vx*fx+c.vy*fy));
- const clearance=c.hw+lead.car.hw+23;
+ const clearance=c.hw+lead.car.hw+(reckless?16:23);
  const duration=(lead.ahead+clearance+speedLoss*speedLoss/(2*acceleration)+12)/gain;
  const run=speed*duration,finish=run+CITY_PASS_MERGE;
  const limit=Math.min(segment.start+segment.len-18,lane.d+(c.junctionEntry??Infinity)-16);
  if(lane.d+finish>limit)return false;
 
- const horizon=duration+CITY_PASS_MERGE/speed+300;
+ const horizon=duration+CITY_PASS_MERGE/speed+(reckless?160:300);
  for(const other of dynamicHash.query(c,finish+horizon*.55+100)){
   if(other===c||other.destroyed||ignoresCollision(c,other))continue;
   const dx=other.x-lane.x,dy=other.y-lane.y,along=dx*fx+dy*fy,side=-dx*fy+dy*fx+CITY_PASS_OFFSET;
@@ -3727,7 +3825,7 @@ function tryCityTrafficPass(c,lead){
   const width=Math.abs(Math.sin(other.angle-lane.angle))*other.hw+Math.abs(Math.cos(other.angle-lane.angle))*other.hh;
   const reach=c.hh+width+8;
   if(Math.min(side,side+drift)>reach||Math.max(side,side+drift)<-reach)continue;
-  const future=along+(other.vx*fx+other.vy*fy)*horizon,margin=c.hw+other.hw+35;
+  const future=along+(other.vx*fx+other.vy*fy)*horizon,margin=c.hw+other.hw+(reckless?23:35);
   if(Math.max(along,future)>-margin&&Math.min(along,future)<finish+margin)return false;
  }
  if(!cityPassReturnClear(c,lane,fx,fy,speed,duration+CITY_PASS_MERGE/(2*speed)))return false;
@@ -3741,15 +3839,23 @@ function tryCityTrafficPass(c,lead){
  return true;
 }
 function tryTrafficPass(c){
- if(c.gang||c.cityPass||c.junctionInside||c.reverseFor>0||c.cooldown>0||c.passCooldown>0)return;
- const urgent=c.driver==='emergency',priority=urgent||c.driver==='speeder';
+ if(c.cityPass||c.junctionInside||c.reverseFor>0||c.cooldown>0||c.passCooldown>0)return;
+ const road=c.route.highway,reckless=recklessTraffic(c),urgent=c.driver==='emergency',priority=urgent||reckless;
  const lead=priority?trafficPassLeader(c):null;
- if(c.route.highway){
-  const junctionBuffer=110+(priority?Math.hypot(c.vx,c.vy)*140:0);
-  const heldUp=c.trafficLimit<=c.cruise*(urgent?.9:.72)&&(!priority||c.blocker);
-  if(c.junctionEntry<junctionBuffer||(!c.yieldLane&&!lead&&!heldUp))return;
-  if(!tryHighwayTrafficPass(c,priority)&&priority)c.passCooldown=200;
- }else if(lead&&!tryCityTrafficPass(c,lead))c.passCooldown=200;
+ if(!road){
+  if(lead&&!tryCityTrafficPass(c,lead))c.passCooldown=reckless?90:200;
+  return;
+ }
+ const speed=Math.hypot(c.vx,c.vy);
+ const junctionBuffer=reckless?70+speed*105:110+(urgent?speed*140:0);
+ if(c.junctionEntry<junctionBuffer)return;
+ const heldUp=c.trafficLimit<=c.cruise*(reckless?.93:urgent?.9:.72)&&
+  (!priority||c.blocker&&!sameMotorbikeGang(c,c.blocker));
+ if(road.lane<=100&&!c.yieldLane&&!lead&&!heldUp)return;
+ const lane=road.lane===100?54:100;
+ if(tryHighwayTrafficPass(c,priority,lane))return;
+ if(reckless&&road.lane<=100&&tryHighwayTrafficPass(c,true,roadHalf(road.index,road.axis)-15))return;
+ if(priority)c.passCooldown=reckless?90:200;
 }
 function cityPassOncoming(c,lane,fx,fy,speed){
  const range=210+speed*380;
@@ -3773,13 +3879,13 @@ function steerCityPass(c,near,aim,speed,dt,scan){
  if(!pass.returning){
   if(pass.timeLeft<=0||near.d+CITY_PASS_MERGE>=pass.limit||c.junctionInside||
      scan&&cityPassOncoming(c,near,fx,fy,speed))pass.abort=true;
-  const past=lead.destroyed||!traffic.includes(lead)||ahead<-clearance;
+  const past=lead.destroyed||(lead!==player&&!traffic.includes(lead))||ahead<-clearance;
   const fallenBack=pass.abort&&ahead>clearance-6;
   const mergeSpeed=fallenBack?Math.max(leadSpeed,speed-FAST_TRAFFIC_BRAKE*70):speed;
   if((past||fallenBack)&&cityPassReturnClear(c,near,fx,fy,mergeSpeed,140))pass.returning=true;
  }
  if(pass.returning){
-  if(c.routeError<4&&Math.abs(angleDiff(near.angle,c.angle))<.17){c.cityPass=null;c.passCooldown=2200;}
+  if(c.routeError<4&&Math.abs(angleDiff(near.angle,c.angle))<.17){c.cityPass=null;c.passCooldown=recklessTraffic(c)?750:2200;}
   return pass.abort&&ahead>0?Math.max(.04,leadSpeed):Infinity;
  }
  const offset=pass.abort?clamp((c.x-near.x)*fy-(c.y-near.y)*fx,0,CITY_PASS_OFFSET):CITY_PASS_OFFSET;
@@ -3789,7 +3895,7 @@ function steerCityPass(c,near,aim,speed,dt,scan){
 }
 // A reservation lasts until the vehicle has left the crossing. Unlike a fresh
 // ETA comparison each frame, this cannot flip priority between stopped drivers.
-const trafficJunctions={zones:[],version:-1,refresh:0,timer:0,time:0,count:0};
+const trafficJunctions={zones:[],version:-1,refresh:0,timer:0,time:0,count:0,playerStillFor:0};
 const junctionProbe={};
 function refreshTrafficJunctions(){
  const old=new Map(trafficJunctions.zones.map(z=>[z.key,z])),zones=new Map();
@@ -3843,34 +3949,104 @@ function trafficQueuedBehind(candidate,group){
  }
  return false;
 }
+function junctionSweep(car,a,b,margin){
+ const dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
+ return {x:(a.x+b.x)/2,y:(a.y+b.y)/2,angle:length?Math.atan2(dy,dx):car.angle,
+  hw:length/2+car.hw+margin,hh:car.hh+margin};
+}
+function junctionApproach(p,tail=0){
+ const end=p.exitDistance+tail,points=[{x:p.car.x,y:p.car.y,angle:p.car.angle,offset:0}];
+ for(let offset=12;offset<end;offset+=12)points.push({...routeAt(p.car.route,p.d+offset),offset});
+ if(end>0)points.push({...routeAt(p.car.route,p.d+end),offset:end});
+ return points;
+}
+function junctionPlayerHits(car,points){
+ const hits=[];
+ for(let i=1;i<points.length;i++){
+  if(contact(junctionSweep(car,points[i-1],points[i],3),player))hits.push(i);
+ }
+ return hits;
+}
+function junctionDetourClear(car,points,roads){
+ const margin=recklessTraffic(car)?6:9;
+ for(let i=1;i<points.length;i++){
+  const a=points[i-1],b=points[i],x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+  if(!roads.some(r=>x>=r.l&&x<=r.r&&y>=r.t&&y<=r.bottom&&
+   projectSegment(x,y,r.a,r.b).distance+car.hh+1<=r.width/2))return false;
+  const sweep=junctionSweep(car,a,b,margin);
+  if(Math.abs(angleDiff(sweep.angle,b.angle))>1.05)return false;
+  if(staticHash.query(sweep).some(solid=>contact(sweep,solid)))return false;
+  if(dynamicHash.query(sweep).some(other=>other!==car&&!other.destroyed&&!ignoresCollision(car,other)&&
+   (other===player||Math.hypot(other.vx,other.vy)<.035)&&contact(sweep,other)))return false;
+ }
+ return true;
+}
+function planJunctionDetour(p,z,hits){
+ const car=p.car,points=junctionApproach(p,72),first=points[hits[0]-1].offset,last=points[hits.at(-1)].offset;
+ const full=Math.max(12,first-12),release=last+13,ramp=recklessTraffic(car)?58:72;
+ const start=Math.max(0,full-ramp),end=points.at(-1).offset,finish=Math.min(end,release+ramp);
+ const smooth=value=>{const t=clamp(value,0,1);return t*t*(3-2*t);};
+ const reach=p.entry+Math.max(z.rx,z.ry)*2+130;
+ const roads=navigation.segments.filter(r=>r.l<=z.x+reach&&r.r>=z.x-reach&&r.t<=z.y+reach&&r.bottom>=z.y-reach);
+ for(const size of [24,36,48,60])for(const side of [1,-1]){
+  const path=points.map(point=>{
+   const shift=size*side*smooth((point.offset-start)/(full-start))*smooth((finish-point.offset)/(finish-release));
+   return {x:point.x-Math.sin(point.angle)*shift,y:point.y+Math.cos(point.angle)*shift,angle:point.angle};
+  });
+  if(junctionDetourClear(car,path,roads))return {path,rejoin:p.d+end};
+ }
+ return null;
+}
 function updateTrafficJunctions(dt){
- const state=trafficJunctions;state.time+=dt;state.refresh-=dt;state.timer-=dt;if(state.timer>0)return;state.timer=80;
+ const state=trafficJunctions;
+ const playerStopped=started&&progress.mode!=='train'&&Math.hypot(player.vx,player.vy)<.018;
+ state.playerStillFor=playerStopped?(state.playerStillFor||0)+dt:0;
+ state.time+=dt;state.refresh-=dt;state.timer-=dt;if(state.timer>0)return;state.timer=80;
  if(state.version!==navigation.version||state.refresh<=0||state.count!==traffic.length)refreshTrafficJunctions();
  for(const z of state.zones)z.cars.length=0;
  for(const c of traffic){
-  c.junctionLimit=Infinity;c.junctionWait=false;c.junctionEntry=Infinity;c.junctionInside=false;let chosen=null;
+  c.junctionLimit=Infinity;c.junctionWait=false;c.junctionEntry=Infinity;c.junctionInside=false;c.junctionPlayerClear=null;let chosen=null;
   const d=projectRoute(c),range=220+Math.hypot(c.vx,c.vy)*230,pad=c.hw+6;
   for(const z of state.zones){
    if(Math.abs(c.x-z.x)>range+z.rx+pad||Math.abs(c.y-z.y)>range+z.ry+pad)continue;
    const inside=junctionContains(z,c,pad);let entry=inside?0:Infinity;
    if(!inside)for(let n=0;n<=range;n+=16){if(junctionContains(z,routeAt(c.route,d+n,junctionProbe),pad)){entry=Math.max(0,n-16);break;}}
    if(!Number.isFinite(entry)||chosen&&chosen.entry<=entry)continue;
-   chosen={car:c,zone:z,entry,inside,d,exit:null,path:[]};
+   chosen={car:c,zone:z,entry,inside,d,exit:null,exitDistance:0,path:[]};
   }
   if(!chosen){c.junctionKey=null;continue;}
   const z=chosen.zone;c.junctionEntry=chosen.entry;c.junctionInside=chosen.inside;
   if(c.junctionKey!==z.key){c.junctionKey=z.key;c.junctionArrival=state.time+chosen.entry/Math.max(.08,Math.hypot(c.vx,c.vy));}
   chosen.path.push(chosen.inside?{x:c.x,y:c.y}:routeAt(c.route,d+chosen.entry));
-  for(let n=chosen.entry+16;n<chosen.entry+(z.rx+z.ry)*2+pad*2+100;n+=16){const point=routeAt(c.route,d+n);chosen.path.push(point);if(!junctionContains(z,point,pad)){chosen.exit=point;break;}}
+  for(let n=chosen.entry+16;n<chosen.entry+(z.rx+z.ry)*2+pad*2+100;n+=16){
+   const point=routeAt(c.route,d+n);chosen.path.push(point);chosen.exitDistance=n;
+   if(!junctionContains(z,point,pad)){chosen.exit=point;break;}
+  }
   z.cars.push(chosen);
  }
  for(const z of state.zones){
   const group=z.cars;if(!group.length){z.owners=[];continue;}
-  const playerBlocks=started&&progress.mode!=='train'&&!powerActive('phase')&&junctionContains(z,player,player.hw+8);
+  const playerPresent=started&&progress.mode!=='train'&&!powerActive('phase')&&junctionContains(z,player,player.hw+8);
+  const parkedPlayer=playerPresent&&playerStopped?{x:player.x,y:player.y,angle:player.angle}:null;
   // Keep existing promises; allow independent turns together when their swept
   // paths do not cross. Queued left turns retain their place in the order.
   const conflicts=(a,b)=>!sameMotorbikeGang(a.car,b.car)&&trafficPathsConflict(a,b);
-  for(const p of group)p.mayEnter=!playerBlocks&&!trafficQueuedBehind(p,group)&&junctionExitClear(p.car,z,p.exit);
+  for(const p of group){
+   const car=p.car;
+   p.mayEnter=!trafficQueuedBehind(p,group)&&junctionExitClear(car,z,p.exit);
+   if(!playerPresent||ignoresCollision(car,player))continue;
+   if(!parkedPlayer){p.mayEnter=false;continue;}
+   const hits=junctionPlayerHits(car,junctionApproach(p));
+   if(!hits.length){car.junctionPlayerClear=parkedPlayer;continue;}
+   const reckless=recklessTraffic(car);
+   if(p.mayEnter&&p.exit&&p.entry<160&&!car.junctionDetour&&!car.cityPass&&!car.reverseFor&&
+      state.playerStillFor>=(reckless?350:1100)&&state.time>=(car.junctionDetourRetry||0)){
+    p.detour=planJunctionDetour(p,z,hits);
+    if(p.detour)p.path=p.detour.path;
+    else car.junctionDetourRetry=state.time+(reckless?240:550);
+   }
+   p.mayEnter=!!p.detour;
+  }
   const emergencyVehicles=group.filter(p=>p.car.driver==='emergency'&&p.mayEnter);
   const keepReservation=p=>{
    if(!z.owners.includes(p.car)||!p.mayEnter)return false;
@@ -3889,7 +4065,16 @@ function updateTrafficJunctions(dt){
   }
   z.owners=granted.map(p=>p.car);
   for(const p of group){
-   if(z.owners.includes(p.car))continue;
+   if(z.owners.includes(p.car)){
+    if(p.detour){
+     const car=p.car,route=polyRoute(p.detour.path);
+     route.closed=false;
+     car.junctionDetour={route:car.route,rejoin:p.detour.rejoin};
+     car.route=route;car.seg=0;car.routeD=0;car.senseIn=0;
+     car.junctionPlayerClear=parkedPlayer;
+    }
+    continue;
+   }
    const fast=fastTraffic(p.car),buffer=fast?26+Math.hypot(p.car.vx,p.car.vy)*65:18;
    p.car.junctionWait=true;p.car.junctionLimit=Math.sqrt(2*(fast?FAST_TRAFFIC_BRAKE:.00055)*Math.max(0,p.entry-buffer));
   }
@@ -3910,11 +4095,13 @@ function trafficRearLimit(c){
 }
 
 function senseTraffic(c,speed){
- const fast=fastTraffic(c),urgent=c.driver==='emergency';
+ const fast=fastTraffic(c),reckless=recklessTraffic(c),urgent=c.driver==='emergency';
  const range=fast?clamp(135+speed*520,155,470):clamp(90+speed*430,110,270);
  const fx=Math.cos(c.angle),fy=Math.sin(c.angle);let limit=c.cruise,yielding=false;c.blocker=null;c.blockedGap=Infinity;c.yieldLane=false;
+ const parked=c.junctionPlayerClear,clearOfPlayer=parked&&Math.hypot(player.vx,player.vy)<.018&&
+  Math.hypot(player.x-parked.x,player.y-parked.y)<3&&Math.abs(angleDiff(player.angle,parked.angle))<.12;
  for(const other of dynamicHash.query(c,range)){
-  if(other===c||other.destroyed||ignoresCollision(c,other))continue;
+  if(other===c||other.destroyed||ignoresCollision(c,other)||other===player&&clearOfPlayer)continue;
   const dx=other.x-c.x,dy=other.y-c.y,ahead=dx*fx+dy*fy,side=-dx*fy+dy*fx,co=Math.cos(other.angle-c.angle),si=Math.sin(other.angle-c.angle);
   const length=Math.abs(co)*other.hw+Math.abs(si)*other.hh,width=Math.abs(si)*other.hw+Math.abs(co)*other.hh;
   if(!urgent&&!c.gang&&c.model!=='bus'&&c.model!=='truck'&&c.route.highway&&other.driver==='emergency'&&co>.9&&ahead<0&&ahead> -240&&Math.abs(side)<c.hh+width+8)c.yieldLane=true;
@@ -3930,9 +4117,9 @@ function senseTraffic(c,speed){
    const gap=ahead-c.hw-length,leader=Math.max(0,other.vx*fx+other.vy*fy),safeGap=20+speed*230;
    if(gap<c.blockedGap){c.blocker=other;c.blockedGap=gap;}
    if(fast){
-    const pack=sameMotorbikeGang(c,other),margin=pack?14:22;
-    const headway=pack?30+speed*45:(urgent?28:42)+speed*105;
-    const braking=Math.sqrt(leader*leader+2*FAST_TRAFFIC_BRAKE*Math.max(0,gap-margin-speed*65));
+    const pack=sameMotorbikeGang(c,other),margin=pack?14:reckless?10:22;
+    const headway=pack?30+speed*45:reckless?16+speed*58:28+speed*105;
+    const braking=Math.sqrt(leader*leader+2*FAST_TRAFFIC_BRAKE*Math.max(0,gap-margin-speed*(reckless&&!pack?42:65)));
     limit=Math.min(limit,braking,Math.max(0,leader+(gap-headway)*.0035));
    }else limit=Math.min(limit,Math.max(0,(gap-20)/350),leader+Math.max(0,gap-safeGap)*.002);
    yielding=true;
@@ -3952,11 +4139,18 @@ function senseTraffic(c,speed){
  c.trafficLimit=limit;c.yielding=yielding;
 }
 function updateTraffic(c,dt){
- const type=VEHICLE_TYPES[c.model]||VEHICLE_TYPES.sedan,fast=fastTraffic(c);
- const brake=fast?FAST_TRAFFIC_BRAKE:.00065,accel=type.accel*(c.driver==='emergency'?2:c.gang?1.65:fast?1.3:1);
+ const type=VEHICLE_TYPES[c.model]||VEHICLE_TYPES.sedan,fast=fastTraffic(c),reckless=recklessTraffic(c);
+ const brake=fast?FAST_TRAFFIC_BRAKE:.00065,accel=type.accel*(c.driver==='emergency'?2:c.gang?1.95:reckless?1.55:1);
+ const turn=type.turn*(reckless?1.12:1);
  c.passCooldown=Math.max(0,(c.passCooldown||0)-dt);
- c.cooldown=Math.max(0,c.cooldown-dt);const speed=Math.hypot(c.vx,c.vy),d=projectRoute(c);
- if(c.route.closed===false&&d>c.route.length-500){const seg=c.route.segments.at(-1),extension=SPACING*8,ratio=(seg.len+extension)/seg.len;seg.dx*=ratio;seg.dy*=ratio;seg.len+=extension;c.route.length+=extension;}
+ c.cooldown=Math.max(0,c.cooldown-dt);const speed=Math.hypot(c.vx,c.vy);
+ let d=projectRoute(c);
+ const detour=c.junctionDetour;
+ if(detour&&d>=c.route.length-22){
+  c.route=detour.route;c.seg=routeAt(c.route,detour.rejoin).index;
+  c.junctionDetour=null;c.senseIn=0;d=projectRoute(c);
+ }
+ if(!c.junctionDetour&&c.route.closed===false&&d>c.route.length-500){const seg=c.route.segments.at(-1),extension=SPACING*8,ratio=(seg.len+extension)/seg.len;seg.dx*=ratio;seg.dy*=ratio;seg.len+=extension;c.route.length+=extension;}
  const samples=c.routeSamples||(c.routeSamples=[{},{},{}]);
  const look=clamp(20+speed*100+c.hw*.35,28,66),aim=routeAt(c.route,d+look,samples[0]),near=routeAt(c.route,d,samples[1]),far=routeAt(c.route,d+look+c.hw+20,samples[2]);
  c.senseIn=(c.senseIn||0)-dt;
@@ -3976,7 +4170,8 @@ function updateTraffic(c,dt){
   }
  }
  target*=clamp(1-Math.abs(delta)*.5,.22,1);
- target=Math.min(target,c.trafficLimit??c.cruise,c.junctionLimit??Infinity,passLimit);
+ const detourLimit=c.junctionDetour?(reckless?.16:.115):Infinity;
+ target=Math.min(target,c.trafficLimit??c.cruise,c.junctionLimit??Infinity,passLimit,detourLimit);
  c.bumpFor=Math.max(0,(c.bumpFor||0)-dt);c.recoveryCooldown=Math.max(0,(c.recoveryCooldown||0)-dt);
  c.progressTime=(c.progressTime||0)+dt;
  if(c.progressTime>=500){
@@ -3996,7 +4191,7 @@ function updateTraffic(c,dt){
  if(c.cooldown>0){c.vx*=Math.pow(.98,dt/16);c.vy*=Math.pow(.98,dt/16);c.rejoinAll=true;return;}
  const cos=Math.cos(c.angle),sin=Math.sin(c.angle),forward=c.vx*cos+c.vy*sin,lateral=(-c.vx*sin+c.vy*cos)*Math.pow(.62,dt/16);
  const next=forward+clamp(target-forward,-brake*dt,accel*dt),turnFactor=clamp(Math.abs(next)/.055,0,1);
- c.angle+=clamp(delta,-type.turn*dt,type.turn*dt)*turnFactor;
+ c.angle+=clamp(delta,-turn*dt,turn*dt)*turnFactor;
  const nc=Math.cos(c.angle),ns=Math.sin(c.angle);c.vx=next*nc-lateral*ns;c.vy=next*ns+lateral*nc;
 }
 
