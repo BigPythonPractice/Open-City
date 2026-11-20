@@ -48,6 +48,7 @@
 @media(max-width:360px){.custom-copy .shop-button{flex-direction:column;gap:4px}.garage-tabs{gap:4px}.garage-dialog{padding:16px}.collection-head{flex-wrap:wrap}.collection-head>span{padding:0}.custom-copy p{min-height:42px}}
 
 .map-discover{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 12px}.map-discover>span{font-size:8px;letter-spacing:1px;color:#b8c6ad;margin-right:3px}.map-discover button{border:1px solid #ffffff21;background:#2b483a;color:#e2ebc9;border-radius:7px;padding:8px 10px;font-size:10px}.map-discover button:hover{background:#3a5944}.map-discover #clearDestination{margin-left:auto;color:#b9c9b4}.location .destination-hint{color:#f0d490;font-weight:bold;max-width:310px;line-height:1.5}.map-dialog{max-height:calc(100dvh - 32px)}
+#atlas.can-set-waypoint:not(.dragging){cursor:crosshair}#atlas:focus-visible{outline:3px solid #e8f7ab;outline-offset:4px}.location .destination-hint.waypoint{color:#e6b1fb}
 .power-hud{position:fixed;left:50%;top:145px;transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}.power-card{min-width:142px;padding:11px 13px 10px;border:1px solid color-mix(in srgb,var(--power) 50%,transparent);border-radius:12px;background:#16342ff2;box-shadow:0 7px 20px #102a2a30}.power-top{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:.6px;font-weight:bold;color:var(--power)}.power-symbol{font-size:20px;line-height:1}.power-time{display:block;margin:7px 0 8px;font-size:14px;letter-spacing:.4px;color:#f2f1de;font-variant-numeric:tabular-nums}.power-track{height:3px;background:#ffffff14;border-radius:3px;overflow:hidden}.power-track i{display:block;background:var(--power);height:100%;width:100%}.location .pickup-hint{font-weight:bold;line-height:1.5;max-width:300px}.power-time{white-space:nowrap}
 .driving .pill,.driving .iconbtn,.driving .map-card,.driving .drive-hud,.driving .police-toggle{backdrop-filter:none;-webkit-backdrop-filter:none}
 @media(max-height:780px){.power-hud{top:132px}.power-card{padding:8px 10px;min-width:133px}.power-time{font-size:12px;margin:5px 0 7px}}
@@ -152,7 +153,7 @@
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
 <div class="modal" id="pauseModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><button class="iconbtn close" data-close aria-label="Resume driving">×</button><div class="eyebrow">TAKE YOUR TIME</div><h2 id="pauseTitle">Parked for a moment.</h2><p>The city will be right here.</p><button class="start" id="resumeBtn">Keep driving <span>↗</span></button></section></div>
 <div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b>W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b>S / ↓</b></div><div class="help-row"><span>Steer</span><b>A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b>SPACE</b></div><div class="help-row"><span>Recover to a clear street</span><b>R</b></div><div class="help-row"><span>Garage / city map</span><b>G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b>SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b>C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b>E</b></div><div class="help-row"><span>Trophy Room</span><b>B</b></div><div class="help-row"><span>Pause</span><b>ESC</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances and motorbikes. Vehicles follow lanes, brake for corners and give way at crossings. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open M and use Find nearby to pin an airport, old town, highway or off-road area. Drive to earn spendable kilometres. Press G to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting (Shift + accelerate), hitting another car makes it explode and clears it from your path—including parked cars and police. Every police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; Shift + accelerate, even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Press E or Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
-<div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><button data-landscape="airport">✈ Airport</button><button data-landscape="oldtown">Old town</button><button data-landscape="highway">Highway</button><button data-landscape="offroad">Off-road</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOUR LOCATION</span><span>Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
+<div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><button data-landscape="airport">✈ Airport</button><button data-landscape="oldtown">Old town</button><button data-landscape="highway">Highway</button><button data-landscape="offroad">Off-road</button><button data-landscape="reserve">Nature reserve</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-describedby="mapControlsHint" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOUR LOCATION</span><span id="mapControlsHint">Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
 <div class="modal" id="garageModal" hidden><section class="dialog garage-dialog" role="dialog" aria-modal="true" aria-labelledby="garageTitle"><button class="iconbtn close" data-close aria-label="Close garage">×</button><div class="garage-head"><div><div class="eyebrow" id="garageEyebrow">NORTHSIDE CUSTOMS / CAR GARAGE</div><h2 id="garageTitle">Make it yours.</h2></div><div class="bank"><small>AVAILABLE TO SPEND</small><strong id="garageBank">0.00 <span>km</span></strong></div></div><p class="garage-intro" id="garageIntro">This garage belongs to the active vehicle. Its performance and style progress are saved independently.</p><div class="garage-layout"><section class="vehicle-card" id="garageVehicleCard" aria-label="Your car"><div class="vehicle-heading"><span id="garageVehicleHeading">THE RUNABOUT</span><span id="buildStatus">YOUR BUILD</span></div><canvas id="garageCar" width="640" height="400" aria-label="Preview of your equipped paint and cosmetics"></canvas><div class="vehicle-name" id="vehicleName"></div><div class="preview-actions" id="previewActions" hidden></div><div class="vehicle-stats" id="vehicleStats"></div><p class="garage-save" id="garageSave">Progress saved in this browser.</p></section><div class="garage-shop"><div class="garage-tabs" aria-label="Upgrade category"><button class="garage-tab" data-shop-tab="paint" aria-pressed="true" aria-controls="styleShop">Paint</button><button class="garage-tab" data-shop-tab="livery" aria-pressed="false" aria-controls="styleShop">Liveries</button><button class="garage-tab" data-shop-tab="wheels" aria-pressed="false" aria-controls="styleShop">Wheels</button><button class="garage-tab" data-shop-tab="lighting" aria-pressed="false" aria-controls="styleShop">Lights</button><button class="garage-tab" data-shop-tab="detail" aria-pressed="false" aria-controls="styleShop">Body</button><button class="garage-tab" data-shop-tab="performance" aria-pressed="false" aria-controls="performanceShop">Performance</button></div><div id="performanceShop"></div><div id="styleShop" hidden></div><p class="garage-feedback" id="garageFeedback" role="status" aria-live="polite">A little more road. A little more you.</p></div></div><div class="garage-bottom"><span>The city is paused. Cosmetic previews are free. Bought items stay with this vehicle and can be equipped any time.</span><button class="start" data-close>Back to the city <span>↗</span></button></div></section></div>
 <section class="job-card" id="jobCard" aria-label="Current driving job" hidden>
  <div class="job-heading"><span class="eyebrow" id="jobEyebrow">CITY TRANSIT</span><span id="jobStage"></span></div>
@@ -395,24 +396,283 @@ function generateBlock(i,j){
 // Large districts replace a three-by-three patch of the street grid.
 const sceneCache=new Map(),activeScenes=new Map(),navigation={nodes:[],nodeIds:new Map(),roads:[],segments:[],version:0};
 const streetlamps=[];
+const reserveSectors=new Map();
+const NATURE_BIOMES={
+ grove:{name:'Birch Woods',ground:'#8a9e75',patch:'#67855430',trees:330,plants:290,species:['birch','oak','oak','pine']},
+ pine:{name:'Pine Forest',ground:'#738e69',patch:'#45684e35',trees:510,plants:215,species:['pine','pine','fir','fir','birch']},
+ meadow:{name:'Wildflower Meadows',ground:'#a1af75',patch:'#c1bf7043',trees:145,plants:405,species:['oak','oak','birch']},
+ dry:{name:'Rocky Badlands',ground:'#b6a17b',patch:'#d2b68b4e',trees:100,plants:250,species:['scrub','scrub','oak']},
+ lake:{name:'Lake Trails',ground:'#90a37b',patch:'#5f845a36',trees:305,plants:330,species:['willow','birch','pine','oak']},
+ stream:{name:'Creek Woods',ground:'#879e74',patch:'#62855638',trees:310,plants:310,species:['oak','birch','pine','willow']},
+ river:{name:'River Valley',ground:'#7e9b73',patch:'#4d785838',trees:345,plants:335,species:['willow','willow','birch','fir','oak']}
+};
 function isHighway(index){return mod(index,12)===0;}
 function regionType(a,b){
  if(a===1&&b===1)return 'city';
  if(a===2&&b===1)return 'airport';if(a===1&&b===0)return 'oldtown';if(a===0&&b===1)return 'offroad';
  const n=worldHash(a,b,181);return n<.12?'airport':n<.28?'oldtown':n<.45?'offroad':'city';
 }
+function natureReserve(a,b){
+ // An expressway bounds each four-by-four group of districts. Only join
+ // adjacent existing off-road districts on the same side of that boundary.
+ const left=Math.floor(a/4)*4,top=Math.floor(b/4)*4,key=left+','+top;
+ if(!reserveSectors.has(key)){
+  const reserves=new Map(),seen=new Set();
+  const inSector=(x,y)=>x>=left&&x<left+4&&y>=top&&y<top+4;
+  for(let y=top;y<top+4;y++)for(let x=left;x<left+4;x++){
+   const first=x+','+y;
+   if(seen.has(first)||regionType(x,y)!=='offroad')continue;
+   const cells=[[x,y]],members=new Set([first]),links=[];
+   seen.add(first);
+   for(const [i,j]of cells)for(const [nx,ny]of [[i-1,j],[i+1,j],[i,j-1],[i,j+1]]){
+    const id=nx+','+ny;
+    if(!inSector(nx,ny)||seen.has(id)||regionType(nx,ny)!=='offroad')continue;
+    cells.push([nx,ny]);members.add(id);seen.add(id);
+    const forward=nx>i||ny>j,from=i+','+j;
+    links.push({start:forward?from:id,end:forward?id:from,vertical:ny!==j});
+   }
+   if(cells.length<3)continue;
+   const channel=links[Math.floor(worldHash(x,y,620)*links.length)];
+   const name=districtRoots[Math.floor(worldHash(x,y,621)*districtRoots.length)]+' Nature Reserve';
+   const reserve={key:first,name,members,channel};
+   for(const id of members)reserves.set(id,reserve);
+  }
+  reserveSectors.set(key,reserves);
+  if(reserveSectors.size>64)reserveSectors.delete(reserveSectors.keys().next().value);
+ }
+ return reserveSectors.get(key).get(a+','+b);
+}
+function natureBiome(a,b,reserve){
+ const key=a+','+b,channel=reserve?.channel;
+ if(channel&&(key===channel.start||key===channel.end))return 'river';
+ if(a===0&&b===1)return 'lake';
+ const roll=worldHash(a,b,622);
+ return reserve?roll<.35?'lake':roll<.80?'pine':'meadow':roll<.20?'lake':roll<.36?'stream':roll<.46?'river':roll<.62?'pine':roll<.76?'grove':roll<.91?'meadow':'dry';
+}
 function featureAt(i,j){const a=Math.floor(i/3),b=Math.floor(j/3);return {a,b,key:a+','+b,type:regionType(a,b)};}
-function regionName(a,b){const root=districtRoots[Math.floor(worldHash(a,b,182)*districtRoots.length)],type=regionType(a,b);return root+(type==='airport'?' '+AIRPORTS[airportKind(a,b)].name:type==='oldtown'?' '+oldTownStyle(a,b).name:worldHash(a,b,183)>.5?' Forest Trails':' Badlands');}
+function regionName(a,b){
+ const root=districtRoots[Math.floor(worldHash(a,b,182)*districtRoots.length)],type=regionType(a,b);
+ if(type==='offroad')return natureReserve(a,b)?.name||root+' '+NATURE_BIOMES[natureBiome(a,b)].name;
+ return root+(type==='airport'?' '+AIRPORTS[airportKind(a,b)].name:type==='oldtown'?' '+oldTownStyle(a,b).name:worldHash(a,b,183)>.5?' Forest Trails':' Badlands');
+}
 function gridEdge(axis,index,span){
- if(mod(index,3)===0)return true;
  const across=Math.floor(index/3),along=Math.floor(span/3);
+ if(mod(index,3)===0){
+  if(isHighway(index))return true;
+  const a=axis===0?across:along,b=axis===0?along:across;
+  const previous=axis===0?(a-1)+','+b:a+','+(b-1);
+  return regionType(a,b)!=='offroad'||!natureReserve(a,b)?.members.has(previous);
+ }
  return (axis===0?regionType(across,along):regionType(along,across))==='city';
+}
+function insideRoadBend(bend,x,y,pad=0){
+ const dx=Math.max(0,Math.abs(x-bend.x)-pad)/bend.hw,dy=Math.max(0,Math.abs(y-bend.y)-pad)/bend.hh;
+ return dx*dx+dy*dy<=1;
 }
 function projectSegment(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,len2=dx*dx+dy*dy,t=clamp(((x-a.x)*dx+(y-a.y)*dy)/(len2||1),0,1),px=a.x+dx*t,py=a.y+dy*t;return {x:px,y:py,t,distance:Math.hypot(x-px,y-py),angle:Math.atan2(dy,dx)};}
 function roadObject(points,width,kind='street'){const segments=[];for(let n=1;n<points.length;n++){const a=points[n-1],b=points[n];segments.push({a,b,width,kind,l:Math.min(a.x,b.x)-width/2,r:Math.max(a.x,b.x)+width/2,t:Math.min(a.y,b.y)-width/2,bottom:Math.max(a.y,b.y)+width/2});}return {points,width,kind,segments};}
 function boxOnSegment(box,a,b,pad){
  const left=box.x-box.hw-pad,right=box.x+box.hw+pad,top=box.y-box.hh-pad,bottom=box.y+box.hh+pad,dx=b.x-a.x,dy=b.y-a.y;let enter=0,leave=1;
  for(const [from,delta,lo,hi]of [[a.x,dx,left,right],[a.y,dy,top,bottom]]){if(Math.abs(delta)<1e-7){if(from<lo||from>hi)return false;}else{const u=(lo-from)/delta,v=(hi-from)/delta;enter=Math.max(enter,Math.min(u,v));leave=Math.min(leave,Math.max(u,v));}}return enter<=leave;
+}
+function natureCover(x,y,salt){
+ const i=Math.floor(x/230),j=Math.floor(y/230),u=x/230-i,v=y/230-j;
+ const fx=u*u*(3-2*u),fy=v*v*(3-2*v);
+ return lerp(lerp(worldHash(i,j,salt),worldHash(i+1,j,salt),fx),lerp(worldHash(i,j+1,salt),worldHash(i+1,j+1,salt),fx),fy);
+}
+function natureWater(points){
+ const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+ return {points,left:Math.min(...xs),right:Math.max(...xs),top:Math.min(...ys),bottom:Math.max(...ys)};
+}
+function waterSpans(water,y){
+ const points=water.points,hits=[];
+ for(let i=0,j=points.length-1;i<points.length;j=i++){
+  const a=points[j],b=points[i];
+  if((a.y>y)!==(b.y>y))hits.push(lerp(a.x,b.x,(y-a.y)/(b.y-a.y)));
+ }
+ return hits.sort((a,b)=>a-b);
+}
+function natureWaterNear(water,x,y,pad=0){
+ if(!water||x<water.left-pad||x>water.right+pad||y<water.top-pad||y>water.bottom+pad)return false;
+ for(const row of [y-pad,y,y+pad]){
+  const hits=waterSpans(water,row);
+  for(let i=0;i<hits.length;i+=2)if(x>=hits[i]-pad&&x<=hits[i+1]+pad)return true;
+ }
+ return false;
+}
+function addWaterObstacles(water,land,bridges,obstacle){
+ // Sample the same polygon painted on the map. Split rows at bridge edges
+ // so narrow strips of water can never obstruct a crossing.
+ const top=Math.max(water.top,land.top),bottom=Math.min(water.bottom,land.bottom),rows=[top,bottom];
+ for(let y=top+18;y<bottom;y+=18)rows.push(y);
+ for(const d of bridges)for(const y of [d.y-d.hh,d.y+d.hh])if(y>top&&y<bottom)rows.push(y);
+ rows.sort((a,b)=>a-b);
+ for(let j=1;j<rows.length;j++){
+  const hh=(rows[j]-rows[j-1])/2,y=rows[j-1]+hh;if(hh<.01)continue;
+  const cuts=bridges.filter(d=>Math.abs(y-d.y)<d.hh).sort((a,b)=>a.x-a.hw-b.x+b.hw);
+  const hits=waterSpans(water,y);
+  for(let i=0;i<hits.length;i+=2){
+   let left=Math.max(land.left,hits[i]);const right=Math.min(land.right,hits[i+1]);
+   const add=end=>{if(end-left>.2)obstacle({x:(left+end)/2,y,hw:(end-left)/2,hh},'water');};
+   for(const d of cuts){add(Math.min(right,d.x-d.hw));left=Math.max(left,d.x+d.hw);}
+   add(right);
+  }
+ }
+}
+function riverTrails(s,road,rng,reserve){
+ const connected=reserve?.channel;
+ const joinsBefore=connected?.end===s.key,joinsAfter=connected?.start===s.key;
+ const vertical=joinsBefore||joinsAfter?connected.vertical:rng()<.5;
+ const point=(u,v)=>vertical?{x:s.x+v*s.w,y:s.y+u*s.h}:{x:s.x+u*s.w,y:s.y+v*s.h};
+ const crossSpan=vertical?s.w:s.h,alongSpan=vertical?s.h:s.w;
+ const radius=s.biome==='stream'?22:70,phase=rng()*TAU;
+ const start=joinsBefore?-.015:.115,end=joinsAfter?1.015:.885;
+ const banks=u=>{
+  const t=clamp(u,0,1),envelope=Math.sin(t*Math.PI)**2;
+  const center=.5+envelope*(.061*Math.sin(t*TAU+phase)+.023*Math.sin(t*TAU*2+phase));
+  const taper=Math.sqrt(clamp(Math.min(joinsBefore?1:(u-start)/.075,joinsAfter?1:(end-u)/.075),0,1));
+  const basinCenter=joinsBefore ? .73 : .27;
+  const pool=(joinsBefore||joinsAfter)?80*Math.max(0,1-Math.abs(t-basinCenter)/.19)**2:0;
+  const half=(radius*(1+.22*envelope*Math.cos(t*TAU*2+phase))+pool)*taper/crossSpan;
+  return [center-half,center+half];
+ };
+ const near=[],far=[];
+ for(let i=0;i<=42;i++){
+  const u=lerp(start,end,i/42),[a,b]=banks(u);
+  near.push(point(u,a));far.push(point(u,b));
+ }
+ s.water=natureWater(near.concat(far.reverse()));
+ const positions=[.16,.31,.50,.71,.84];
+ const upper=positions.map((u,n)=>point(u,[.23,.22,.24,.26,.21][n]+(rng()-.5)*.032));
+ const lower=positions.map((u,n)=>point(u,[.77,.75,.80,.76,.78][n]+(rng()-.5)*.032));
+ road(upper,52,'dirt');road(lower,52,'dirt');
+ for(const i of [1,3]){
+  const u=positions[i],halfWidth=31,bankSamples=[u-halfWidth/alongSpan,u,u+halfWidth/alongSpan].map(banks);
+  const [a,b]=[Math.min(...bankSamples.map(p=>p[0]))-16/crossSpan,Math.max(...bankSamples.map(p=>p[1]))+16/crossSpan];
+  const center=point(u,(a+b)/2),halfLength=(b-a)*crossSpan/2;
+  s.bridges.push({...center,vertical:!vertical,hw:vertical?halfLength:halfWidth,hh:vertical?halfWidth:halfLength});
+  road([upper[i],lower[i]],50,'dirt');
+ }
+ for(const p of s.portals){
+  const across=vertical?(p.x-s.x)/s.w:(p.y-s.y)/s.h;
+  const nodes=across<.5?upper:lower;
+  const nearest=nodes.reduce((best,n)=>Math.hypot(p.x-n.x,p.y-n.y)<Math.hypot(p.x-best.x,p.y-best.y)?n:best);
+  road([p,nearest],53,'dirt');
+ }
+ s.showcase=lower[2];
+}
+function generateNature(s,road,building,obstacle,away,occupied,rng){
+ const {a,b,x,y,w,h}=s,reserve=natureReserve(a,b),biome=natureBiome(a,b,reserve),palette=NATURE_BIOMES[biome];
+ s.biome=biome;s.reserve=reserve?.key;
+ s.open={left:reserve?.members.has((a-1)+','+b),right:reserve?.members.has((a+1)+','+b),
+  top:reserve?.members.has(a+','+(b-1)),bottom:reserve?.members.has(a+','+(b+1))};
+ const land=s.land={left:x+(s.open.left?0:roadHalf(a*3,0)),right:x+w-(s.open.right?0:roadHalf(a*3+3,0)),
+  top:y+(s.open.top?0:roadHalf(b*3,1)),bottom:y+h-(s.open.bottom?0:roadHalf(b*3+3,1))};
+ // Two open seams can leave the public road turning around this corner.
+ // Keep the outside of that turn paved where the straight segments end.
+ s.roadBends=[];
+ for(const sideX of ['left','right'])for(const sideY of ['top','bottom']){
+  if(!s.open[sideX]||!s.open[sideY])continue;
+  const i=a*3+(sideX==='right'?3:0),j=b*3+(sideY==='bottom'?3:0);
+  const otherI=sideX==='left'?i-1:i,otherJ=sideY==='top'?j-1:j;
+  if(gridEdge(0,i,otherJ)&&gridEdge(1,j,otherI))s.roadBends.push({x:roadCoord(i,0),y:roadCoord(j,1),hw:roadHalf(i,0),hh:roadHalf(j,1)});
+ }
+ const channel=reserve?.channel;
+ const waterEdge=channel?.start===s.key?(channel.vertical?'bottom':'right'):
+  channel?.end===s.key?(channel.vertical?'top':'left'):null;
+ const usedSides=new Set();
+ s.portals=s.portals.filter(p=>{
+  if(!s.open[p.side])return true;
+  // Continue the trails on both banks where the river crosses the reserve.
+  if(p.side!==waterEdge&&usedSides.has(p.side))return false;
+  usedSides.add(p.side);p.open=true;return true;
+ });
+ s.bridges=[];s.plants=[];
+ if(biome==='river'||biome==='stream')riverTrails(s,road,rng,reserve);
+ else{
+  const point=(u,v)=>({x:x+u*w,y:y+v*h});
+  const nodes=[[.145,.19],[.34,.13],[.57,.18],[.83,.16],[.865,.48],[.755,.74],[.51,.86],[.24,.76],[.14,.51]]
+   .map(([u,v])=>point(u+(rng()-.5)*.036,v+(rng()-.5)*.045));
+  const loop=[];
+  for(let n=0;n<nodes.length;n++){
+   const p=nodes[n],before=nodes[(n+nodes.length-1)%nodes.length],after=nodes[(n+1)%nodes.length];
+   loop.push({x:lerp(p.x,before.x,.19),y:lerp(p.y,before.y,.19)},p,{x:lerp(p.x,after.x,.19),y:lerp(p.y,after.y,.19)});
+  }
+  loop.push(loop[0]);road(loop,55,'dirt');
+  if(biome==='lake'){
+   const center=point(.49+(rng()-.5)*.017,.48+(rng()-.5)*.025),rx=w*(.208+rng()*.035),ry=h*(.195+rng()*.025),phase=rng()*TAU,shore=[];
+   for(let n=0;n<44;n++){
+    const angle=n/44*TAU,scale=1+.095*Math.sin(angle*3+phase)+.058*Math.cos(angle*7-phase);
+    shore.push({x:center.x+Math.cos(angle)*rx*scale,y:center.y+Math.sin(angle)*ry*scale});
+   }
+   s.water=natureWater(shore);
+   s.showcase=nodes[6];
+  }else{
+   const center=point(.47+rng()*.065,.46+rng()*.08);
+   road([nodes[1],point(.34,.31),center,point(.66,.68),nodes[5]],48,'dirt');
+   road([nodes[8],center,nodes[4]],46,'dirt');
+   s.showcase=center;
+  }
+  for(const p of s.portals){
+   const nearest=nodes.reduce((best,n)=>Math.hypot(p.x-n.x,p.y-n.y)<Math.hypot(p.x-best.x,p.y-best.y)?n:best);
+   road([p,nearest],53,'dirt');
+  }
+ }
+ if(s.water)addWaterObstacles(s.water,land,s.bridges,obstacle);
+ const center=s.showcase;
+ s.entry=s.portals[0];
+ s.decor.push({kind:'clearing',...center,r:54});
+ const place=pad=>({x:lerp(land.left+pad,land.right-pad,rng()),y:lerp(land.top+pad,land.bottom-pad,rng())});
+ const awayFromWater=(p,pad)=>!natureWaterNear(s.water,p.x,p.y,pad);
+ const outsideClearing=(p,pad)=>Math.hypot(p.x-center.x,p.y-center.y)>54+pad;
+ const stands=[];
+ if(biome==='pine'||biome==='grove'){
+  for(let n=0;n<(biome==='pine'?12:7);n++)stands.push(place(105));
+ }
+ for(let n=0;n<palette.trees;n++){
+  const stand=stands.length&&n<palette.trees*.58?stands[n%stands.length]:null;
+  let p;
+  if(stand){
+   const angle=rng()*TAU,distance=Math.sqrt(rng())*116;
+   p={x:stand.x+Math.cos(angle)*distance,y:stand.y+Math.sin(angle)*distance};
+   if(p.x<land.left+24||p.x>land.right-24||p.y<land.top+24||p.y>land.bottom-24)continue;
+  }else p=place(24);
+  const r=11+rng()*(stand?19:15),cover=natureCover(p.x,p.y,628),tone=rng();
+  if(tone>clamp(cover*.99+.29,.36,.95)||!outsideClearing(p,r)||!awayFromWater(p,r*.65)||!away({...p,hw:r*.62,hh:r*.62},11))continue;
+  const species=palette.species[Math.floor(rng()*palette.species.length)];
+  s.trees.push({...p,r:species==='scrub'?r*.73:r,species,tone});
+ }
+ const rocks=biome==='dry'?85:biome==='pine'?24:37;
+ for(let n=0;n<rocks;n++){
+  const q={...place(25),hw:7+rng()*14,hh:6+rng()*12};
+  if(!outsideClearing(q,8)||!awayFromWater(q,q.hw+5)||!away(q,15)||occupied(q))continue;
+  obstacle(q,'rock');s.decor.push({kind:'rock',...q,tone:rng(),shape:rng()});
+ }
+ for(let n=0;n<palette.plants;n++){
+  const p=place(13),r=3+rng()*8,roll=rng();
+  if(!outsideClearing(p,0)||!awayFromWater(p,2)||!away({...p,hw:r*.55,hh:r*.55},5))continue;
+  const cover=natureCover(p.x,p.y,629);
+  const nearShore=natureWaterNear(s.water,p.x,p.y,25);
+  const kind=nearShore&&roll<.69?'reeds':biome==='dry'&&roll<.38?'stones':roll<.19?'shrub':roll<.47&&cover>(biome==='meadow'?.34:.61)?'flowers':'grass';
+  s.plants.push({...p,r,kind,tone:rng(),angle:rng()*TAU});
+ }
+ // Keep a modest trail shelter in clear ground close to the lookout.
+ for(let n=0;n<22;n++){
+  const angle=rng()*TAU,distance=85+rng()*90,q={x:center.x+Math.cos(angle)*distance,y:center.y+Math.sin(angle)*distance,hw:28,hh:22};
+  if(q.x-q.hw<land.left||q.x+q.hw>land.right||q.y-q.hh<land.top||q.y+q.hh>land.bottom)continue;
+  if(away(q,19)&&awayFromWater(q,36)&&!occupied(q)&&!s.trees.some(t=>Math.abs(t.x-q.x)<q.hw+t.r&&Math.abs(t.y-q.y)<q.hh+t.r)){
+   building(q,'TRAIL SHELTER','garden');break;
+  }
+ }
+ if(s.roadBends.length){
+  const clear=(p,pad)=>s.roadBends.every(bend=>!insideRoadBend(bend,p.x,p.y,pad+4));
+  const clearRock=p=>p.kind!=='rock'||clear(p,Math.max(p.hw,p.hh)+8);
+  s.trees=s.trees.filter(p=>clear(p,p.r*1.4));
+  s.plants=s.plants.filter(p=>clear(p,p.r+3));
+  s.buildings=s.buildings.filter(p=>clear(p,40));
+  s.obstacles=s.obstacles.filter(clearRock);
+  s.decor=s.decor.filter(clearRock);
+ }
 }
 function getScene(a,b){
  const key=a+','+b;if(activeScenes.has(key))return activeScenes.get(key);if(sceneCache.has(key))return sceneCache.get(key);
@@ -503,26 +763,18 @@ function getScene(a,b){
   const loop=[...nodes[0],nodes[1][3],nodes[2][3],...nodes[3].slice().reverse(),nodes[2][0],nodes[1][0],nodes[0][0]];s.trafficLoops.push(loop);
   for(let n=0;n<18;n++){const p=point(.1+rng()*.8,.1+rng()*.8),q={...p,hw:12,hh:12};if(away(q,9)&&!occupied(q))s.trees.push({...p,r:9,tone:rng()});}
   s.entry=portals[0];s.showcase=plaza;
- }else{
-  // Trails bend through an open landscape; surrounding rough ground is driveable.
-  const nodes=[point(.12,.18),point(.34,.12),point(.57,.24),point(.83,.16),point(.88,.48),point(.73,.73),point(.5,.86),point(.24,.76),point(.12,.49)];
-  const smooth=[];for(let n=0;n<nodes.length;n++){const p=nodes[n],next=nodes[(n+1)%nodes.length],prev=nodes[(n+nodes.length-1)%nodes.length];smooth.push({x:lerp(p.x,prev.x,.18),y:lerp(p.y,prev.y,.18)},p,{x:lerp(p.x,next.x,.18),y:lerp(p.y,next.y,.18)});}smooth.push(smooth[0]);road(smooth,58,'dirt');
-  const center=point(.48,.49);road([nodes[1],point(.38,.29),center,point(.59,.64),nodes[5]],52,'dirt');road([nodes[8],center,nodes[4]],48,'dirt');
-  for(const p of portals){const n=nodes.reduce((best,n)=>Math.hypot(p.x-n.x,p.y-n.y)<Math.hypot(p.x-best.x,p.y-best.y)?n:best,nodes[0]);road([p,n],56,'dirt');}
-  s.decor.push({kind:'clearing',...center,r:96});
-  const mx=Math.max(roadHalf(a*3,0),roadHalf(a*3+3,0))+25,my=Math.max(roadHalf(b*3,1),roadHalf(b*3+3,1))+25;
-  for(let n=0;n<(s.forest?240:65);n++){const p={x:x+mx+rng()*(w-2*mx),y:y+my+rng()*(h-2*my)},q={...p,hw:14,hh:14};if(away(q,8)&&Math.hypot(p.x-center.x,p.y-center.y)>105)s.trees.push({...p,r:10+rng()*10,tone:rng()});}
-  for(let n=0;n<(s.forest?24:65);n++){const q={x:x+mx+rng()*(w-2*mx),y:y+my+rng()*(h-2*my),hw:10+rng()*13,hh:8+rng()*10};if(away(q,15)&&Math.hypot(q.x-center.x,q.y-center.y)>105&&!occupied(q)){obstacle(q,'rock');s.decor.push({kind:'rock',...q,tone:rng()});}}
-  // A trailhead hut and parked car stay outside the driving line.
-  for(let n=0;n<30;n++){const p=point(.1+rng()*.8,.1+rng()*.8),q={...p,hw:34,hh:27};if(away(q,18)&&!occupied(q)){building(q,'TRAILHEAD','garden');break;}}
-  s.entry=portals[0];s.showcase=center;
- }
+ }else generateNature(s,road,building,obstacle,away,occupied,rng);
  s.segments=s.roads.flatMap(r=>r.segments);
  sceneCache.set(key,s);if(sceneCache.size>40)sceneCache.delete(sceneCache.keys().next().value);return s;
 }
 function sceneTile(s,i,j){
  const left=roadCoord(i,0),top=roadCoord(j,1),right=roadCoord(i+1,0),bottom=roadCoord(j+1,1),owns=o=>o.x>=left&&o.x<right&&o.y>=top&&o.y<bottom;
  return {key:i+','+j,i,j,x:left,y:top,w:right-left,h:bottom-top,type:s.type,style:s.type==='oldtown'?'old':'garden',park:false,lot:false,scene:s,buildings:s.buildings.filter(owns),obstacles:s.obstacles.filter(owns),trees:s.trees.filter(owns),parked:s.parked.filter(owns),decor:[],name:s.name};
+}
+function gridRoad(axis,index,span){
+ const coord=roadCoord(index,axis);
+ const point=n=>axis===0?{x:coord,y:roadCoord(n,1)}:{x:roadCoord(n,0),y:coord};
+ return roadObject([point(span),point(span+1)],roadHalf(index,axis)*2,isHighway(index)?'highway':'street');
 }
 function buildNavigation(){
  navigation.nodes.length=navigation.roads.length=navigation.segments.length=0;const ids=new Map(),r=worldWindow.radius,ci=worldWindow.i,cj=worldWindow.j;navigation.nodeIds=ids;
@@ -532,8 +784,7 @@ function buildNavigation(){
   const center=axis===0?ci:cj,across=axis===0?cj:ci;
   for(let i=center-r;i<=center+r+1;i++)for(let j=across-r;j<=across+r;j++){
    if(!gridEdge(axis,i,j))continue;
-   const coord=roadCoord(i,axis),point=n=>axis===0?{x:coord,y:roadCoord(n,1)}:{x:roadCoord(n,0),y:coord};
-   const road=roadObject([point(j),point(j+1)],roadHalf(i,axis)*2,isHighway(i)?'highway':'street');
+   const road=gridRoad(axis,i,j);
    // Leave space for the crossing carriageway, or a narrower scenic entrance.
    const inset=n=>gridEdge(1-axis,n,i-1)||gridEdge(1-axis,n,i)?roadHalf(n,1-axis)+4:36;
    road.entryInset=inset(j);road.exitInset=inset(j+1);
@@ -577,11 +828,14 @@ function surfaceAt(x,y){
  if(s){
   // Perimeter roads remain paved even where the landscape meets a highway.
   const l=s.a*3,r=l+3,t=s.b*3,bottom=t+3;
-  if(x-roadCoord(l,0)<roadHalf(l,0)||roadCoord(r,0)-x<roadHalf(r,0)||y-roadCoord(t,1)<roadHalf(t,1)||roadCoord(bottom,1)-y<roadHalf(bottom,1))return 'road';
+  const land=s.land;
+  if(land?x<land.left||x>land.right||y<land.top||y>land.bottom:
+   x-roadCoord(l,0)<roadHalf(l,0)||roadCoord(r,0)-x<roadHalf(r,0)||y-roadCoord(t,1)<roadHalf(t,1)||roadCoord(bottom,1)-y<roadHalf(bottom,1))return 'road';
+  if(s.roadBends?.some(bend=>insideRoadBend(bend,x,y)))return 'road';
   if(s.type==='oldtown')return 'cobbles';
   for(const seg of s.segments)if(x>=seg.l&&x<=seg.r&&y>=seg.t&&y<=seg.bottom&&projectSegment(x,y,seg.a,seg.b).distance<seg.width/2)return s.type==='offroad'?'dirt':'road';
   if(s.type==='airport'){for(const d of s.decor)if(d.kind==='apron'&&Math.abs(x-d.x)<d.hw&&Math.abs(y-d.y)<d.hh)return 'road';}
-  if(s.type==='offroad'&&Math.hypot(x-s.showcase.x,y-s.showcase.y)<96)return 'dirt';
+  if(s.type==='offroad'&&Math.hypot(x-s.showcase.x,y-s.showcase.y)<54)return 'dirt';
   return 'grass';
  }
  return b&&b.park&&x>b.x+12&&x<b.x+b.w-12&&y>b.y+12&&y<b.y+b.h-12&&Math.abs(x-b.x-b.w/2)>10&&Math.abs(y-b.y-b.h/2)>10?'grass':'road';
@@ -1006,7 +1260,7 @@ function takedownReward(mode,job){return jobBaseReward(mode,job)*job.takedowns*T
 const JOB_BANDS=[{name:'Regional',min:8,max:14,weight:.50},{name:'Long haul',min:20,max:40,weight:.38},{name:'Cross-country',min:60,max:100,weight:.12}];
 const RIDE_BANDS=[{min:2,max:5,weight:.60},{min:5,max:12,weight:.25},{min:12,max:20,weight:.15,anchorInset:.025}];
 const STALE_OFFER_PICKUP_KM=20;
-const SCENIC_JOB_CHANCE=.25,SCENIC_JOB_AREAS=['oldtown','park','offroad'];
+const SCENIC_JOB_INTERVAL=4,SCENIC_JOB_AREAS=['reserve','oldtown','park','offroad'];
 const JOB_ROUTE_COLOR='#d65cff';
 const jobLegKm=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)*.0008;
 const isScenicStop=stop=>stop.site.startsWith('scenic:');
@@ -1031,6 +1285,21 @@ function cleanJob(raw,mode,accepted=true){
   const p=raw.stops[n];if(!p||p.action!==actions[n]||!['x','y','angle'].every(k=>Number.isFinite(p[k])&&Math.abs(p[k])<1e12)||typeof p.name!=='string')return null;
   stops.push({x:p.x,y:p.y,angle:p.angle,action:p.action,name:p.name.slice(0,90),site:typeof p.site==='string'?p.site.slice(0,80):''});
   if(n){const km=jobLegKm(stops[n-1],p);if(!bands.some(b=>km>=b.min&&km<=b.max))return null;}
+ }
+ const destination=stops.at(-1);
+ if(raw.index<stops.length&&destination.site.startsWith('scenic:offroad:')){
+  const area=featureAt(roadIndex(destination.x,0),roadIndex(destination.y,1));
+  if(area.type==='offroad'){
+   const scene=getScene(area.a,area.b),vehicle=VEHICLE_TYPES[GAME_MODES[mode].model];
+   const body={...destination,hw:vehicle.hw+4,hh:vehicle.hh+3};
+   // A saved trail stop can fall in newly generated water or against a boulder.
+   if([...scene.obstacles,...scene.buildings].some(solid=>contact(body,solid))){
+    const origin=stops.at(-2),km=jobLegKm(origin,destination),band=bands.find(b=>km>=b.min&&km<=b.max);
+    const fits=p=>jobLegKm(origin,p)>=band.min&&jobLegKm(origin,p)<=band.max;
+    const stop=scenicSceneStop(scene,vehicle,destination.action,fits)||scenicJobStop('offroad',destination,origin,band,mode,destination.action);
+    if(stop)Object.assign(destination,stop);
+   }
+  }
  }
  const job={version:2,id:raw.id,index:raw.index,accepted,stops};
  if(accepted)job.takedowns=Number.isSafeInteger(raw.takedowns)&&raw.takedowns>=0?raw.takedowns:0;
@@ -1060,7 +1329,7 @@ function cleanGarage(raw,kind,legacy=false){
  }}
  return clean;
 }
-function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
+function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0},jobOfferCounts:{uber:0,bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
 function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);if(!raw)return freshProgress();const p=JSON.parse(raw);
@@ -1069,7 +1338,16 @@ function loadProgress(){
   const owned=new Set(Array.isArray(p.ownedTrophies)?p.ownedTrophies:[]);
   clean.ownedTrophies=TROPHIES.filter(item=>owned.has(item.id)).map(item=>item.id);
   clean.jobSerial=Number.isSafeInteger(p.jobSerial)&&p.jobSerial>=0?p.jobSerial:0;
-  for(const mode of JOB_MODES){const job=cleanJob(p.jobs?.[mode],mode),offer=cleanJob(p.offers?.[mode],mode,false);if(job){clean.jobs[mode]=job;clean.jobSerial=Math.max(clean.jobSerial,job.id);}if(offer&&(!job||job.index===job.stops.length)){clean.offers[mode]=offer;clean.jobSerial=Math.max(clean.jobSerial,offer.id);}const total=p.completedJobs?.[mode];if(Number.isSafeInteger(total)&&total>=0)clean.completedJobs[mode]=total;}
+  for(const mode of JOB_MODES){
+   const job=cleanJob(p.jobs?.[mode],mode),offer=cleanJob(p.offers?.[mode],mode,false);
+   if(job){clean.jobs[mode]=job;clean.jobSerial=Math.max(clean.jobSerial,job.id);}
+   if(offer&&(!job||job.index===job.stops.length)){clean.offers[mode]=offer;clean.jobSerial=Math.max(clean.jobSerial,offer.id);}
+   const total=p.completedJobs?.[mode],count=p.jobOfferCounts?.[mode];
+   if(Number.isSafeInteger(total)&&total>=0)clean.completedJobs[mode]=total;
+   const pending=!!clean.offers[mode]||(job&&job.index<job.stops.length);
+   const knownOffers=clean.completedJobs[mode]+(pending?1:0);
+   clean.jobOfferCounts[mode]=Number.isSafeInteger(count)&&count>=knownOffers?count:knownOffers;
+  }
   if(p.worldVersion===1&&p.position&&['x','y','angle'].every(k=>Number.isFinite(p.position[k])&&Math.abs(p.position[k])<1e12))clean.position={x:p.position.x,y:p.position.y,angle:p.position.angle};
   if(p.garageVersion===1&&p.garages&&typeof p.garages==='object')for(const kind of Object.keys(GARAGE_VEHICLES))clean.garages[kind]=cleanGarage(p.garages[kind],kind);
   else clean.garages.car=cleanGarage(p,'car',true);
@@ -1488,10 +1766,12 @@ function trackFrameTime(elapsed){
 }
 addEventListener('resize',resize);
 const service={jobId:null,ms:0,retryIn:0};
-const jobNavigation={key:'',legKey:'',x:NaN,y:NaN,points:[],timer:0,guidance:{segments:[],turns:[],recentTurn:null}};
+const routeNavigation={key:'',legKey:'',x:NaN,y:NaN,points:[],guidance:{segments:[],turns:[],recentTurn:null}};
 function currentJob(){return JOB_MODES.includes(progress.mode)?progress.jobs[progress.mode]||null:null;}
 function currentOffer(){return JOB_MODES.includes(progress.mode)?progress.offers[progress.mode]||null:null;}
 function jobTarget(){const job=currentJob();return job?.accepted?job.stops[job.index]||null:null;}
+function freeRoamWaypoint(){return progress.mode==='free'?exploration.waypoint:null;}
+function routeTarget(){return jobTarget()||freeRoamWaypoint();}
 function recordJobCollision(other){
  if(!started||!CLEAN_COLLISION_KINDS.has(other.kind))return;
  const job=currentJob();
@@ -1527,7 +1807,7 @@ function setGameMode(mode,announce=true){
  progress.mode=mode;progress.policeEnabled=mode==='police';applyBuild();
  if(Math.hypot(placement.x-oldPos.x,placement.y-oldPos.y)>.5){Object.assign(player,placement,{vx:0,vy:0});camera.x=player.x;camera.y=player.y;powers.exitBodies.clear();}
  player.hit=0;snapshotBody(player);interpolatePlayer();turbo.active=false;shake=0;
- Object.assign(service,{jobId:null,ms:0,retryIn:0});jobNavigation.key='';jobNavigation.points=[];
+ Object.assign(service,{jobId:null,ms:0,retryIn:0});routeNavigation.key='';routeNavigation.points=[];
  if(!progress.policeEnabled){police.length=0;Object.assign(policeState,{hits:0,reinforcements:0,reinforceIn:POLICE_BACKUP_DELAY,scanIn:0,dispatchFor:0});}
  else if(started)deployPolice();
  rebuildDynamic();
@@ -1591,14 +1871,16 @@ function nearbyRoadStops(origin,count,action){
    const x=lerp(seg.a.x,seg.b.x,fraction)-Math.sin(angle)*side,y=lerp(seg.a.y,seg.b.y,fraction)+Math.cos(angle)*side,distance=Math.hypot(x-origin.x,y-origin.y);
    if(distance<280||distance>2100||!insideLoaded(x,y,90)||!clearSpot({x,y,angle,hw:40,hh:14}))continue;
    const r=closestRoad(x,y),name=seg.kind==='street'?streetName(Math.abs(Math.cos(angle))>.5?r.iy:r.ix,Math.abs(Math.cos(angle))>.5?1:0):neighbourhood(x,y);
-   candidates.push({x,y,angle,name:action==='pickup'?name:action==='patient'?name+' · patient pickup':name+' stop',action,site:'',distance});
+   const city=featureAt(roadIndex(x,0),roadIndex(y,1)).type==='city';
+   candidates.push({x,y,angle,name:action==='pickup'?name:action==='patient'?name+' · patient pickup':name+' stop',action,site:'',city});
   }
  }
  const stops=[];let last=origin;
  while(stops.length<count){
   const options=candidates.filter(p=>stops.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>320));if(!options.length)break;
-  options.sort((a,b)=>Math.hypot(a.x-last.x,a.y-last.y)-Math.hypot(b.x-last.x,b.y-last.y));
-  const pick=options[Math.min(options.length-1,(progress.jobSerial+stops.length)%3)];const {distance,...p}=pick;stops.push(p);last=p;
+  const cityStops=options.filter(p=>p.city),pool=cityStops.length?cityStops:options;
+  pool.sort((a,b)=>Math.hypot(a.x-last.x,a.y-last.y)-Math.hypot(b.x-last.x,b.y-last.y));
+  const pick=pool[Math.min(pool.length-1,(progress.jobSerial+stops.length)%3)];const {city,...p}=pick;stops.push(p);last=p;
  }
  return stops;
 }
@@ -1621,7 +1903,8 @@ function distantCurbStop(anchor,origin,action){
  return null;
 }
 function scenicSceneStop(scene,vehicle,action,inBand){
- const landmark=scene.showcase,solids=[...scene.buildings,...scene.obstacles,...scene.parked],margin=vehicle.hw+20;
+ const landmark=scene.showcase,solids=[...scene.buildings,...scene.obstacles,...scene.parked];
+ const bay=action==='dropoff'?RIDE_BAY:SERVICE_BAY,margin=Math.max(vehicle.hw+20,bay.halfLength+5);
  let best=null,bestDistance=Infinity;
  for(const seg of scene.segments){
   const length=Math.hypot(seg.b.x-seg.a.x,seg.b.y-seg.a.y);if(length<margin*2)continue;
@@ -1630,19 +1913,24 @@ function scenicSceneStop(scene,vehicle,action,inBand){
   const x=lerp(seg.a.x,seg.b.x,fraction)-Math.sin(angle)*side,y=lerp(seg.a.y,seg.b.y,fraction)+Math.cos(angle)*side;
   const distance=Math.hypot(x-landmark.x,y-landmark.y);
   if(distance>=bestDistance||Math.min(x-scene.x,scene.x+scene.w-x,y-scene.y,scene.y+scene.h-y)<180||!inBand({x,y}))continue;
-  const body={x,y,angle,hw:vehicle.hw+4,hh:vehicle.hh+3};
-  if(solids.some(solid=>contact(body,solid)))continue;
+  const body={x,y,angle,hw:Math.max(vehicle.hw+4,bay.halfLength),hh:Math.max(vehicle.hh+3,bay.halfWidth)};
+  if(solids.some(solid=>contact(body,solid))||scene.bridges?.some(bridge=>contact(body,{...bridge,angle:0})))continue;
   best={x,y,angle,action,site:'scenic:'+scene.type+':'+scene.key,name:scene.name+(scene.type==='oldtown'?' · '+scene.town.plaza:' · Trail stop')};
   bestDistance=distance;
  }
  return best;
 }
 function scenicJobStop(area,anchor,origin,band,mode,action){
- const park=area==='park',step=park?1:3,radius=park?8:2,vehicle=VEHICLE_TYPES[GAME_MODES[mode].model];
+ const park=area==='park',reserve=area==='reserve',region=reserve?'offroad':area;
+ const step=park?1:3,radius=park?8:reserve?5:2,vehicle=VEHICLE_TYPES[GAME_MODES[mode].model];
  const ci=Math.floor(roadIndex(anchor.x,0)/step),cj=Math.floor(roadIndex(anchor.y,1)/step),candidates=[];
  for(let j=cj-radius;j<=cj+radius;j++)for(let i=ci-radius;i<=ci+radius;i++){
-  if((park?cityJobType(i,j):regionType(i,j))!==area)continue;
-  const x=(roadCoord(i*step,0)+roadCoord((i+1)*step,0))/2,y=(roadCoord(j*step,1)+roadCoord((j+1)*step,1))/2;
+  if((park?cityJobType(i,j):regionType(i,j))!==region||(reserve&&!natureReserve(i,j)))continue;
+  const left=roadCoord(i*step,0),right=roadCoord((i+1)*step,0),top=roadCoord(j*step,1),bottom=roadCoord((j+1)*step,1);
+  const x=(left+right)/2,y=(top+bottom)/2,km=jobLegKm(origin,{x,y});
+  // Avoid generating scenery whose entire footprint is outside the trip band.
+  const spread=Math.hypot(right-left,bottom-top)*.0004+.06;
+  if(km+spread<band.min||km-spread>band.max)continue;
   candidates.push({i,j,distance:Math.hypot(x-anchor.x,y-anchor.y)});
  }
  candidates.sort((a,b)=>a.distance-b.distance);
@@ -1658,19 +1946,37 @@ function scenicJobStop(area,anchor,origin,band,mode,action){
  }
  return null;
 }
+function scenicDestination(area,origin,band,bands,mode,action,pickAnchor){
+ const searchBands=[band,...bands.filter(option=>option!==band)],anchors=new Map();
+ const areas=[area,...SCENIC_JOB_AREAS.filter(option=>option!==area)];
+ for(const type of areas)for(const range of searchBands){
+  if(!anchors.has(range))anchors.set(range,Array.from({length:4},()=>pickAnchor(range)));
+  for(const anchor of anchors.get(range)){
+   const stop=scenicJobStop(type,anchor,origin,range,mode,action);
+   if(stop)return stop;
+  }
+ }
+ // If the onward heading offered no scenery, sweep around the origin
+ // before giving up on this scenic offer.
+ for(const range of searchBands)for(let i=0;i<8;i++){
+  const angle=i*TAU/8,radius=(range.min+range.max)/.0016;
+  const anchor={x:origin.x+Math.cos(angle)*radius,y:origin.y+Math.sin(angle)*radius};
+  const stop=scenicJobStop('offroad',anchor,origin,range,mode,action);
+  if(stop)return stop;
+ }
+ return null;
+}
 function distantJobStop(kind,origin,rng,heading,mode,scenicArea){
  const bands=kind==='dropoff'?RIDE_BANDS:JOB_BANDS;
  let roll=rng(),band=bands.at(-1);for(const option of bands){roll-=option.weight;if(roll<0){band=option;break;}}
- const inset=band.anchorInset??.15;
- const pickAnchor=()=>{
+ const pickAnchor=(range=band)=>{
+  const inset=range.anchorInset??.15;
   const angle=heading==null?rng()*TAU:heading+(rng()-.5)*1.3;
-  const km=lerp(band.min,band.max,inset+rng()*(1-2*inset)),radius=km/.0008;
+  const km=lerp(range.min,range.max,inset+rng()*(1-2*inset)),radius=km/.0008;
   return {x:origin.x+Math.cos(angle)*radius,y:origin.y+Math.sin(angle)*radius};
  };
  // Preview destinations around a few anchors without streaming a corridor.
- if(scenicArea)for(let attempt=0;attempt<4;attempt++){
-  const stop=scenicJobStop(scenicArea,pickAnchor(),origin,band,mode,kind);if(stop)return stop;
- }
+ if(scenicArea)return scenicDestination(scenicArea,origin,band,bands,mode,kind,pickAnchor);
  for(let attempt=0;attempt<20;attempt++){
   const anchor=pickAnchor();
   const p=kind==='store'?findJobSite('store',anchor):distantCurbStop(anchor,origin,kind);
@@ -1685,29 +1991,30 @@ function createJobOffer(mode=progress.mode){
  if(!first)return null;
  const nextAction=mode==='bus'?'stop':mode==='uber'?'dropoff':'store';
  const count=mode==='bus'?BUS_STOP_COUNTS[Math.floor(rng()*BUS_STOP_COUNTS.length)]:2,stops=[first];let heading=null;
- // Roll once per offer so a multi-stop bus route has the same chance as a ride.
- const roll=worldHash(i,j,serial+4867);
- const scenicArea=roll<SCENIC_JOB_CHANCE?SCENIC_JOB_AREAS[Math.floor(roll/SCENIC_JOB_CHANCE*SCENIC_JOB_AREAS.length)]:null;
+ // Count successful offers independently in each mode, including multi-stop routes.
+ const offerNumber=progress.jobOfferCounts[mode]+1;
+ const scenicArea=offerNumber%SCENIC_JOB_INTERVAL===0?SCENIC_JOB_AREAS[(offerNumber/SCENIC_JOB_INTERVAL-1)%SCENIC_JOB_AREAS.length]:null;
  while(stops.length<count){
   const last=stops.at(-1),next=distantJobStop(nextAction,last,rng,heading,mode,stops.length===count-1?scenicArea:null);if(!next)return null;
   // Each later bus leg continues broadly onwards, instead of doubling back.
   heading=Math.atan2(next.y-last.y,next.x-last.x);stops.push(next);
  }
- const offer={version:2,id:serial,index:0,accepted:false,stops};progress.jobSerial=serial;progress.offers[mode]=offer;progressDirty=true;return offer;
+ const offer={version:2,id:serial,index:0,accepted:false,stops};
+ progress.jobSerial=serial;progress.jobOfferCounts[mode]=offerNumber;progress.offers[mode]=offer;progressDirty=true;return offer;
 }
 function ensureJobOffer(){if(!JOB_MODES.includes(progress.mode)||jobTarget())return null;return currentOffer()||createJobOffer();}
 function acceptJob(){
  if(!started||activeModal||jobTarget())return false;
  const offer=currentOffer();if(!offer)return false;
  const job={...offer,accepted:true,takedowns:0};progress.jobs[progress.mode]=job;delete progress.offers[progress.mode];
- Object.assign(service,{jobId:job.id,ms:0,retryIn:0});jobNavigation.key='';progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
+ Object.assign(service,{jobId:job.id,ms:0,retryIn:0});routeNavigation.key='';progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
  const message=progress.mode==='bus'?'Bus job accepted · '+job.stops.length+' stops total. First pickup marked in purple.':progress.mode==='uber'?'Ride accepted · Meet your passenger at the purple marker.':'Job accepted · Your pickup is marked in purple. No time limit.';
  toast(message);return true;
 }
 function changeJobOffer(){
  if(!started||activeModal||!JOB_MODES.includes(progress.mode))return;
  const ended=!!jobTarget();if(ended)delete progress.jobs[progress.mode];
- delete progress.offers[progress.mode];Object.assign(service,{jobId:null,ms:0,retryIn:0});jobNavigation.key='';jobNavigation.points=[];
+ delete progress.offers[progress.mode];Object.assign(service,{jobId:null,ms:0,retryIn:0});routeNavigation.key='';routeNavigation.points=[];
  const offer=ensureJobOffer();progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
  toast(offer?(ended?'Job ended. ':'')+'New pickup near you · Press E to accept.':'Finding a clear pickup. Drive towards another street.');
 }
@@ -1724,7 +2031,7 @@ function finishJobStop(){
  // Advance first, then save the new stage and its reward together. Holding the
  // brake, changing modes or reloading cannot collect the same delivery twice.
  if(index===0)job.cleanDriving=CLEAN_DRIVING_START;
- job.index++;service.ms=0;jobNavigation.key='';if(last){progress.completedJobs[mode]++;ensureJobOffer();}
+ job.index++;service.ms=0;routeNavigation.key='';if(last){progress.completedJobs[mode]++;ensureJobOffer();}
  if(rewardMetres)earnDistance(rewardMetres);
  progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
  toast(message+(bonus?' · +'+bonus+' KM':'')+(cleanBonus?' · +'+cleanBonus+' KM clean driving':'')+(takedownBonus?' · +'+takedownBonus+' KM takedowns':'')+(distanceBonus?' · +'+distanceBonus+' KM distance':'')+(last?(mode==='uber'?' · Press E for the next ride.':' · Press E when you want another job.'):''));
@@ -1743,22 +2050,25 @@ function updateJob(dt){
  const inStopArea=distance<jobStopRadius(progress.mode)||insideJobBay(target);
  if(inStopArea&&slow&&!accelerating){player.vx=player.vy=0;service.ms+=dt;if(service.ms>=2200)finishJobStop();}else service.ms=0;
 }
-function updateJobNavigation(){
- const target=jobTarget();
- if(!target){jobNavigation.key=jobNavigation.legKey='';jobNavigation.points=[];jobNavigation.guidance={segments:[],turns:[],recentTurn:null};return;}
- const job=currentJob(),legKey=progress.mode+':'+job.id+':'+job.index,key=legKey+':'+navigation.version;
- if(jobNavigation.key===key&&Math.hypot(player.x-jobNavigation.x,player.y-jobNavigation.y)<180)return;
- const previous=jobNavigation.key&&jobNavigation.legKey===legKey?jobNavigation.guidance:null;
- jobNavigation.key=key;jobNavigation.legKey=legKey;jobNavigation.x=player.x;jobNavigation.y=player.y;
+function updateRouteNavigation(){
+ const target=routeTarget();
+ if(!target){
+  if(routeNavigation.legKey){routeNavigation.key=routeNavigation.legKey='';routeNavigation.points=[];routeNavigation.guidance={segments:[],turns:[],recentTurn:null};}
+  return;
+ }
+ const job=currentJob(),legKey=job?progress.mode+':'+job.id+':'+job.index:'free:waypoint',key=legKey+':'+navigation.version;
+ if(routeNavigation.key===key&&Math.hypot(player.x-routeNavigation.x,player.y-routeNavigation.y)<180)return;
+ const previous=routeNavigation.key&&routeNavigation.legKey===legKey?routeNavigation.guidance:null;
+ routeNavigation.key=key;routeNavigation.legKey=legKey;routeNavigation.x=player.x;routeNavigation.y=player.y;
  const starts=jobRoadAnchors(player.x,player.y,player.angle),ends=jobRouteEnds(target);
  // Keep long-distance guidance local as the infinite city streams in.
- const path=guidedNavigationPath(starts,ends,player.angle);jobNavigation.points=path.length?[{x:player.x,y:player.y},...path]:[];
+ const path=guidedNavigationPath(starts,ends,player.angle);routeNavigation.points=path.length?[{x:player.x,y:player.y},...path]:[];
  // Only road geometry contributes turns: joining the road from the player's
  // lane or pulling into the final stop must not create a false junction cue.
  const guidance=buildRoadTurnGuidance(path);
  if(previous)guidance.recentTurn=retainRecentTurn(previous,guidance.turns);
- jobNavigation.guidance=guidance;
- const end=path.at(-1);if(end&&insideLoaded(target.x,target.y,80)&&segmentClear(end.x,end.y,target.x,target.y,14))jobNavigation.points.push({x:target.x,y:target.y});
+ routeNavigation.guidance=guidance;
+ const end=path.at(-1);if(end&&insideLoaded(target.x,target.y,80)&&segmentClear(end.x,end.y,target.x,target.y,14))routeNavigation.points.push({x:target.x,y:target.y});
 }
 function buildRoadTurnGuidance(points){
  const segments=[],turns=[];let distance=0;
@@ -1813,8 +2123,8 @@ function roadGuidanceProgress(x,y,heading,guidance){
  return bestPriority>0||bestDistance<=220*220?progress:NaN;
 }
 function drawRoadTurnGuidance(){
- if(!jobTarget())return;
- const guidance=jobNavigation.guidance,recent=guidance.recentTurn;
+ if(!routeTarget())return;
+ const guidance=routeNavigation.guidance,recent=guidance.recentTurn;
  if(!guidance.turns.length&&!recent)return;
  // Match from the same position used to plan the route, including just after a rebuild.
  const progress=guidance.segments.length?roadGuidanceProgress(player.x,player.y,player.angle,guidance):NaN;
@@ -1850,6 +2160,7 @@ function updateModeHUD(){
  const put=(id,value)=>{const el=$(id);if(el.textContent!==value)el.textContent=value;};
  put('modeName',def.name.toUpperCase());put('activeVehicleName',def.vehicle.toUpperCase());put('nextModeName',GAME_MODES[MODE_ORDER[(MODE_ORDER.indexOf(mode)+1)%MODE_ORDER.length]].name);
  $('modeMenuBtn').setAttribute('aria-label','Game mode: '+def.name+'. Open mode menu (V).');$('jobCard').hidden=!started||!JOB_MODES.includes(mode);
+ updateRouteNavigation();
  if(!JOB_MODES.includes(mode))return;
  const busMode=mode==='bus',rideMode=mode==='uber';
  put('jobEyebrow',busMode?'CITY TRANSIT':rideMode?'UBER RIDES':'FREIGHT DISPATCH');
@@ -1908,7 +2219,6 @@ function updateModeHUD(){
   }
  }
  $('jobProgressFill').style.width=Math.min(100,service.ms/2200*100)+'%';$('jobProgress').setAttribute('aria-valuenow',String(Math.min(100,Math.round(service.ms/2200*100))));
- updateJobNavigation();
 }
 function renderModeMenu(){
  $('modeCards').innerHTML=MODE_ORDER.map(id=>{
@@ -1936,24 +2246,40 @@ function renderModeMenu(){
  }
 }
 function showJobMap(){const target=jobTarget();if(!target)return;openModal('mapModal');mapView.x=target.x;mapView.y=target.y;mapView.span=2600;drawAtlas();}
-function drawJobMap(g,m,routeStart=null){
- const job=currentJob();if(!job)return;const scale=m.scale,target=jobTarget(),w=g.canvas.width,h=g.canvas.height,color=JOB_ROUTE_COLOR;
+function drawRouteMap(g,m,routeStart=null){
+ const job=currentJob(),waypoint=freeRoamWaypoint();if(!job&&!waypoint)return;
+ const scale=m.scale,target=jobTarget()||waypoint,w=g.canvas.width,h=g.canvas.height,color=JOB_ROUTE_COLOR;
  g.save();g.lineJoin=g.lineCap='round';g.beginPath();
  const trace=(x,y)=>g.lineTo((x-m.left)*scale,(y-m.top)*scale);
  if(routeStart){
   trace(renderedPlayer.x,renderedPlayer.y);trace(routeStart.x,routeStart.y);
-  const segments=jobNavigation.guidance.segments;
+  const segments=routeNavigation.guidance.segments;
   for(let i=routeStart.index;i<segments.length;i++){const s=segments[i];trace(s.x+s.dx,s.y+s.dy);}
-  const end=jobNavigation.points.at(-1);if(end)trace(end.x,end.y);
- }else for(const p of jobNavigation.points)trace(p.x,p.y);
+  const end=routeNavigation.points.at(-1);if(end)trace(end.x,end.y);
+ }else for(const p of routeNavigation.points)trace(p.x,p.y);
  g.strokeStyle='#281b3be6';g.lineWidth=7;g.stroke();g.strokeStyle=color;g.lineWidth=4;g.stroke();
- for(let n=job.index;n<job.stops.length;n++){
-  const p=job.stops[n],x=(p.x-m.left)*scale,y=(p.y-m.top)*scale;if(x<0||x>w||y<0||y>h)continue;g.globalAlpha=n===job.index?1:.5;g.fillStyle=n===job.index?color:'#d6dfc2';g.strokeStyle='#26483e';g.lineWidth=2;g.beginPath();g.arc(x,y,n===job.index?8:5,0,TAU);g.fill();g.stroke();if(w>500){g.fillStyle='#1d3c32';g.font='bold 9px Arial';g.textAlign='center';g.fillText(String(n+1),x,y+3);}
+ const stops=job?job.stops:[waypoint],index=job?.index??0;
+ for(let n=index;n<stops.length;n++){
+  const p=stops[n],x=(p.x-m.left)*scale,y=(p.y-m.top)*scale;if(x<0||x>w||y<0||y>h)continue;
+  const active=n===index;
+  g.globalAlpha=active?1:.5;g.fillStyle=active?color:'#d6dfc2';g.strokeStyle='#26483e';g.lineWidth=2;
+  g.beginPath();g.arc(x,y,waypoint?10:active?8:5,0,TAU);g.fill();g.stroke();
+  if(waypoint){g.fillStyle='#351446';g.beginPath();g.arc(x,y,3.5,0,TAU);g.fill();}
+  else if(w>500){g.fillStyle='#1d3c32';g.font='bold 9px Arial';g.textAlign='center';g.fillText(String(n+1),x,y+3);}
  }
  if(target){const tx=(target.x-m.left)*scale,ty=(target.y-m.top)*scale;if(tx<8||tx>w-8||ty<8||ty>h-8){const dx=tx-w/2,dy=ty-h/2,factor=Math.min((w/2-12)/Math.max(1,Math.abs(dx)),(h/2-12)/Math.max(1,Math.abs(dy)));g.globalAlpha=1;g.translate(w/2+dx*factor,h/2+dy*factor);g.rotate(Math.atan2(dy,dx));g.fillStyle=color;g.beginPath();g.moveTo(7,0);g.lineTo(-5,-5);g.lineTo(-5,5);g.closePath();g.fill();}}
  g.restore();
 }
-function drawJobWaypoint(){
+function drawRouteDestination(){
+ const waypoint=freeRoamWaypoint();
+ if(waypoint){
+  if(!visible(waypoint.x,waypoint.y,52))return;
+  const {x,y}=waypoint;
+  circle(x,y,24,JOB_ROUTE_COLOR+'26');circle(x,y,7,JOB_ROUTE_COLOR);
+  ctx.save();ctx.strokeStyle=JOB_ROUTE_COLOR;ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,24,0,TAU);ctx.stroke();ctx.restore();
+  textAt('WAYPOINT',x,y-33,8,'#f2edcb');
+  return;
+ }
  const target=jobTarget();if(!target||!visible(target.x,target.y,110))return;
  const ride=progress.mode==='uber',color=JOB_ROUTE_COLOR;
  const {halfLength,halfWidth}=jobBaySize(progress.mode);
@@ -2028,10 +2354,10 @@ addEventListener('keydown',e=>{
  const key=e.key.toLowerCase();if(e.metaKey||e.ctrlKey||e.altKey)return;
  if(activeModal&&key==='tab'){
   const focusScope=activeModal==='trophyModal'&&trophyPending?'trophyConfirmation':activeModal;
-  const buttons=[...$(focusScope).querySelectorAll('button')].filter(b=>!b.disabled&&b.getClientRects().length);
-  const first=buttons[0],end=buttons.at(-1);
+  const controls=[...$(focusScope).querySelectorAll('button, #atlas[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);
+  const first=controls[0],end=controls.at(-1);
   const focused=document.activeElement;
-  const fromTrophyCard=focusScope==='trophyModal'&&!buttons.includes(focused);
+  const fromTrophyCard=focusScope==='trophyModal'&&!controls.includes(focused);
   if(e.shiftKey&&(focused===first||fromTrophyCard)){end?.focus();e.preventDefault();}
   else if(!e.shiftKey&&(focused===end||fromTrophyCard)){first?.focus();e.preventDefault();}
   return;
@@ -2039,6 +2365,9 @@ addEventListener('keydown',e=>{
  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){if(key!==' '||document.activeElement.tagName!=='BUTTON')e.preventDefault();}
  if(e.repeat&&['r','m','g','b','c','v','e','n','escape','p'].includes(key))return;
  if(activeModal==='mapModal'&&['arrowup','arrowdown','arrowleft','arrowright','+','=','-'].includes(key)){e.preventDefault();if(key==='+'||key==='=')zoomMap(.75);else if(key==='-')zoomMap(1/.75);else{mapView.x+=(key==='arrowright'?1:key==='arrowleft'?-1:0)*mapView.span*.12;mapView.y+=(key==='arrowdown'?1:key==='arrowup'?-1:0)*mapView.span*.12;mapView.dirty=true;}return;}
+ if(activeModal==='mapModal'&&progress.mode==='free'&&document.activeElement===atlas&&key==='enter'){
+  e.preventDefault();if(!e.repeat)setMapWaypoint(mapView.x,mapView.y);return;
+ }
  if(key==='escape'&&activeModal==='trophyModal'&&trophyPending){dismissTrophyConfirmation(true);return;}
  if(key==='escape'||key==='p'){activeModal?closeModal():started&&openModal('pauseModal');return;}
  if(key==='m'){openModal('mapModal');return;}
@@ -2672,34 +3001,96 @@ function textAt(text,x,y,size,color,weight='bold'){ctx.font=weight+' '+size+'px 
 let bounds={l:0,t:0,r:0,b:0};
 function visible(x,y,w=0,h=w){return x+w>=bounds.l&&x-w<=bounds.r&&y+h>=bounds.t&&y-h<=bounds.b;}
 function strokeRoad(g,road,color,width=road.width,dash=[]){g.strokeStyle=color;g.lineWidth=width;g.lineJoin='round';g.lineCap=road.kind==='highway'?'butt':'round';g.setLineDash(dash);g.beginPath();road.points.forEach((p,n)=>n?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.stroke();g.setLineDash([]);}
+function drawNatureWater(g,water,map){
+ g.save();g.beginPath();
+ for(const [i,p] of water.points.entries())i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y);
+ g.closePath();
+ g.fillStyle=map?'#619d9c':'#508887';
+ if(!map){g.strokeStyle='#87966f';g.lineWidth=15;g.lineJoin='round';g.stroke();}
+ g.fill();
+ if(!map){
+  g.clip();g.strokeStyle='#92b29b99';g.lineWidth=24;g.stroke();
+  const left=Math.max(water.left,bounds.l-50),right=Math.min(water.right,bounds.r),top=Math.max(water.top,bounds.t-10),bottom=Math.min(water.bottom,bounds.b);
+  g.beginPath();g.lineWidth=1.25;g.strokeStyle='#bcd4b85c';
+  for(let j=Math.floor(top/26);j*26<bottom;j++)for(let i=Math.floor(left/63);i*63<right;i++){
+   const n=worldHash(i,j,638),x=i*63+34*n,y=j*26+12*n;
+   g.moveTo(x,y);g.quadraticCurveTo(x+8+n*5,y-2,x+13+n*20,y);
+  }
+  g.stroke();
+ }
+ g.restore();
+}
+function drawNaturePlant(p){
+ const {x,y,r,kind,tone,angle}=p;
+ ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+ if(kind==='shrub'){
+  circle(2,2,r,'#455f4644');circle(0,0,r*.92,tone>.5?'#587f58':'#6e8d58');
+  circle(-r*.48,-r*.17,r*.56,'#809c61');circle(r*.20,-r*.34,r*.52,'#91a96b');
+ }else if(kind==='stones'){
+  circle(-r*.45,r*.23,r*.39,'#aea58a');circle(r*.21,-r*.12,r*.50,tone>.5?'#96917e':'#c0b39b');circle(r*.77,r*.36,r*.25,'#8f8d79');
+ }else{
+  ctx.lineWidth=kind==='reeds'?1.75:1.15;ctx.lineCap='round';ctx.strokeStyle=kind==='reeds'?'#637448':'#718d53';
+  ctx.beginPath();
+  for(const side of [-1,0,1]){ctx.moveTo(-side*r*.16,r*.35);ctx.quadraticCurveTo(side*r*.28,-r*.30,side*r*.64,-r*.77);}
+  ctx.stroke();
+  if(kind==='flowers'){
+   const color=tone<.30?'#eac276':tone<.56?'#e1d9a2':tone<.79?'#ba92af':'#d69b92';
+   for(const side of [-1,0,1]){
+    circle(side*r*.64,-r*.77,Math.max(1.25,r*.23),color);
+    if(r>7)circle(side*r*.64,-r*.77,1,'#e9ce83');
+   }
+  }else if(kind==='reeds'){
+   for(const side of [-1,1])circle(side*r*.64,-r*.77,1.45,'#a78f56');
+  }
+ }
+ ctx.restore();
+}
+function drawNatureGround(s,g,map){
+ const {left,right,top,bottom}=s.land,biome=NATURE_BIOMES[s.biome];
+ const l=left-(s.open.left ? .6 : 0),r=right+(s.open.right ? .6 : 0);
+ const t=top-(s.open.top ? .6 : 0),b=bottom+(s.open.bottom ? .6 : 0);
+ g.save();g.beginPath();g.rect(l,t,r-l,b-t);g.clip();
+ g.fillStyle=s.reserve?'#849c73':biome.ground;g.fillRect(l,t,r-l,b-t);
+ if(!map){
+  const x1=Math.floor((Math.max(l,bounds.l)-185)/116),x2=Math.ceil((Math.min(r,bounds.r)+135)/116);
+  const y1=Math.floor((Math.max(t,bounds.t)-160)/108),y2=Math.ceil((Math.min(b,bounds.b)+135)/108);
+  for(let j=y1;j<=y2;j++)for(let i=x1;i<=x2;i++){
+   const n=worldHash(i,j,191),x=i*116+n*64,y=j*108+n*39,cover=natureCover(x,y,628);
+   g.fillStyle=s.reserve?(cover>.5?'#4b714733':'#a8b27b3d'):biome.patch;
+   g.beginPath();g.ellipse(x,y,61+n*44,37+n*32,n*TAU,0,TAU);g.fill();
+  }
+  const depth=88;
+  const verge=(x,y,dx,dy,w,h)=>{
+   if(!visible(x+w/2,y+h/2,Math.abs(w)/2,Math.abs(h)/2))return;
+   const fade=g.createLinearGradient(x,y,x+dx,y+dy);
+   fade.addColorStop(0,'#a6b09bbf');fade.addColorStop(1,'#a6b09b00');
+   g.fillStyle=fade;g.fillRect(x,y,w,h);
+  };
+  if(!s.open.left)verge(left,top,depth,0,depth,bottom-top);
+  if(!s.open.right)verge(right,top,-depth,0,-depth,bottom-top);
+  if(!s.open.top)verge(left,top,0,depth,right-left,depth);
+  if(!s.open.bottom)verge(left,bottom,0,-depth,right-left,-depth);
+ }
+ if(s.water&&(map||visible((s.water.left+s.water.right)/2,(s.water.top+s.water.bottom)/2,(s.water.right-s.water.left)/2+12,(s.water.bottom-s.water.top)/2+12)))drawNatureWater(g,s.water,map);
+ if(!map)for(const p of s.plants)if(visible(p.x,p.y,p.r+3))drawNaturePlant(p);
+ g.restore();
+}
 function sceneGround(s,g=ctx,map=false){
  const left=s.x+roadHalf(s.a*3,0),top=s.y+roadHalf(s.b*3,1),right=s.x+s.w-roadHalf(s.a*3+3,0),bottom=s.y+s.h-roadHalf(s.b*3+3,1);
- g.fillStyle=s.type==='airport'?'#8c9d7a':s.type==='oldtown'?s.town.ground:s.forest?'#73966a':'#b7a47c';g.fillRect(left,top,right-left,bottom-top);
- if(!map){
-  g.save();g.beginPath();g.rect(left,top,right-left,bottom-top);g.clip();
-  if(s.type==='oldtown'){g.strokeStyle='#897e6635';g.lineWidth=.7;for(let py=Math.ceil(Math.max(top,bounds.t)/18)*18;py<Math.min(bottom,bounds.b);py+=18){g.beginPath();g.moveTo(Math.max(left,bounds.l),py);g.lineTo(Math.min(right,bounds.r),py);g.stroke();}}
-  if(s.type==='offroad'){
-   const startX=Math.max(0,Math.floor((bounds.l-s.x-126)/110)),endX=Math.min(15,Math.ceil((bounds.r-s.x+76)/110)),startY=Math.max(0,Math.floor((bounds.t-s.y-111)/105)),endY=Math.min(15,Math.ceil((bounds.b-s.y+76)/105));
-   for(let j=startY;j<=endY;j++)for(let i=startX;i<=endX;i++){const n=worldHash(s.a*17+i,s.b*17+j,191),px=s.x+i*110+n*50,py=s.y+j*105+n*35;g.fillStyle=s.forest?'#527a4e20':'#c7b78f44';g.beginPath();g.ellipse(px,py,42+n*34,27+n*20,n*3,0,TAU);g.fill();}
+ if(s.type==='offroad')drawNatureGround(s,g,map);
+ else{
+  g.fillStyle=s.type==='airport'?'#8c9d7a':s.town.ground;g.fillRect(left,top,right-left,bottom-top);
+  if(!map&&s.type==='oldtown'){
+   g.save();g.beginPath();g.rect(left,top,right-left,bottom-top);g.clip();
+   g.strokeStyle='#897e6635';g.lineWidth=.7;
+   for(let py=Math.ceil(Math.max(top,bounds.t)/18)*18;py<Math.min(bottom,bounds.b);py+=18){g.beginPath();g.moveTo(Math.max(left,bounds.l),py);g.lineTo(Math.min(right,bounds.r),py);g.stroke();}
+   g.restore();
   }
-  if(s.type==='offroad'){
-   // A grassy verge shades into the trail district inside the road shoulder.
-   const depth=s.forest?110:85;
-   const verge=(x,y,dx,dy,w,h)=>{
-    if(!visible(x+w/2,y+h/2,Math.abs(w)/2,Math.abs(h)/2))return;
-    const fade=g.createLinearGradient(x,y,x+dx,y+dy);
-    fade.addColorStop(0,'#a6b09bbf');fade.addColorStop(1,'#a6b09b00');
-    g.fillStyle=fade;g.fillRect(x,y,w,h);
-   };
-   verge(left,top,depth,0,depth,bottom-top);verge(right,top,-depth,0,-depth,bottom-top);
-   verge(left,top,0,depth,right-left,depth);verge(left,bottom,0,-depth,right-left,-depth);
-  }
-  g.restore();
  }
  for(const d of s.decor){
   if(d.kind==='apron'){g.fillStyle='#9da89d';g.fillRect(d.x-d.hw,d.y-d.hh,d.hw*2,d.hh*2);if(!map){g.strokeStyle='#727f7855';g.lineWidth=1;for(let px=d.x-d.hw+35;px<d.x+d.hw;px+=70){g.beginPath();g.moveTo(px,d.y-d.hh);g.lineTo(px,d.y+d.hh);g.stroke();}for(let py=d.y-d.hh+35;py<d.y+d.hh;py+=70){g.beginPath();g.moveTo(d.x-d.hw,py);g.lineTo(d.x+d.hw,py);g.stroke();}}}
   if(d.kind==='stand'&&!map){g.save();g.translate(d.x,d.y);g.rotate(d.angle);g.strokeStyle='#d1bd7c';g.lineWidth=1.2;g.beginPath();g.moveTo(-d.length*.65,0);g.lineTo(d.length*.59,0);g.moveTo(d.length*.59,-12);g.lineTo(d.length*.59,12);g.stroke();g.font='bold 8px Arial';g.fillStyle='#6d7968';g.textAlign='center';g.fillText(d.label,-d.length*.65,14);g.restore();}
-  if(d.kind==='oldplaza'||d.kind==='clearing'){g.fillStyle=d.kind==='oldplaza'?'#c4b796':s.forest?'#acaa80':'#c6b48d';g.beginPath();g.arc(d.x,d.y,d.r,0,TAU);g.fill();}
+  if(d.kind==='oldplaza'||d.kind==='clearing'){g.fillStyle=d.kind==='oldplaza'?'#c4b796':s.biome==='dry'?'#c6b48d':'#a9aa7a';g.beginPath();g.arc(d.x,d.y,d.r,0,TAU);g.fill();}
  }
 }
 function drawGridPavement(road,color,extra=0){
@@ -2707,6 +3098,16 @@ function drawGridPavement(road,color,extra=0){
  // Overlap adjoining fills by one world unit to prevent hairlines at fractional zoom.
  if(a.y===b.y)rect(a.x-1,a.y-half,b.x-a.x+2,half*2,color);
  else rect(a.x-half,a.y-1,half*2,b.y-a.y+2,color);
+}
+function drawGridBends(color,extra=0){
+ ctx.fillStyle=color;
+ for(const s of activeScenes.values()){
+  if(!s.roadBends)continue;
+  for(const {x,y,hw,hh}of s.roadBends){
+   if(!visible(x,y,hw+extra,hh+extra))continue;
+   ctx.beginPath();ctx.ellipse(x,y,hw+extra,hh+extra,0,0,TAU);ctx.fill();
+  }
+ }
 }
 function drawGridMarkings(road){
  const {a,b}=road.segments[0],horizontal=a.y===b.y,origin=horizontal?a.x:a.y;
@@ -2728,7 +3129,7 @@ function drawGridMarkings(road){
  ctx.restore();
 }
 function drawScenicEntrance(road){
- const [p,q]=road.points;if(!p.side)return;
+ const [p,q]=road.points;if(!p.side||p.open)return;
  const nx=p.side==='left'?1:p.side==='right'?-1:0,ny=p.side==='top'?1:p.side==='bottom'?-1:0;
  const axis=nx?0:1,index=p.streetIndex;
  const shoulder=roadHalf(index,axis),depth=Math.min(72,((q.x-p.x)*nx+(q.y-p.y)*ny-shoulder)*.8);
@@ -2743,6 +3144,7 @@ function drawRoads(){
  const roads=navigation.roads.filter(r=>r.segments.some(s=>s.r+5>=bounds.l&&s.l-5<=bounds.r&&s.bottom+5>=bounds.t&&s.t-5<=bounds.b));
  const grid=roads.filter(r=>r.entryInset!==undefined),scenic=roads.filter(r=>r.entryInset===undefined);
  for(const r of grid)drawGridPavement(r,r.kind==='highway'?'#c6c4aa':'#c7c3ab',4);
+ drawGridBends('#c7c3ab',4);
  for(const r of scenic){const dirt=r.kind==='dirt',cobbles=r.kind==='cobbles';strokeRoad(ctx,r,dirt?'#a7a17a':cobbles?r.edge||'#968972':'#c7c3ab',r.width+(dirt?9:8));}
  for(const r of scenic)strokeRoad(ctx,r,r.kind==='dirt'?'#b7a57b':r.kind==='cobbles'?r.color||'#c1b497':r.kind==='runway'?'#4c5959':'#505e5e');
  for(const r of scenic){
@@ -2752,6 +3154,7 @@ function drawRoads(){
   if(r.kind==='taxiway')strokeRoad(ctx,r,'#d9be69',1.6);
  }
  for(const r of grid)if(r.kind==='street')drawGridPavement(r,'#505e5e');
+ drawGridBends('#505e5e');
  for(const r of grid)if(r.kind==='highway')drawGridPavement(r,'#465657');
  for(const r of grid)drawGridMarkings(r);
  ctx.lineCap='butt';ctx.lineJoin='miter';
@@ -2761,7 +3164,21 @@ function drawRoads(){
  }
  for(const b of blocks)if(!b.scene){const x=b.x+b.w/2,y=roadCoord(b.j,1)+36;if(visible(x,y,85,10))textAt(streetName(b.j,1).toUpperCase(),x,y,8,'#dce2c154','normal');}
 }
+function drawNatureBridge(bridge){
+ const {x,y,hw,hh,vertical}=bridge;
+ const length=(vertical?hh:hw)*2,width=(vertical?hw:hh)*2;
+ ctx.save();ctx.translate(x,y);if(vertical)ctx.rotate(Math.PI/2);
+ rect(-length/2+3,-width/2+5,length,width+3,'#244b4b55');
+ rect(-length/2,-width/2,length,width,'#a49476');
+ for(let x=-length/2+4;x<length/2-2;x+=8)rect(x,-width/2+3,1.4,width-6,'#756c58a8');
+ for(const side of [-1,1]){
+  rect(-length/2,side*(width/2-3)-1.5,length,3,'#615d4c');
+  for(let x=-length/2+4;x<length/2;x+=30)rect(x-2,side*(width/2-2)-2,4,4,'#c3b08d');
+ }
+ ctx.restore();
+}
 function drawSceneDetails(s){
+ for(const bridge of s.bridges||[])if(visible(bridge.x,bridge.y,bridge.hw+9,bridge.hh+9))drawNatureBridge(bridge);
  for(const d of s.decor){
   if(d.kind==='runway'){
    ctx.save();ctx.translate(d.x,d.y);if(d.vertical)ctx.rotate(Math.PI/2);const length=(d.vertical?d.hh:d.hw)*2,width=(d.vertical?d.hw:d.hh)*2;
@@ -2771,7 +3188,14 @@ function drawSceneDetails(s){
   }
   if(d.kind==='plane'&&visible(d.x,d.y,(AIRCRAFT[d.model]?.length||126)/2+12))drawAircraft(d);
   if(d.kind==='rock'&&visible(d.x,d.y,d.hw+8,d.hh+8)){
-   ctx.save();ctx.translate(d.x,d.y);ctx.fillStyle='#4a503d33';ctx.beginPath();ctx.ellipse(4,5,d.hw+2,d.hh+2,0,0,TAU);ctx.fill();ctx.fillStyle=d.tone>.5?'#898e79':'#92957f';ctx.beginPath();ctx.moveTo(-d.hw,-d.hh*.3);ctx.lineTo(-d.hw*.4,-d.hh);ctx.lineTo(d.hw*.55,-d.hh*.8);ctx.lineTo(d.hw,d.hh*.2);ctx.lineTo(d.hw*.4,d.hh);ctx.lineTo(-d.hw*.7,d.hh*.65);ctx.closePath();ctx.fill();ctx.strokeStyle='#bac0a36b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-d.hw*.7,-d.hh*.3);ctx.lineTo(-d.hw*.25,-d.hh*.65);ctx.lineTo(d.hw*.4,-d.hh*.5);ctx.stroke();ctx.restore();
+   ctx.save();ctx.translate(d.x,d.y);
+   ctx.fillStyle='#4a503d33';ctx.beginPath();ctx.ellipse(4,5,d.hw+2,d.hh+2,0,0,TAU);ctx.fill();
+   const silhouette=d.shape>.66?[[-1,.28],[-.62,-.65],[.12,-1],[.88,-.43],[1,.52],[-.13,1]]:
+    d.shape>.33?[[-1,-.25],[-.39,-1],[.64,-.61],[1,.24],[.48,1],[-.77,.66]]:
+    [[-1,-.30],[-.40,-1],[.55,-.8],[1,.20],[.4,1],[-.70,.65]];
+   roofPolygon(silhouette.map(([u,v])=>[u*d.hw,v*d.hh]),d.tone>.65?'#7a8474':d.tone>.32?'#989982':'#a99d87');
+   roofPolygon([[-d.hw*.78,d.hh*.08],[-d.hw*.17,-d.hh*.67],[d.hw*.64,-d.hh*.22],[d.hw*.11,d.hh*.24]],'#d4cbb14a');
+   ctx.restore();
   }
   if(d.kind==='oldplaza'&&visible(d.x,d.y,100)){
    circle(d.x,d.y,72,s.town.ground);ctx.strokeStyle=s.town.street;ctx.lineWidth=3;ctx.beginPath();ctx.arc(d.x,d.y,65,0,TAU);ctx.stroke();
@@ -2924,7 +3348,47 @@ function drawAircraft(d){
  ctx.restore();
 }
 
-function drawTree(t){circle(t.x+6,t.y+8,t.r+2,'#284d3a34');circle(t.x,t.y,t.r,t.tone>.5?'#4f7959':'#5d845c');circle(t.x-3,t.y-3,t.r*.78,t.tone>.5?'#6b925e':'#749965');circle(t.x-5,t.y-5,t.r*.42,'#92ad743d');}
+const natureCanopies=new Map();
+function natureCanopy(species,dark){
+ const key=species+(dark?'-shade':'-sun');
+ if(natureCanopies.has(key))return natureCanopies.get(key);
+ const sprite=document.createElement('canvas');sprite.width=sprite.height=90;
+ const g=sprite.getContext('2d');g.setTransform(30,0,0,30,45,45);
+ const disk=(x,y,r,color)=>{g.fillStyle=color;g.beginPath();g.arc(x,y,r,0,TAU);g.fill();};
+ disk(.21,.26,1.02,'#2847354d');
+ if(species==='pine'||species==='fir'){
+  const colors=species==='fir'?['#355d53','#4d7661','#729274']:['#3d6749','#537d50','#789862'];
+  for(let layer=0;layer<3;layer++){
+   const size=1-layer*.25;g.beginPath();g.fillStyle=colors[layer];
+   for(let n=0;n<18;n++){
+    const angle=n*TAU/18+layer*.21+(dark?.19:0),length=size*(n%2?.66:1);
+    const x=Math.cos(angle)*length-layer*.075,y=Math.sin(angle)*length-layer*.068;
+    n?g.lineTo(x,y):g.moveTo(x,y);
+   }
+   g.closePath();g.fill();
+  }
+  disk(-.16,-.15,.15,'#a2b67e');
+ }else{
+  const colors=species==='willow'?['#537956','#6d9a66','#98b77e']:species==='birch'?['#679061','#88a670','#acbd87']:species==='scrub'?['#667a54','#879561','#a8a775']:['#4d714d','#688f58','#8ba867'];
+  disk(0,0,.89,colors[0]);
+  const lobes=species==='willow'?7:5;
+  for(let n=0;n<lobes;n++){
+   const angle=n*TAU/lobes+(dark?.42:0),x=Math.cos(angle)*.53,y=Math.sin(angle)*.51;
+   disk(x,y,n%2?.40:.48,colors[0]);
+   disk(x-.05,y-.12,n%2?.32:.38,colors[1]);
+  }
+  disk(-.19,-.21,.53,colors[1]);disk(-.29,-.34,.29,colors[2]);
+  if(species==='birch')disk(.39,-.44,.15,'#c4cb9b');
+ }
+ natureCanopies.set(key,sprite);return sprite;
+}
+function drawTree(t){
+ if(t.species){
+  const size=t.r*3;
+  ctx.drawImage(natureCanopy(t.species,t.tone>.47),t.x-size/2,t.y-size/2,size,size);return;
+ }
+ circle(t.x+6,t.y+8,t.r+2,'#284d3a34');circle(t.x,t.y,t.r,t.tone>.5?'#4f7959':'#5d845c');circle(t.x-3,t.y-3,t.r*.78,t.tone>.5?'#6b925e':'#749965');circle(t.x-5,t.y-5,t.r*.42,'#92ad743d');
+}
 function drawStreetlampPosts(){
  for(const {x,y,bx,by,angle} of streetlamps){
   if(!visible(x,y,18))continue;
@@ -3372,11 +3836,11 @@ function draw(){
  for(const s of skids)if(visible(s.x,s.y,6)){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.angle);ctx.globalAlpha=Math.min(.4,s.life/11000*.5);rect(-3,-1,6,2,'#182d28');ctx.restore();}
  if(!night)drawRoadTurnGuidance();
  if(sceneryCache.hasRoofs)paintScenery(sceneryCache.roofs);
- if(!night){drawPickups();drawJobWaypoint();}
+ if(!night){drawPickups();drawRouteDestination();}
  for(const c of parked)drawCar(c);for(const c of traffic)drawCar(c);for(const c of police)drawCar(c);drawCar(player);
  for(const t of trees)if(visible(t.x,t.y,t.r+10))drawTree(t);
  for(const p of particles){ctx.globalAlpha=Math.min(1,p.life/220);rect(p.x,p.y,p.size||2,p.size||2,p.color||'#f1d38e');}ctx.globalAlpha=1;
- if(night){drawNightLighting(night);drawRoadTurnGuidance();drawPickups();drawJobWaypoint();}
+ if(night){drawNightLighting(night);drawRoadTurnGuidance();drawPickups();drawRouteDestination();}
  drawExplosions();
  // A small floating chevron keeps your car easy to find without covering it.
  if(!started||simTime<6500){const bob=Math.sin(performance.now()/230)*2;ctx.save();ctx.translate(renderedPlayer.x,renderedPlayer.y-24+bob);ctx.beginPath();ctx.moveTo(-5,-5);ctx.lineTo(0,0);ctx.lineTo(5,-5);ctx.strokeStyle='#edfac1';ctx.lineWidth=2;ctx.stroke();ctx.restore();}
@@ -3384,14 +3848,65 @@ function draw(){
 }
 const mapView={x:player.x,y:player.y,span:3600,dirty:false,drag:null};
 const mapColors={park:'#a7bc7e',sports:'#91af7e',canal:'#6eaaa0',housing:'#92a583',terraces:'#a4957a',towers:'#779b91',warehouses:'#89988a',courtyard:'#859d80',plaza:'#b6b99a',market:'#b1a68a',parking:'#929e85',landmark:'#b0b39a',hospital:'#b6cbbb',pharmacy:'#81ae7d',firestation:'#b28d76'};
-const exploration={target:null};
+const exploration={target:null,waypoint:null};
+function nearestWaypointRoad(x,y){
+ const i=roadIndex(x,0),j=roadIndex(y,1);
+ let nearest=null;
+ const consider=seg=>{
+  const p=projectSegment(x,y,seg.a,seg.b);
+  if(!nearest||p.distance<nearest.distance)nearest={...p,width:seg.width};
+ };
+ for(const axis of [0,1]){
+  const across=axis===0?i:j,along=axis===0?j:i;
+  for(let index=across-1;index<=across+2;index++)for(let span=along-1;span<=along+1;span++)
+   if(gridEdge(axis,index,span))consider(gridRoad(axis,index,span).segments[0]);
+ }
+ // Build the clicked region on demand even when it is beyond the active world.
+ for(let b=Math.floor((j-1)/3);b<=Math.floor((j+1)/3);b++)for(let a=Math.floor((i-1)/3);a<=Math.floor((i+1)/3);a++){
+  const scene=getScene(a,b);
+  if(scene)for(const seg of scene.segments)consider(seg);
+ }
+ return nearest;
+}
+function setMapWaypoint(x,y,name='Waypoint'){
+ if(progress.mode!=='free')return false;
+ const road=nearestWaypointRoad(x,y);if(!road)return false;
+ exploration.waypoint={x:road.x,y:road.y,angle:road.angle,width:road.width,name};
+ exploration.target=null;routeNavigation.key='';mapView.dirty=true;updateHUD();
+ return true;
+}
+function updateWaypointArrival(){
+ const waypoint=freeRoamWaypoint();
+ if(!started||activeModal||!waypoint)return;
+ const dx=player.x-waypoint.x,dy=player.y-waypoint.y,cos=Math.cos(waypoint.angle),sin=Math.sin(waypoint.angle);
+ if(Math.abs(dx*cos+dy*sin)>48||Math.abs(-dx*sin+dy*cos)>waypoint.width/2+6)return;
+ exploration.waypoint=null;toast('Waypoint reached.');
+}
 function findLandscape(type){
  const ci=roadIndex(player.x,0),cj=roadIndex(player.y,1),a=Math.floor(ci/3),b=Math.floor(cj/3);let best=null;
  if(type==='highway'){
   const ix=Math.round(ci/12)*12,jy=Math.round(cj/12)*12,candidates=[{x:roadCoord(ix,0)+54,y:player.y,name:'North–south expressway'},{x:player.x,y:roadCoord(jy,1)+54,name:'East–west expressway'}];best=candidates.sort((p,q)=>Math.hypot(p.x-player.x,p.y-player.y)-Math.hypot(q.x-player.x,q.y-player.y))[0];
- }else for(let y=b-6;y<=b+6;y++)for(let x=a-6;x<=a+6;x++)if(regionType(x,y)===type){const cx=(roadCoord(x*3,0)+roadCoord(x*3+3,0))/2,cy=(roadCoord(y*3,1)+roadCoord(y*3+3,1))/2,distance=Math.hypot(cx-player.x,cy-player.y);if(!best||distance<best.distance)best={a:x,b:y,distance,x:cx,y:cy,name:regionName(x,y)};}
+ }else{
+  const search=type==='reserve'?12:6,region=type==='reserve'?'offroad':type;
+  for(let y=b-search;y<=b+search;y++)for(let x=a-search;x<=a+search;x++){
+   if(regionType(x,y)!==region||(type==='reserve'&&!natureReserve(x,y)))continue;
+   const cx=(roadCoord(x*3,0)+roadCoord(x*3+3,0))/2,cy=(roadCoord(y*3,1)+roadCoord(y*3+3,1))/2,distance=Math.hypot(cx-player.x,cy-player.y);
+   if(!best||distance<best.distance)best={a:x,b:y,distance,x:cx,y:cy,name:regionName(x,y)};
+  }
+  if(best&&region==='offroad')Object.assign(best,getScene(best.a,best.b).showcase);
+ }
  if(!best)return;
- exploration.target=best;mapView.x=best.x;mapView.y=best.y;mapView.span=4200;mapView.dirty=true;updateHUD();
+ if(progress.mode==='free')setMapWaypoint(best.x,best.y,best.name);
+ else{exploration.target=best;updateHUD();}
+ mapView.x=best.x;mapView.y=best.y;mapView.span=4200;mapView.dirty=true;
+ if(type==='reserve'){
+  const cells=[...natureReserve(best.a,best.b).members].map(id=>id.split(',').map(Number));
+  const xs=cells.map(([x])=>x),ys=cells.map(([,y])=>y);
+  const left=roadCoord(Math.min(...xs)*3,0),right=roadCoord((Math.max(...xs)+1)*3,0);
+  const top=roadCoord(Math.min(...ys)*3,1),bottom=roadCoord((Math.max(...ys)+1)*3,1);
+  mapView.x=(left+right)/2;mapView.y=(top+bottom)/2;
+  mapView.span=clamp(Math.max(right-left,(bottom-top)*atlas.width/atlas.height)+650,4200,10000);
+ }
 }
 function mapProjection(cx,cy,span,w,h){
  const scale=w/span;
@@ -3407,16 +3922,24 @@ function mapRegion(g,cx,cy,span,w,h,labels=false){
   if(scale>.07){g.fillStyle=b.style==='old'?'#c4b08c':'#b2bfa0';for(const roof of b.buildings){g.fillStyle=roof.role==='pharmacy'?'#558969':roof.role==='hospital'?'#dde0c8':roof.roofTone||roof.color;g.fillRect(roof.x-roof.hw,roof.y-roof.hh,roof.hw*2,roof.hh*2);}g.fillStyle='#5e948b';for(const water of b.obstacles)g.fillRect(water.x-water.hw,water.y-water.hh,water.hw*2,water.hh*2);}
  }
  for(const s of scenes.values()){
-  sceneGround(s,g,true);for(const road of s.roads)strokeRoad(g,road,road.kind==='runway'?'#536b69':road.kind==='dirt'?'#c7b58a':'#d3c9aa');
+  sceneGround(s,g,true);
+  if(s.type==='offroad'){
+   g.fillStyle=s.biome==='dry'?'#8f906b':'#5d8055';g.beginPath();
+   for(const t of s.trees)if(scale>.2||t.tone>.42)g.rect(t.x-5,t.y-5,10,10);
+   g.fill();
+  }
+  for(const road of s.roads)strokeRoad(g,road,road.kind==='runway'?'#536b69':road.kind==='dirt'?'#c7b58a':'#d3c9aa');
   g.fillStyle=s.type==='oldtown'?'#937e64':'#7c948a';for(const roof of s.buildings){g.fillStyle=roof.roofTone||roof.color;g.fillRect(roof.x-roof.hw,roof.y-roof.hh,roof.hw*2,roof.hh*2);}
-  if(s.type==='offroad'){g.fillStyle=s.forest?'#557b4c':'#8f906b';for(const t of s.trees)g.fillRect(t.x-5,t.y-5,10,10);}
  }
  for(let i=minI;i<=maxI+1;i++)if(isHighway(i)){g.fillStyle='#829692';g.fillRect(roadCoord(i,0)-148,top,296,bottom-top);g.fillStyle='#e8dcaa';g.fillRect(roadCoord(i,0)-4,top,8,bottom-top);}
  for(let j=minJ;j<=maxJ+1;j++)if(isHighway(j)){g.fillStyle='#829692';g.fillRect(left,roadCoord(j,1)-148,span,296);g.fillStyle='#e8dcaa';g.fillRect(left,roadCoord(j,1)-4,span,8);}
  g.restore();
+ const labelledReserves=new Set();
  if(labels)for(let dj=Math.floor(minJ/3);dj<=Math.floor(maxJ/3);dj++)for(let di=Math.floor(minI/3);di<=Math.floor(maxI/3);di++){
   const x=(roadCoord(di*3,0)+roadCoord(di*3+3,0))/2,y=(roadCoord(dj*3,1)+roadCoord(dj*3+3,1))/2,px=(x-left)*scale,py=(y-top)*scale;if(px<60||px>w-60||py<20||py>h-20)continue;
-  const type=regionType(di,dj),name=(type==='city'?districtAt(di*3,dj*3).name:regionName(di,dj)).toUpperCase();g.font='bold 11px Arial';const tw=g.measureText(name).width;g.fillStyle=type==='airport'?'#34555e':type==='offroad'?'#6b6243':type==='oldtown'?'#755744':'#173f35ec';g.beginPath();g.roundRect(px-tw/2-8,py-12,tw+16,24,5);g.fill();g.fillStyle='#f1f0cf';g.textAlign='center';g.fillText(name,px,py+4);
+  const type=regionType(di,dj),reserve=type==='offroad'?natureReserve(di,dj):null;
+  if(reserve){if(labelledReserves.has(reserve.key))continue;labelledReserves.add(reserve.key);}
+  const name=(type==='city'?districtAt(di*3,dj*3).name:reserve?.name||regionName(di,dj)).toUpperCase();g.font='bold 11px Arial';const tw=g.measureText(name).width;g.fillStyle=type==='airport'?'#34555e':type==='offroad'?'#6b6243':type==='oldtown'?'#755744':'#173f35ec';g.beginPath();g.roundRect(px-tw/2-8,py-12,tw+16,24,5);g.fill();g.fillStyle='#f1f0cf';g.textAlign='center';g.fillText(name,px,py+4);
  }
  return projection;
 }
@@ -3449,9 +3972,9 @@ function drawMinimapTerrain(m,w,h){
  mctx.drawImage(terrain,(cached.left-m.left)*scale,(cached.top-m.top)*scale);
 }
 function drawMini(elapsed=0){
- const w=mini.width,h=mini.height,{x,y,angle}=renderedPlayer,guidance=jobNavigation.guidance;
+ const w=mini.width,h=mini.height,{x,y,angle}=renderedPlayer,guidance=routeNavigation.guidance;
  let routeStart=null,offsetX=0,offsetY=0;
- if(jobTarget()&&guidance.segments.length){
+ if(routeTarget()&&guidance.segments.length){
   const distance=roadGuidanceProgress(x,y,angle,guidance);
   if(Number.isFinite(distance)){
    routeStart=minimapRoutePoint(guidance.segments,distance);
@@ -3465,7 +3988,7 @@ function drawMini(elapsed=0){
  minimapView.offsetY=lerp(minimapView.offsetY,offsetY,blend);
  const m=mapProjection(x+minimapView.offsetX,y+minimapView.offsetY,MINIMAP_SPAN,w,h);
  // Pan a cached terrain image each frame; only the route and markers redraw live.
- drawMinimapTerrain(m,w,h);drawExplorationMapMarker(mctx,m,7);drawJobMap(mctx,m,routeStart);
+ drawMinimapTerrain(m,w,h);drawExplorationMapMarker(mctx,m,7);drawRouteMap(mctx,m,routeStart);
  mctx.fillStyle='#ede9d0';
  for(const c of traffic){
   const px=(lerp(c.prevX,c.x,renderAlpha)-m.left)*m.scale,py=(lerp(c.prevY,c.y,renderAlpha)-m.top)*m.scale;
@@ -3481,23 +4004,53 @@ function drawMini(elapsed=0){
  mctx.beginPath();mctx.arc(px,py,20,0,TAU);mctx.fillStyle='#e7f2b41a';mctx.fill();playerMapMarker(mctx,px,py,1.45,angle);
 }
 function drawAtlas(){
- const w=atlas.width,h=atlas.height,m=mapRegion(actx,mapView.x,mapView.y,mapView.span,w,h,true);drawExplorationMapMarker(actx,m,14);drawPickupMapMarkers(actx,m);drawJobMap(actx,m);
+ const w=atlas.width,h=atlas.height,m=mapRegion(actx,mapView.x,mapView.y,mapView.span,w,h,true);drawExplorationMapMarker(actx,m,14);drawPickupMapMarkers(actx,m);drawRouteMap(actx,m);
  for(const c of police){actx.fillStyle='#f0a491';actx.beginPath();actx.arc((c.x-m.left)*m.scale,(c.y-m.top)*m.scale,4,0,TAU);actx.fill();}
  const px=(player.x-m.left)*m.scale,py=(player.y-m.top)*m.scale;
  if(px>=0&&px<=w&&py>=0&&py<=h)playerMapMarker(actx,px,py,1.4);
  actx.font='bold 13px Arial';actx.textAlign='right';actx.fillStyle='#173f35';actx.fillText('↑ N',w-16,25);
  $('mapArea').textContent=districtAt(roadIndex(mapView.x,0),roadIndex(mapView.y,1)).name+' · '+(mapView.span*.8/1000).toFixed(1)+' km across';
+ const canSetWaypoint=progress.mode==='free';
+ atlas.tabIndex=canSetWaypoint?0:-1;atlas.classList.toggle('can-set-waypoint',canSetWaypoint);
+ const hint=$('mapControlsHint'),hintText=canSetWaypoint?'Click to set a waypoint · Enter pins the map center · Drag to pan · Scroll to zoom':'Drag to explore · Scroll to zoom';
+ if(hint.textContent!==hintText)hint.textContent=hintText;
  $('mapZoomIn').disabled=mapView.span<=1800;$('mapZoomOut').disabled=mapView.span>=10000;mapView.dirty=false;
 }
 function zoomMap(factor){mapView.span=clamp(mapView.span*factor,1800,10000);mapView.dirty=true;}
-document.querySelectorAll('[data-landscape]').forEach(b=>b.onclick=()=>findLandscape(b.dataset.landscape));$('clearDestination').onclick=()=>{exploration.target=null;mapView.dirty=true;updateHUD();};
+document.querySelectorAll('[data-landscape]').forEach(b=>b.onclick=()=>findLandscape(b.dataset.landscape));
+$('clearDestination').onclick=()=>{if(progress.mode==='free')exploration.waypoint=null;exploration.target=null;mapView.dirty=true;updateHUD();};
 $('mapZoomIn').onclick=()=>zoomMap(.75);$('mapZoomOut').onclick=()=>zoomMap(1/.75);$('mapHome').onclick=()=>{mapView.x=player.x;mapView.y=player.y;mapView.dirty=true;};
-atlas.addEventListener('pointerdown',e=>{mapView.drag={x:e.clientX,y:e.clientY,cx:mapView.x,cy:mapView.y};atlas.setPointerCapture(e.pointerId);atlas.classList.add('dragging');});
-atlas.addEventListener('pointermove',e=>{if(!mapView.drag)return;const scale=mapView.span/atlas.getBoundingClientRect().width;mapView.x=mapView.drag.cx-(e.clientX-mapView.drag.x)*scale;mapView.y=mapView.drag.cy-(e.clientY-mapView.drag.y)*scale;mapView.dirty=true;});
-for(const name of ['pointerup','pointercancel','lostpointercapture'])atlas.addEventListener(name,()=>{mapView.drag=null;atlas.classList.remove('dragging');});
+function atlasDisplay(){
+ const rect=atlas.getBoundingClientRect(),ratio=atlas.width/atlas.height;
+ const width=Math.min(rect.width,rect.height*ratio),height=width/ratio;
+ return {width,height,cx:rect.left+rect.width/2,cy:rect.top+rect.height/2};
+}
+atlas.addEventListener('pointerdown',e=>{
+ if(e.button!==0||mapView.drag)return;
+ mapView.drag={id:e.pointerId,x:e.clientX,y:e.clientY,cx:mapView.x,cy:mapView.y,moved:false};
+ atlas.setPointerCapture(e.pointerId);
+});
+atlas.addEventListener('pointermove',e=>{
+ const drag=mapView.drag;if(!drag||drag.id!==e.pointerId)return;
+ const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+ if(!drag.moved&&Math.hypot(dx,dy)<6)return;
+ drag.moved=true;atlas.classList.add('dragging');
+ const scale=mapView.span/atlasDisplay().width;
+ mapView.x=drag.cx-dx*scale;mapView.y=drag.cy-dy*scale;mapView.dirty=true;
+});
+for(const name of ['pointerup','pointercancel','lostpointercapture'])atlas.addEventListener(name,e=>{
+ const drag=mapView.drag;if(!drag||drag.id!==e.pointerId)return;
+ mapView.drag=null;atlas.classList.remove('dragging');
+ if(name!=='pointerup'||activeModal!=='mapModal'||progress.mode!=='free'||drag.moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>=6)return;
+ const {width,height,cx,cy}=atlasDisplay(),dx=e.clientX-cx,dy=e.clientY-cy;
+ if(!width||Math.abs(dx)>width/2||Math.abs(dy)>height/2)return;
+ const scale=mapView.span/width;
+ setMapWaypoint(mapView.x+dx*scale,mapView.y+dy*scale);
+});
 atlas.addEventListener('wheel',e=>{e.preventDefault();zoomMap(e.deltaY>0?1.12:1/1.12);},{passive:false});
 
 function updateHUD(){
+ updateWaypointArrival();
  updateModeHUD();
  updatePowerHUD();
  const night=dayCycleMs>=DAY_PHASE_MS,timeLeft=Math.ceil((DAY_PHASE_MS-dayCycleMs%DAY_PHASE_MS)/1000),clock=$('dayCycle');
@@ -3508,7 +4061,13 @@ function updateHUD(){
  const r=closestRoad(player.x,player.y),surface=surfaceAt(player.x,player.y),feature=featureAt(roadIndex(player.x,0),roadIndex(player.y,1));$('district').textContent=neighbourhood(player.x,player.y);
  const nearGrid=Math.min(r.dx,r.dy)<(r.dy<r.dx?roadHalf(r.iy,1):roadHalf(r.ix,0))+16;
  $('street').textContent=nearGrid&&(feature.type==='city'||gridEdge(r.dy<r.dx?1:0,r.dy<r.dx?r.iy:r.ix,r.dy<r.dx?roadIndex(player.x,0):roadIndex(player.y,1)))?(r.dy<r.dx?streetName(r.iy,1):streetName(r.ix,0)):feature.type==='airport'?'Runways, taxiways & open aprons':feature.type==='oldtown'?'Cobbled lanes · Tight corners':feature.type==='offroad'?(surface==='dirt'?'Dirt trail · Loose grip':'Rough ground · Explore freely'):'Exploring the neighbourhood';
- const target=exploration.target;$('destinationHint').hidden=!target||JOB_MODES.includes(progress.mode);if(target){const dx=target.x-player.x,dy=target.y-player.y,metres=Math.hypot(dx,dy)*.8,arrows=['→','↘','↓','↙','←','↖','↑','↗'],arrow=arrows[mod(Math.round(Math.atan2(dy,dx)/(Math.PI/4)),8)];$('destinationHint').textContent=(metres<130?'◎ Arrived':arrow+' '+(metres/1000).toFixed(1)+' km')+' · '+target.name;}
+ const waypoint=freeRoamWaypoint(),target=waypoint||exploration.target,hint=$('destinationHint');
+ hint.hidden=!target||JOB_MODES.includes(progress.mode);hint.classList.toggle('waypoint',!!waypoint);
+ if(target){
+  const dx=target.x-player.x,dy=target.y-player.y,metres=Math.hypot(dx,dy)*.8;
+  const arrows=['→','↘','↓','↙','←','↖','↑','↗'],arrow=arrows[mod(Math.round(Math.atan2(dy,dx)/(Math.PI/4)),8)];
+  hint.textContent=(!waypoint&&metres<130?'◎ Arrived':arrow+' '+(metres<1000&&waypoint?Math.round(metres)+' m':(metres/1000).toFixed(1)+' km'))+' · '+target.name;
+ }
 }
 function loop(now){
  const elapsed=Math.min(80,Math.max(0,now-last));last=now;
@@ -3531,7 +4090,7 @@ function loop(now){
 if(progress.position)Object.assign(player,progress.position);snapshotBody(player);safePosition={x:player.x,y:player.y,angle:player.angle};camera.x=player.x;camera.y=player.y;interpolatePlayer();
 applyBuild();streamWorld(true);resize();if(!clearSpot(player))recover();rebuildDynamic();updateHUD();updatePoliceHUD();drawMini();requestAnimationFrame(loop);
 // Opt-in local diagnostics; not enabled during normal play.
-if(new URLSearchParams(location.search).has('test'))window.cityTest={trafficJunctions,updateTrafficJunctions,refreshTrafficJunctions,trafficRearLimit,GAME_MODES,MODE_ORDER,JOB_MODES,service,jobNavigation,modeVehicle,setGameMode,cycleGameMode,currentJob,currentOffer,jobTarget,createJobOffer,ensureJobOffer,acceptJob,changeJobOffer,JOB_BANDS,JOB_ROUTE_COLOR,jobLengthKm,jobLegKm,updateJob,finishJobStop,cityJobType,findJobSite,streetSite,nearbyRoadStops,cleanJob,updateModeHUD,renderModeMenu,showJobMap,OLD_TOWNS,AIRPORTS,AIRCRAFT,oldTownStyle,airportKind,dressBuilding,drawBuilding,drawAircraft,SPEED_KMH,speedKmh,VEHICLE_TYPES,TRAFFIC_MIX,highwayRoute,refillTraffic,routeAt,projectRoute,updateTraffic,senseTraffic,MAX_POLICE,POLICE_ROLES,POWER_TYPES,powers,pickups,pickupState,powerActive,ghosting,activatePower,tickPowers,finishGhostExit,spawnPickup,updatePickups,ignoresCollision,maintainPursuit,spawnPoliceUnit,policeTarget,nearDrivingView,protectVisibleVehicle,regionType,featureAt,getScene,sceneCache,activeScenes,navigation,gridEdge,nearestDriveRoad,navigationPath,surfaceAt,findLandscape,exploration,roadAnchors,CATEGORIES,GARAGE_CATEGORIES,GARAGE_VEHICLES,garageKindForMode,garageState,UPGRADES,appearance,tryOn,paintVehicle,generateBlock,worldHash,worldWindow,chunks,previewChunks,roadCoord,roadHalf,roadIndex,streamWorld,insideLoaded,obstacles,staticHash,dynamicHash,mapView,police,policeState,setPoliceEnabled,deployPolice,planPolice,segmentClear,updatePolice,updatePlayer,progress,turbo,stats,earnDistance,purchase,balanceMm,saveProgress,renderGarage,applyBuild,SAVE_KEY,player,traffic,parked,buildings,boundaries,blocks,keys,xs,ys,contact,physics,recover,clearSpot,closestRoad,onGrass,start,openModal,closeModal,rebuildDynamic,updateHUD,draw,drawAtlas,clearKeys,get state(){return {started,activeModal,simTime,distance,camera:{...camera},world:{infinite:true,loaded:chunks.size,preview:previewChunks.size,generated:worldWindow.generated,center:{i:worldWindow.i,j:worldWindow.j},radius:worldWindow.radius},counts:{blocks:blocks.length,buildings:buildings.length,traffic:traffic.length,parked:parked.length}};}};
+if(new URLSearchParams(location.search).has('test'))window.cityTest={trafficJunctions,updateTrafficJunctions,refreshTrafficJunctions,trafficRearLimit,GAME_MODES,MODE_ORDER,JOB_MODES,service,jobNavigation:routeNavigation,modeVehicle,setGameMode,cycleGameMode,currentJob,currentOffer,jobTarget,createJobOffer,ensureJobOffer,acceptJob,changeJobOffer,JOB_BANDS,JOB_ROUTE_COLOR,jobLengthKm,jobLegKm,updateJob,finishJobStop,cityJobType,findJobSite,streetSite,nearbyRoadStops,cleanJob,updateModeHUD,renderModeMenu,showJobMap,OLD_TOWNS,AIRPORTS,AIRCRAFT,oldTownStyle,airportKind,dressBuilding,drawBuilding,drawAircraft,SPEED_KMH,speedKmh,VEHICLE_TYPES,TRAFFIC_MIX,highwayRoute,refillTraffic,routeAt,projectRoute,updateTraffic,senseTraffic,MAX_POLICE,POLICE_ROLES,POWER_TYPES,powers,pickups,pickupState,powerActive,ghosting,activatePower,tickPowers,finishGhostExit,spawnPickup,updatePickups,ignoresCollision,maintainPursuit,spawnPoliceUnit,policeTarget,nearDrivingView,protectVisibleVehicle,regionType,featureAt,getScene,sceneCache,activeScenes,navigation,gridEdge,nearestDriveRoad,navigationPath,surfaceAt,findLandscape,exploration,roadAnchors,CATEGORIES,GARAGE_CATEGORIES,GARAGE_VEHICLES,garageKindForMode,garageState,UPGRADES,appearance,tryOn,paintVehicle,generateBlock,worldHash,worldWindow,chunks,previewChunks,roadCoord,roadHalf,roadIndex,streamWorld,insideLoaded,obstacles,staticHash,dynamicHash,mapView,police,policeState,setPoliceEnabled,deployPolice,planPolice,segmentClear,updatePolice,updatePlayer,progress,turbo,stats,earnDistance,purchase,balanceMm,saveProgress,renderGarage,applyBuild,SAVE_KEY,player,traffic,parked,buildings,boundaries,blocks,keys,xs,ys,contact,physics,recover,clearSpot,closestRoad,onGrass,start,openModal,closeModal,rebuildDynamic,updateHUD,draw,drawAtlas,clearKeys,get state(){return {started,activeModal,simTime,distance,camera:{...camera},world:{infinite:true,loaded:chunks.size,preview:previewChunks.size,generated:worldWindow.generated,center:{i:worldWindow.i,j:worldWindow.j},radius:worldWindow.radius},counts:{blocks:blocks.length,buildings:buildings.length,traffic:traffic.length,parked:parked.length}};}};
 })();
 </script>
 </body>
