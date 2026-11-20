@@ -1694,10 +1694,9 @@ function railClearance(t,dir,braking,reserve=true){
 function railUpdatePlayer(dt){
  const t=railway.player;if(!t)return;const st=stats('train'),up=keys.w||keys.arrowup,down=keys.s||keys.arrowdown,emergency=keys[' '],previous=t.speed;
  const accelerating=up&&!down&&t.speed>.06||down&&!up&&t.speed<-.06;
- const boost=keys.shift&&accelerating&&!emergency&&(garageState().performance.turbo>0||powerActive('nitro'));
- turbo.active=!!(boost&&(powerActive('nitro')||turbo.charge>0&&!turbo.depleted));
- if(turbo.active&&!powerActive('nitro')){turbo.charge=Math.max(0,turbo.charge-dt/(st.boostSeconds*1000));turbo.rechargeDelay=650;if(!turbo.charge){turbo.depleted=true;turbo.active=false;}}
- else{turbo.rechargeDelay=Math.max(0,turbo.rechargeDelay-dt);if(!turbo.rechargeDelay)turbo.charge=Math.min(1,turbo.charge+dt/(st.rechargeSeconds*1000));if(turbo.charge===1)turbo.depleted=false;}
+ const infiniteNitro=powerActive('nitro');
+ const wantsBoost=keys.shift&&accelerating&&!emergency&&(garageState().performance.turbo>0||infiniteNitro);
+ updateTurbo(dt,st,wantsBoost,infiniteNitro);
  const brake=.00048*st.brakeMultiplier,accel=st.acceleration*(turbo.active?1.65:1),limit=st.maxSpeed*(turbo.active?st.boostMultiplier:1)*(powerActive('speed')?1.3:1);
  const assistBraking=!up&&!down&&!emergency&&previous!==0&&railAtStop(jobTarget());
  const rollingResistance=.000014,throttleCoastResistance=rollingResistance*.6,speedCap=Math.max(limit,Math.abs(previous));
@@ -2582,6 +2581,28 @@ function loadProgress(){
 }
 const progress=loadProgress();
 const turbo={charge:1,active:false,depleted:false,rechargeDelay:0};
+function updateTurbo(dt,st,wantsBoost,infiniteNitro){
+ turbo.active=!!(wantsBoost&&(infiniteNitro||turbo.charge>0&&!turbo.depleted));
+ if(infiniteNitro){
+  turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;
+  return;
+ }
+ if(turbo.active){
+  const remaining=turbo.charge-dt/(st.boostSeconds*1000);
+  turbo.charge=remaining>1e-9?remaining:0;
+  turbo.rechargeDelay=650;
+  if(turbo.charge===0){turbo.depleted=true;turbo.active=false;}
+  return;
+ }
+ const rechargeTime=Math.max(0,dt-turbo.rechargeDelay);
+ turbo.rechargeDelay=Math.max(0,turbo.rechargeDelay-dt);
+ if(!rechargeTime||turbo.charge===1)return;
+ // Emptying the meter locks in the slower rate until it fills completely.
+ const multiplier=turbo.depleted?1:1.5;
+ const charge=turbo.charge+rechargeTime*multiplier/(st.rechargeSeconds*1000);
+ turbo.charge=charge<1-1e-9?charge:1;
+ if(turbo.charge===1)turbo.depleted=false;
+}
 const POWER_TYPES={
  speed:{name:'Speed boost',short:'SPEED +40%',symbol:'ϟ',color:'#efd276',duration:15000,message:'Speed boost · 15 seconds of extra speed and acceleration.'},
  phase:{name:'Ghost drive',short:'GHOST DRIVE',symbol:'◇',color:'#8bdedc',duration:18000,message:'Ghost drive · Pass through everything for 18 seconds. Full speed on grass.'},
@@ -4029,10 +4050,7 @@ function updatePlayer(dt){
  // Original game's acceleration, rolling drag, steering and lateral-grip settings.
  const st=stats(),speedPower=powerActive('speed')?1.4:1,infiniteNitro=powerActive('nitro');
  const wantsBoost=(garageState().performance.turbo>0||infiniteNitro)&&keys.shift&&accel&&!brake&&!handbrake&&!grass&&!dirt&&forwardSpeed>.04;
- turbo.active=!!(wantsBoost&&(infiniteNitro||turbo.charge>0&&!turbo.depleted));
- if(infiniteNitro){turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;}
- else if(turbo.active){turbo.charge=Math.max(0,turbo.charge-dt/(st.boostSeconds*1000));turbo.rechargeDelay=650;if(turbo.charge<=0){turbo.depleted=true;turbo.active=false;}}
- else{turbo.rechargeDelay=Math.max(0,turbo.rechargeDelay-dt);if(turbo.rechargeDelay===0)turbo.charge=Math.min(1,turbo.charge+dt/(st.rechargeSeconds*1000));if(turbo.charge>=1)turbo.depleted=false;}
+ updateTurbo(dt,st,wantsBoost,infiniteNitro);
  const enginePower=(grass?.00024:dirt?st.acceleration*.72:st.acceleration)*(turbo.active?1.9:1)*(powerActive('speed')?1.35:1),brakePower=.00062*(forwardSpeed>0?st.brakeMultiplier:1);
  const speedLimit=(grass?.16:dirt?st.maxSpeed*.72:st.maxSpeed*(turbo.active?st.boostMultiplier:1))*speedPower;
  const coastingBoost=!grass&&!dirt&&forwardSpeed>speedLimit;
@@ -4072,6 +4090,12 @@ function trafficPassLeader(c){
  if(gain<(reckless?.03:urgent?.041:.059)||c.blockedGap>36+gain*(reckless?1450:urgent?1150:900))return null;
  return {car:lead,speed,lane,fx,fy,ahead:(lead.x-c.x)*fx+(lead.y-c.y)*fy};
 }
+function setHighwayTrafficLane(c,lane,coord,cooldown){
+ const road=c.route.highway,seg=c.route.segments[0];
+ if(road.axis===0)seg.x=coord;else seg.y=coord;
+ road.lane=lane;c.passCooldown=cooldown;
+ c.senseIn=0;trafficJunctions.timer=0;
+}
 function tryHighwayTrafficPass(c,priority,lane){
  const road=c.route.highway,reckless=recklessTraffic(c);
  const coord=roadCoord(road.index,road.axis)+(road.axis===0?-road.direction:road.direction)*lane;
@@ -4100,9 +4124,55 @@ function tryHighwayTrafficPass(c,priority,lane){
   const gap=c.hw+length+(reckless?24+closing*(ahead>=0?440:590):priority?46+closing*(ahead>=0?700:920):150);
   if(Math.abs(ahead)<gap)return false;
  }
- const seg=c.route.segments[0];if(road.axis===0)seg.x=coord;else seg.y=coord;
- road.lane=lane;c.passCooldown=reckless?900:c.driver==='emergency'?1450:3500;
- c.senseIn=0;trafficJunctions.timer=0;return true;
+ setHighwayTrafficLane(c,lane,coord,reckless?900:c.driver==='emergency'?1450:3500);
+ return true;
+}
+function highwayPassClear(c,coord,nearby,speed){
+ const {axis,direction}=c.route.highway,vertical=axis===0;
+ const start=vertical?c.x:c.y,shift=coord-start;
+ const merge=clamp(110+Math.abs(shift)*2.5,135,320),horizon=Math.max(410,merge+165);
+ for(const other of nearby){
+  if(other===c||other.destroyed||ignoresCollision(c,other))continue;
+  const along=(vertical?other.y-c.y:other.x-c.x)*direction,side=(vertical?other.x:other.y)-start;
+  const relative=(vertical?other.vy:other.vx)*direction-speed,drift=vertical?other.vx:other.vy;
+  const parallel=Math.abs(vertical?Math.sin(other.angle):Math.cos(other.angle));
+  const across=Math.abs(vertical?Math.cos(other.angle):Math.sin(other.angle));
+  const length=c.hw+other.hw*parallel+other.hh*across+6;
+  const width=c.hh+other.hh*parallel+other.hw*across+4+Math.min(5,Math.abs(shift)*.08);
+  const mergeAlong=along+relative*merge,mergeSide=side+drift*merge-shift;
+  // Check the merge and the space after it against moving traffic.
+  if(boxOnSegment(-length,-width,length,width,along,side,mergeAlong,mergeSide)||
+     boxOnSegment(-length,-width,length,width,mergeAlong,mergeSide,along+relative*horizon,side+drift*horizon-shift))return false;
+ }
+ if(Math.abs(shift)<2)return true;
+ const along=(vertical?c.y:c.x)+direction*speed*merge,end=along+direction*speed*(horizon-merge),pad=c.hh+4;
+ return vertical?segmentClear(c.x,c.y,coord,along,pad)&&segmentClear(coord,along,coord,end,pad):
+  segmentClear(c.x,c.y,along,coord,pad)&&segmentClear(along,coord,end,coord,pad);
+}
+function tryRecklessHighwayPass(c,speed){
+ if(c.reverseFor>0||c.cooldown>0)return false;
+ const road=c.route.highway,lead=c.blocker;
+ const gain=lead?c.cruise-(road.axis===0?lead.vy:lead.vx)*road.direction:0;
+ const catching=lead&&!sameMotorbikeGang(c,lead)&&gain>.03&&c.blockedGap<90+gain*440;
+ const heldUp=c.trafficLimit<c.cruise*.985;
+ const standard=[54,100],returning=!standard.includes(road.lane)&&c.passCooldown<=0;
+ if(!catching&&!heldUp&&!returning)return false;
+ const middle=roadCoord(road.index,road.axis),side=road.axis===0?-road.direction:road.direction;
+ const nearby=dynamicHash.query(c,550),pace=Math.max(speed,c.cruise);
+ let changed=false;
+ if(c.passCooldown<=0){
+  const shoulder=roadHalf(road.index,road.axis)-Math.max(14,c.hh+8);
+  const lanes=catching||heldUp?[...standard,77,26,shoulder]:standard;
+  lanes.sort((a,b)=>Math.abs(a-road.lane)-Math.abs(b-road.lane));
+  for(const lane of lanes){
+   if(lane===road.lane||!highwayPassClear(c,middle+side*lane,nearby,pace))continue;
+   setHighwayTrafficLane(c,lane,middle+side*lane,320);changed=true;break;
+  }
+ }
+ if(changed||highwayPassClear(c,middle+side*road.lane,nearby,pace)){
+  c.trafficLimit=c.cruise;c.yielding=false;c.blocker=null;c.blockedGap=Infinity;
+ }
+ return changed;
 }
 const CITY_PASS_OFFSET=2*LANE,CITY_PASS_MERGE=78;
 function cityPassReturnClear(c,lane,fx,fy,speed,time){
@@ -4349,35 +4419,37 @@ function updateTrafficJunctions(dt){
   // paths do not cross. Queued left turns retain their place in the order.
   const conflicts=(a,b)=>!sameMotorbikeGang(a.car,b.car)&&trafficPathsConflict(a,b);
   for(const p of group){
-   const car=p.car;
-   p.mayEnter=!trafficQueuedBehind(p,group)&&junctionExitClear(car,z,p.exit);
+   const car=p.car,reckless=recklessTraffic(car);
+   p.mayEnter=reckless||!trafficQueuedBehind(p,group)&&junctionExitClear(car,z,p.exit);
    if(!playerPresent||ignoresCollision(car,player))continue;
-   if(!parkedPlayer){p.mayEnter=false;continue;}
+   if(!parkedPlayer){if(!reckless)p.mayEnter=false;continue;}
    const hits=junctionPlayerHits(car,junctionApproach(p));
    if(!hits.length){car.junctionPlayerClear=parkedPlayer;continue;}
-   const reckless=recklessTraffic(car);
    if(p.mayEnter&&p.exit&&p.entry<160&&!car.junctionDetour&&!car.cityPass&&!car.reverseFor&&
       state.playerStillFor>=(reckless?350:1100)&&state.time>=(car.junctionDetourRetry||0)){
     p.detour=planJunctionDetour(p,z,hits);
     if(p.detour)p.path=p.detour.path;
     else car.junctionDetourRetry=state.time+(reckless?240:550);
    }
-   p.mayEnter=!!p.detour;
+   if(!reckless)p.mayEnter=!!p.detour;
   }
-  const emergencyVehicles=group.filter(p=>p.car.driver==='emergency'&&p.mayEnter);
+  const priority=p=>p.car.driver==='emergency'?0:recklessTraffic(p.car)?1:2;
+  const givesWay=(candidate,other)=>(priority(candidate)!==1||priority(other)===0)&&conflicts(candidate,other);
+  const priorityVehicles=group.filter(p=>priority(p)<2&&(p.mayEnter||p.inside&&priority(p)===0));
   const keepReservation=p=>{
    if(!z.owners.includes(p.car)||!p.mayEnter)return false;
-   if(p.car.driver==='emergency'||!emergencyVehicles.some(a=>conflicts(a,p)))return true;
+   const rank=priority(p);
+   if(!priorityVehicles.some(a=>priority(a)<rank&&conflicts(a,p)))return true;
+   if(rank===1)return false;
    const speed=Math.hypot(p.car.vx,p.car.vy),brake=fastTraffic(p.car)?FAST_TRAFFIC_BRAKE:.00065;
    return p.entry<=speed*speed/(2*brake)+speed*90+18;
   };
-  // Give emergency vehicles the next clear crossing while committed vehicles finish.
+  // Reckless drivers ignore junction courtesy except for emergency vehicles.
   const granted=group.filter(p=>p.inside||keepReservation(p)),waiting=[];
-  const priority=p=>p.car.driver==='emergency'?0:1;
   const order=group.filter(p=>!granted.includes(p)).sort((a,b)=>priority(a)-priority(b)||(a.car.junctionArrival-b.car.junctionArrival)||(a.car.id-b.car.id));
   for(const candidate of order){
    if(!candidate.mayEnter)continue;
-   if(granted.some(p=>conflicts(candidate,p))||waiting.some(p=>conflicts(candidate,p)))waiting.push(candidate);
+   if(granted.some(p=>givesWay(candidate,p))||waiting.some(p=>givesWay(candidate,p)))waiting.push(candidate);
    else granted.push(candidate);
   }
   z.owners=granted.map(p=>p.car);
@@ -4451,7 +4523,13 @@ function senseTraffic(c,speed){
   const selfETA=selfDistance/Math.max(.05,speed),otherETA=Math.max(0,otherDistance)/Math.max(.05,otherSpeed),overlap=Math.abs(selfETA-otherETA)<700;
   const otherUrgent=other.driver==='emergency';
   const priority=otherDistance<other.hw+12||(urgent!==otherUrgent?otherUrgent:other.kind==='player'||other.kind==='police'||(other.id||0)<(c.id||0));
-  if(overlap&&priority){limit=Math.min(limit,Math.max(0,(selfDistance-c.hw-15)/500));yielding=true;}
+  if(reckless&&c.route.highway&&otherSpeed>.03&&
+     Math.abs(selfETA-otherETA)<(c.hh+other.hw+8)/(otherSpeed*Math.abs(den))+c.hw/Math.max(.05,speed)){
+   const room=selfDistance-c.hw-length-speed*55-8;
+   limit=Math.min(limit,Math.sqrt(2*FAST_TRAFFIC_BRAKE*Math.max(0,room)));yielding=true;
+  }else if(overlap&&priority&&(!reckless||!c.junctionKey||otherUrgent||other.kind==='police')){
+   limit=Math.min(limit,Math.max(0,(selfDistance-c.hw-15)/500));yielding=true;
+  }
  }
  c.trafficLimit=limit;c.yielding=yielding;
 }
@@ -4472,7 +4550,13 @@ function updateTraffic(c,dt){
  const look=clamp(20+speed*100+c.hw*.35,28,66),aim=routeAt(c.route,d+look,samples[0]),near=routeAt(c.route,d,samples[1]),far=routeAt(c.route,d+look+c.hw+20,samples[2]);
  c.senseIn=(c.senseIn||0)-dt;
  const scan=c.senseIn<=0;
- if(scan){senseTraffic(c,speed);c.senseIn=(fast?42:90)+(c.id||0)%35;tryTrafficPass(c);}
+ const recklessHighway=reckless&&c.route.highway;
+ if(scan){
+  senseTraffic(c,speed);
+  c.senseIn=recklessHighway?30+(c.id||0)%15:(fast?42:90)+(c.id||0)%35;
+  if(recklessHighway){if(tryRecklessHighwayPass(c,speed))routeAt(c.route,d+look,aim);}
+  else tryTrafficPass(c);
+ }
  const passLimit=steerCityPass(c,near,aim,speed,dt,scan);
  const heading=Math.atan2(aim.y-c.y,aim.x-c.x),bend=Math.abs(angleDiff(far.angle,near.angle));
  let delta=angleDiff(heading,c.angle);
@@ -4486,7 +4570,8 @@ function updateTraffic(c,dt){
    target=Math.min(target,Math.sqrt(corner*corner+2*brake*room));
   }
  }
- target*=clamp(1-Math.abs(delta)*.5,.22,1);
+ const steeringCorrection=Math.max(0,Math.abs(delta)-(recklessHighway?.68:0));
+ target*=clamp(1-steeringCorrection*.5,.22,1);
  const detourLimit=c.junctionDetour?(reckless?.16:.115):Infinity;
  target=Math.min(target,c.trafficLimit??c.cruise,c.junctionLimit??Infinity,passLimit,detourLimit);
  c.bumpFor=Math.max(0,(c.bumpFor||0)-dt);c.recoveryCooldown=Math.max(0,(c.recoveryCooldown||0)-dt);
