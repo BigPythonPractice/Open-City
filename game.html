@@ -153,7 +153,7 @@
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
 <div class="modal" id="pauseModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><button class="iconbtn close" data-close aria-label="Resume driving">×</button><div class="eyebrow">TAKE YOUR TIME</div><h2 id="pauseTitle">Parked for a moment.</h2><p>The city will be right here.</p><button class="start" id="resumeBtn">Keep driving <span>↗</span></button></section></div>
 <div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b>W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b>S / ↓</b></div><div class="help-row"><span>Steer</span><b>A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b>SPACE</b></div><div class="help-row"><span>Recover to a clear street</span><b>R</b></div><div class="help-row"><span>Garage / city map</span><b>G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b>SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b>C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b>E</b></div><div class="help-row"><span>Trophy Room</span><b>B</b></div><div class="help-row"><span>Pause</span><b>ESC</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances and motorbikes. Vehicles follow lanes, brake for corners and give way at crossings. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open M and use Find nearby to pin an airport, old town, highway or off-road area. Drive to earn spendable kilometres. Press G to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting (Shift + accelerate), hitting another car makes it explode and clears it from your path—including parked cars and police. Every police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; Shift + accelerate, even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Press E or Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
-<div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><button data-landscape="airport">✈ Airport</button><button data-landscape="oldtown">Old town</button><button data-landscape="highway">Highway</button><button data-landscape="offroad">Off-road</button><button data-landscape="reserve">Nature reserve</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-describedby="mapControlsHint" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOUR LOCATION</span><span id="mapControlsHint">Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
+<div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><button data-landscape="airport">✈ Airport</button><button data-landscape="oldtown">Old town</button><button data-landscape="highway">Highway</button><button data-landscape="offroad">Off-road</button><button data-landscape="reserve">Nature reserve</button><button data-landscape="giant-reserve">Giant reserve</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-describedby="mapControlsHint" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOUR LOCATION</span><span id="mapControlsHint">Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
 <div class="modal" id="garageModal" hidden><section class="dialog garage-dialog" role="dialog" aria-modal="true" aria-labelledby="garageTitle"><button class="iconbtn close" data-close aria-label="Close garage">×</button><div class="garage-head"><div><div class="eyebrow" id="garageEyebrow">NORTHSIDE CUSTOMS / CAR GARAGE</div><h2 id="garageTitle">Make it yours.</h2></div><div class="bank"><small>AVAILABLE TO SPEND</small><strong id="garageBank">0.00 <span>km</span></strong></div></div><p class="garage-intro" id="garageIntro">This garage belongs to the active vehicle. Its performance and style progress are saved independently.</p><div class="garage-layout"><section class="vehicle-card" id="garageVehicleCard" aria-label="Your car"><div class="vehicle-heading"><span id="garageVehicleHeading">THE RUNABOUT</span><span id="buildStatus">YOUR BUILD</span></div><canvas id="garageCar" width="640" height="400" aria-label="Preview of your equipped paint and cosmetics"></canvas><div class="vehicle-name" id="vehicleName"></div><div class="preview-actions" id="previewActions" hidden></div><div class="vehicle-stats" id="vehicleStats"></div><p class="garage-save" id="garageSave">Progress saved in this browser.</p></section><div class="garage-shop"><div class="garage-tabs" aria-label="Upgrade category"><button class="garage-tab" data-shop-tab="paint" aria-pressed="true" aria-controls="styleShop">Paint</button><button class="garage-tab" data-shop-tab="livery" aria-pressed="false" aria-controls="styleShop">Liveries</button><button class="garage-tab" data-shop-tab="wheels" aria-pressed="false" aria-controls="styleShop">Wheels</button><button class="garage-tab" data-shop-tab="lighting" aria-pressed="false" aria-controls="styleShop">Lights</button><button class="garage-tab" data-shop-tab="detail" aria-pressed="false" aria-controls="styleShop">Body</button><button class="garage-tab" data-shop-tab="performance" aria-pressed="false" aria-controls="performanceShop">Performance</button></div><div id="performanceShop"></div><div id="styleShop" hidden></div><p class="garage-feedback" id="garageFeedback" role="status" aria-live="polite">A little more road. A little more you.</p></div></div><div class="garage-bottom"><span>The city is paused. Cosmetic previews are free. Bought items stay with this vehicle and can be equipped any time.</span><button class="start" data-close>Back to the city <span>↗</span></button></div></section></div>
 <section class="job-card" id="jobCard" aria-label="Current driving job" hidden>
  <div class="job-heading"><span class="eyebrow" id="jobEyebrow">CITY TRANSIT</span><span id="jobStage"></span></div>
@@ -423,6 +423,7 @@ function generateBlock(i,j){
 const sceneCache=new Map(),activeScenes=new Map(),navigation={nodes:[],nodeIds:new Map(),roads:[],segments:[],version:0};
 const streetlamps=[];
 const reserveSectors=new Map();
+const GIANT_RESERVE_SPACING=8;
 const NATURE_BIOMES={
  grove:{name:'Birch Woods',ground:'#8a9e75',patch:'#67855430',trees:330,plants:290,species:['birch','oak','oak','pine']},
  pine:{name:'Pine Forest',ground:'#738e69',patch:'#45684e35',trees:510,plants:215,species:['pine','pine','fir','fir','birch']},
@@ -433,14 +434,26 @@ const NATURE_BIOMES={
  river:{name:'River Valley',ground:'#7e9b73',patch:'#4d785838',trees:345,plants:335,species:['willow','willow','birch','fir','oak']}
 };
 function isHighway(index){return mod(index,12)===0;}
+function giantReserveOffset(x,y,axis){
+ return 1+Math.floor(worldHash(x,y,652+axis)*(GIANT_RESERVE_SPACING-2));
+}
+function isGiantReserve(a,b){
+ const i=Math.floor(a/4),j=Math.floor(b/4),span=GIANT_RESERVE_SPACING;
+ const x=mod(i,span),y=mod(j,span);
+ // Choose one interior sector per group. The unselected border keeps the
+ // giant reserves separated and preserves the starting sector.
+ if(x===0||y===0||x===span-1||y===span-1)return false;
+ const gx=Math.floor(i/span),gy=Math.floor(j/span);
+ return x===giantReserveOffset(gx,gy,0)&&y===giantReserveOffset(gx,gy,1);
+}
 function regionType(a,b){
  if(a===1&&b===1)return 'city';
  if(a===2&&b===1)return 'airport';if(a===1&&b===0)return 'oldtown';if(a===0&&b===1)return 'offroad';
+ if(isGiantReserve(a,b))return 'offroad';
  const n=worldHash(a,b,181);return n<.12?'airport':n<.28?'oldtown':n<.45?'offroad':'city';
 }
 function natureReserve(a,b){
- // An expressway bounds each four-by-four group of districts. Only join
- // adjacent existing off-road districts on the same side of that boundary.
+ // Join adjacent off-road districts on the same side of the expressway.
  const left=Math.floor(a/4)*4,top=Math.floor(b/4)*4,key=left+','+top;
  if(!reserveSectors.has(key)){
   const reserves=new Map(),seen=new Set();
@@ -455,12 +468,18 @@ function natureReserve(a,b){
     if(!inSector(nx,ny)||seen.has(id)||regionType(nx,ny)!=='offroad')continue;
     cells.push([nx,ny]);members.add(id);seen.add(id);
     const forward=nx>i||ny>j,from=i+','+j;
-    links.push({start:forward?from:id,end:forward?id:from,vertical:ny!==j});
+    links.push({course:forward?[from,id]:[id,from],vertical:ny!==j});
    }
    if(cells.length<3)continue;
-   const channel=links[Math.floor(worldHash(x,y,620)*links.length)];
+   const giant=cells.length===16;
+   let channel=links[Math.floor(worldHash(x,y,620)*links.length)];
+   if(giant){
+    const vertical=worldHash(left,top,654)<.5,offset=worldHash(left,top,655)<.5?1:2;
+    const course=Array.from({length:4},(_,i)=>vertical?(left+offset)+','+(top+i):(left+i)+','+(top+offset));
+    channel={vertical,course};
+   }
    const name=districtRoots[Math.floor(worldHash(x,y,621)*districtRoots.length)]+' Nature Reserve';
-   const reserve={key:first,name,members,channel};
+   const reserve={key:first,name,members,channel,giant};
    for(const id of members)reserves.set(id,reserve);
   }
   reserveSectors.set(key,reserves);
@@ -470,9 +489,14 @@ function natureReserve(a,b){
 }
 function natureBiome(a,b,reserve){
  const key=a+','+b,channel=reserve?.channel;
- if(channel&&(key===channel.start||key===channel.end))return 'river';
- if(a===0&&b===1)return 'lake';
+ if(channel?.course.includes(key))return 'river';
  const roll=worldHash(a,b,622);
+ if(reserve?.giant){
+  if(key===reserve.key)return 'lake';
+  if(mod(a,4)===3&&mod(b,4)===3)return 'pine';
+  return roll<.14?'lake':roll<.65?'pine':'meadow';
+ }
+ if(a===0&&b===1)return 'lake';
  return reserve?roll<.35?'lake':roll<.80?'pine':'meadow':roll<.20?'lake':roll<.36?'stream':roll<.46?'river':roll<.62?'pine':roll<.76?'grove':roll<.91?'meadow':'dry';
 }
 function featureAt(i,j){const a=Math.floor(i/3),b=Math.floor(j/3);return {a,b,key:a+','+b,type:regionType(a,b)};}
@@ -545,10 +569,8 @@ function addWaterObstacles(water,land,bridges,obstacle){
   }
  }
 }
-function riverTrails(s,road,rng,reserve){
- const connected=reserve?.channel;
- const joinsBefore=connected?.end===s.key,joinsAfter=connected?.start===s.key;
- const vertical=joinsBefore||joinsAfter?connected.vertical:rng()<.5;
+function riverTrails(s,road,rng,channel,joinsBefore,joinsAfter){
+ const vertical=joinsBefore||joinsAfter?channel.vertical:rng()<.5;
  const point=(u,v)=>vertical?{x:s.x+v*s.w,y:s.y+u*s.h}:{x:s.x+u*s.w,y:s.y+v*s.h};
  const crossSpan=vertical?s.w:s.h,alongSpan=vertical?s.h:s.w;
  const radius=s.biome==='stream'?22:70,phase=rng()*TAU;
@@ -558,7 +580,7 @@ function riverTrails(s,road,rng,reserve){
   const center=.5+envelope*(.061*Math.sin(t*TAU+phase)+.023*Math.sin(t*TAU*2+phase));
   const taper=Math.sqrt(clamp(Math.min(joinsBefore?1:(u-start)/.075,joinsAfter?1:(end-u)/.075),0,1));
   const basinCenter=joinsBefore ? .73 : .27;
-  const pool=(joinsBefore||joinsAfter)?80*Math.max(0,1-Math.abs(t-basinCenter)/.19)**2:0;
+  const pool=joinsBefore!==joinsAfter?80*Math.max(0,1-Math.abs(t-basinCenter)/.19)**2:0;
   const half=(radius*(1+.22*envelope*Math.cos(t*TAU*2+phase))+pool)*taper/crossSpan;
   return [center-half,center+half];
  };
@@ -603,18 +625,18 @@ function generateNature(s,road,building,obstacle,away,occupied,rng){
   const otherI=sideX==='left'?i-1:i,otherJ=sideY==='top'?j-1:j;
   if(gridEdge(0,i,otherJ)&&gridEdge(1,j,otherI))s.roadBends.push({x:roadCoord(i,0),y:roadCoord(j,1),hw:roadHalf(i,0),hh:roadHalf(j,1)});
  }
- const channel=reserve?.channel;
- const waterEdge=channel?.start===s.key?(channel.vertical?'bottom':'right'):
-  channel?.end===s.key?(channel.vertical?'top':'left'):null;
+ const channel=reserve?.channel,riverIndex=channel?.course.indexOf(s.key)??-1;
+ const joinsBefore=riverIndex>0,joinsAfter=riverIndex>=0&&riverIndex<channel.course.length-1;
+ const inlet=joinsBefore?(channel.vertical?'top':'left'):null,outlet=joinsAfter?(channel.vertical?'bottom':'right'):null;
  const usedSides=new Set();
  s.portals=s.portals.filter(p=>{
   if(!s.open[p.side])return true;
   // Continue the trails on both banks where the river crosses the reserve.
-  if(p.side!==waterEdge&&usedSides.has(p.side))return false;
+  if(p.side!==inlet&&p.side!==outlet&&usedSides.has(p.side))return false;
   usedSides.add(p.side);p.open=true;return true;
  });
  s.bridges=[];s.plants=[];
- if(biome==='river'||biome==='stream')riverTrails(s,road,rng,reserve);
+ if(biome==='river'||biome==='stream')riverTrails(s,road,rng,channel,joinsBefore,joinsAfter);
  else{
   const point=(u,v)=>({x:x+u*w,y:y+v*h});
   const nodes=[[.145,.19],[.34,.13],[.57,.18],[.83,.16],[.865,.48],[.755,.74],[.51,.86],[.24,.76],[.14,.51]]
@@ -1072,6 +1094,7 @@ function projectRoute(c){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
+const WORLD_LAYOUT_VERSION=2;
 const TROPHIES=[
  {id:'gold-bar',name:'Gold bar',price:2500},
  {id:'gold-stack',name:'Gold bar stack',price:8000},
@@ -1299,7 +1322,33 @@ function jobDistanceBonus(mode,job){
  return {percent:tenths/10,km:jobBaseReward(mode,job)*tenths/1000};
 }
 function jobJourneyName(job){const longest=Math.max(...job.stops.slice(1).map((p,n)=>jobLegKm(job.stops[n],p)));return longest>=60?'Cross-country':longest>=20?'Long haul':'Regional';}
-function cleanJob(raw,mode,accepted=true){
+function relocateGiantReserveStops(stops,index,mode,bands){
+ const vehicle=VEHICLE_TYPES[GAME_MODES[mode].model];
+ for(let i=index;i<stops.length;i++){
+  const stop=stops[i],area=featureAt(roadIndex(stop.x,0),roadIndex(stop.y,1));
+  if(!isGiantReserve(area.a,area.b))continue;
+  const scene=getScene(area.a,area.b),{left,right,top,bottom}=scene.land;
+  // A stop on a perimeter highway still has its original pavement.
+  if(stop.x<left||stop.x>right||stop.y<top||stop.y>bottom)continue;
+  const fits=point=>[stops[i-1],stops[i+1]].every(neighbor=>{
+   if(!neighbor)return true;
+   const km=jobLegKm(neighbor,point);
+   return bands.some(band=>km>=band.min&&km<=band.max);
+  });
+  let replacement=scenicSceneStop(scene,vehicle,stop.action,fits,stop);
+  if(!replacement){
+   const reserve=natureReserve(area.a,area.b);
+   const nearby=[...reserve.members].filter(key=>key!==scene.key).map(key=>key.split(',').map(Number));
+   nearby.sort(([a,b],[c,d])=>Math.hypot(a-area.a,b-area.b)-Math.hypot(c-area.a,d-area.b));
+   for(const [a,b]of nearby){
+    replacement=scenicSceneStop(getScene(a,b),vehicle,stop.action,fits,stop);
+    if(replacement)break;
+   }
+  }
+  if(replacement)Object.assign(stop,replacement);
+ }
+}
+function cleanJob(raw,mode,accepted=true,olderWorld=false){
  if(!JOB_MODES.includes(mode)||!raw||!Array.isArray(raw.stops))return null;
  const count=raw.stops.length;if(mode==='bus'?!BUS_STOP_COUNTS.includes(count):count!==2)return null;
  const actions=mode==='bus'?Array(count).fill('stop'):mode==='uber'?['pickup','dropoff']:['load','store'];
@@ -1312,6 +1361,7 @@ function cleanJob(raw,mode,accepted=true){
   stops.push({x:p.x,y:p.y,angle:p.angle,action:p.action,name:p.name.slice(0,90),site:typeof p.site==='string'?p.site.slice(0,80):''});
   if(n){const km=jobLegKm(stops[n-1],p);if(!bands.some(b=>km>=b.min&&km<=b.max))return null;}
  }
+ if(olderWorld)relocateGiantReserveStops(stops,raw.index,mode,bands);
  const destination=stops.at(-1);
  if(raw.index<stops.length&&destination.site.startsWith('scenic:offroad:')){
   const area=featureAt(roadIndex(destination.x,0),roadIndex(destination.y,1));
@@ -1355,7 +1405,7 @@ function cleanGarage(raw,kind,legacy=false){
  }}
  return clean;
 }
-function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0},jobOfferCounts:{uber:0,bus:0,truck:0},jobSerial:0,worldVersion:1,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
+function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0},jobOfferCounts:{uber:0,bus:0,truck:0},jobSerial:0,worldVersion:WORLD_LAYOUT_VERSION,position:null,garages:{car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
 function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);if(!raw)return freshProgress();const p=JSON.parse(raw);
@@ -1364,8 +1414,9 @@ function loadProgress(){
   const owned=new Set(Array.isArray(p.ownedTrophies)?p.ownedTrophies:[]);
   clean.ownedTrophies=TROPHIES.filter(item=>owned.has(item.id)).map(item=>item.id);
   clean.jobSerial=Number.isSafeInteger(p.jobSerial)&&p.jobSerial>=0?p.jobSerial:0;
+  const olderWorld=p.worldVersion!==WORLD_LAYOUT_VERSION;
   for(const mode of JOB_MODES){
-   const job=cleanJob(p.jobs?.[mode],mode),offer=cleanJob(p.offers?.[mode],mode,false);
+   const job=cleanJob(p.jobs?.[mode],mode,true,olderWorld),offer=cleanJob(p.offers?.[mode],mode,false,olderWorld);
    if(job){clean.jobs[mode]=job;clean.jobSerial=Math.max(clean.jobSerial,job.id);}
    if(offer&&(!job||job.index===job.stops.length)){clean.offers[mode]=offer;clean.jobSerial=Math.max(clean.jobSerial,offer.id);}
    const total=p.completedJobs?.[mode],count=p.jobOfferCounts?.[mode];
@@ -1374,7 +1425,7 @@ function loadProgress(){
    const knownOffers=clean.completedJobs[mode]+(pending?1:0);
    clean.jobOfferCounts[mode]=Number.isSafeInteger(count)&&count>=knownOffers?count:knownOffers;
   }
-  if(p.worldVersion===1&&p.position&&['x','y','angle'].every(k=>Number.isFinite(p.position[k])&&Math.abs(p.position[k])<1e12))clean.position={x:p.position.x,y:p.position.y,angle:p.position.angle};
+  if((p.worldVersion===1||p.worldVersion===WORLD_LAYOUT_VERSION)&&p.position&&['x','y','angle'].every(k=>Number.isFinite(p.position[k])&&Math.abs(p.position[k])<1e12))clean.position={x:p.position.x,y:p.position.y,angle:p.position.angle};
   if(p.garageVersion===1&&p.garages&&typeof p.garages==='object')for(const kind of Object.keys(GARAGE_VEHICLES))clean.garages[kind]=cleanGarage(p.garages[kind],kind);
   else clean.garages.car=cleanGarage(p,'car',true);
   return clean;
@@ -1910,6 +1961,21 @@ function nearbyRoadStops(origin,count,action){
  }
  return stops;
 }
+function giantReservePickup(origin,mode,action){
+ const area=featureAt(roadIndex(origin.x,0),roadIndex(origin.y,1));
+ if(!isGiantReserve(area.a,area.b))return null;
+ const reserve=natureReserve(area.a,area.b),vehicle=VEHICLE_TYPES[GAME_MODES[mode].model];
+ const closeEnough=p=>{const d=Math.hypot(p.x-origin.x,p.y-origin.y);return d>=280&&d<=2100&&insideLoaded(p.x,p.y,90);};
+ let nearest=null,bestDistance=Infinity;
+ for(const scene of activeScenes.values()){
+  if(scene.reserve!==reserve.key)continue;
+  const stop=scenicSceneStop(scene,vehicle,action,closeEnough,origin);
+  if(!stop)continue;
+  const distance=Math.hypot(stop.x-origin.x,stop.y-origin.y);
+  if(distance<bestDistance){nearest=stop;bestDistance=distance;}
+ }
+ return nearest;
+}
 function distantCurbStop(anchor,origin,action){
  const ci=roadIndex(anchor.x,0),cj=roadIndex(anchor.y,1),candidates=[];
  for(let radius=0;radius<=18;radius++){
@@ -1928,9 +1994,9 @@ function distantCurbStop(anchor,origin,action){
  }
  return null;
 }
-function scenicSceneStop(scene,vehicle,action,inBand){
- const landmark=scene.showcase,solids=[...scene.buildings,...scene.obstacles,...scene.parked];
- const bay=action==='dropoff'?RIDE_BAY:SERVICE_BAY,margin=Math.max(vehicle.hw+20,bay.halfLength+5);
+function scenicSceneStop(scene,vehicle,action,inBand,landmark=scene.showcase){
+ const solids=[...scene.buildings,...scene.obstacles,...scene.parked];
+ const bay=action==='pickup'||action==='dropoff'?RIDE_BAY:SERVICE_BAY,margin=Math.max(vehicle.hw+20,bay.halfLength+5);
  let best=null,bestDistance=Infinity;
  for(const seg of scene.segments){
   const length=Math.hypot(seg.b.x-seg.a.x,seg.b.y-seg.a.y);if(length<margin*2)continue;
@@ -2013,7 +2079,8 @@ function distantJobStop(kind,origin,rng,heading,mode,scenicArea){
 function createJobOffer(mode=progress.mode){
  if(!JOB_MODES.includes(mode))return null;
  const serial=progress.jobSerial+1,i=roadIndex(player.x,0),j=roadIndex(player.y,1),rng=seededRandom(Math.floor(worldHash(i,j,serial+801)*4294967296));
- const first=mode==='truck'?findJobSite('depot',player):nearbyRoadStops(player,1,mode==='uber'?'pickup':'stop')[0];
+ const pickup=mode==='uber'?'pickup':'stop';
+ const first=mode==='truck'?findJobSite('depot',player):nearbyRoadStops(player,1,pickup)[0]||giantReservePickup(player,mode,pickup);
  if(!first)return null;
  const nextAction=mode==='bus'?'stop':mode==='uber'?'dropoff':'store';
  const count=mode==='bus'?BUS_STOP_COUNTS[Math.floor(rng()*BUS_STOP_COUNTS.length)]:2,stops=[first];let heading=null;
@@ -2498,11 +2565,11 @@ function jobRouteEnds(target){
  if(insideLoaded(target.x,target.y,80))return jobRoadAnchors(target.x,target.y,target.angle);
  const distance=Math.hypot(target.x-player.x,target.y-player.y),nodes=navigation.nodes;
  const ahead=nodes.filter(n=>Math.hypot(target.x-n.x,target.y-n.y)<distance-200);
- const publicRoad=n=>n.edges.some(e=>e.kind==='street'||e.kind==='highway');
- // Choose among outward public roads, rather than forcing a route to a single
- // geometrically closest airport or old-town node at the edge of the world.
- let exits=ahead.filter(n=>!insideLoaded(n.x,n.y,90)&&publicRoad(n));
- if(!exits.length)exits=ahead.filter(publicRoad);
+ const area=featureAt(roadIndex(player.x,0),roadIndex(player.y,1)),onReserve=isGiantReserve(area.a,area.b);
+ const onwardRoad=n=>n.edges.some(e=>e.kind==='street'||e.kind==='highway'||onReserve&&e.kind==='dirt');
+ // Use public roads, or reserve trails when the driver is deep in the woods.
+ let exits=ahead.filter(n=>!insideLoaded(n.x,n.y,90)&&onwardRoad(n));
+ if(!exits.length)exits=ahead.filter(onwardRoad);
  if(!exits.length)exits=ahead.length?ahead:nodes;
  const remaining=n=>Math.hypot(target.x-n.x,target.y-n.y),best=Math.min(...exits.map(remaining));
  return exits.map(n=>({id:n.id,distance:(remaining(n)-best)*.9,finalHeading:Math.atan2(target.y-n.y,target.x-n.x)}));
@@ -3073,8 +3140,9 @@ function drawNaturePlant(p){
 }
 function drawNatureGround(s,g,map){
  const {left,right,top,bottom}=s.land,biome=NATURE_BIOMES[s.biome];
- const l=left-(s.open.left ? .6 : 0),r=right+(s.open.right ? .6 : 0);
- const t=top-(s.open.top ? .6 : 0),b=bottom+(s.open.bottom ? .6 : 0);
+ const overlap=map&&isGiantReserve(s.a,s.b)?12:.6;
+ const l=left-(s.open.left?overlap:0),r=right+(s.open.right?overlap:0);
+ const t=top-(s.open.top?overlap:0),b=bottom+(s.open.bottom?overlap:0);
  g.save();g.beginPath();g.rect(l,t,r-l,b-t);g.clip();
  g.fillStyle=s.reserve?'#849c73':biome.ground;g.fillRect(l,t,r-l,b-t);
  if(!map){
@@ -3923,9 +3991,23 @@ function updateWaypointArrival(){
  if(Math.abs(dx*cos+dy*sin)>48||Math.abs(-dx*sin+dy*cos)>waypoint.width/2+6)return;
  exploration.waypoint=null;toast('Waypoint reached.');
 }
+function nearestGiantReserve(a,b){
+ const span=GIANT_RESERVE_SPACING,gx=Math.floor(a/(4*span)),gy=Math.floor(b/(4*span));
+ let best=null;
+ for(let y=gy-2;y<=gy+2;y++)for(let x=gx-2;x<=gx+2;x++){
+  const left=(x*span+giantReserveOffset(x,y,0))*4,top=(y*span+giantReserveOffset(x,y,1))*4;
+  const sx=clamp(player.x,roadCoord(left*3,0),roadCoord((left+4)*3,0));
+  const sy=clamp(player.y,roadCoord(top*3,1),roadCoord((top+4)*3,1));
+  const distance=Math.hypot(sx-player.x,sy-player.y);
+  if(!best||distance<best.distance)best={a:clamp(a,left,left+3),b:clamp(b,top,top+3),distance};
+ }
+ const scene=getScene(best.a,best.b);
+ return {...best,...scene.showcase,name:scene.name};
+}
 function findLandscape(type){
  const ci=roadIndex(player.x,0),cj=roadIndex(player.y,1),a=Math.floor(ci/3),b=Math.floor(cj/3);let best=null;
- if(type==='highway'){
+ if(type==='giant-reserve')best=nearestGiantReserve(a,b);
+ else if(type==='highway'){
   const ix=Math.round(ci/12)*12,jy=Math.round(cj/12)*12,candidates=[{x:roadCoord(ix,0)+54,y:player.y,name:'North–south expressway'},{x:player.x,y:roadCoord(jy,1)+54,name:'East–west expressway'}];best=candidates.sort((p,q)=>Math.hypot(p.x-player.x,p.y-player.y)-Math.hypot(q.x-player.x,q.y-player.y))[0];
  }else{
   const search=type==='reserve'?12:6,region=type==='reserve'?'offroad':type;
@@ -3940,7 +4022,7 @@ function findLandscape(type){
  if(progress.mode==='free')setMapWaypoint(best.x,best.y,best.name);
  else{exploration.target=best;updateHUD();}
  mapView.x=best.x;mapView.y=best.y;mapView.span=4200;mapView.dirty=true;
- if(type==='reserve'){
+ if(type==='reserve'||type==='giant-reserve'){
   const cells=[...natureReserve(best.a,best.b).members].map(id=>id.split(',').map(Number));
   const xs=cells.map(([x])=>x),ys=cells.map(([,y])=>y);
   const left=roadCoord(Math.min(...xs)*3,0),right=roadCoord((Math.max(...xs)+1)*3,0);
@@ -3977,8 +4059,14 @@ function mapRegion(g,cx,cy,span,w,h,labels=false){
  g.restore();
  const labelledReserves=new Set();
  if(labels)for(let dj=Math.floor(minJ/3);dj<=Math.floor(maxJ/3);dj++)for(let di=Math.floor(minI/3);di<=Math.floor(maxI/3);di++){
-  const x=(roadCoord(di*3,0)+roadCoord(di*3+3,0))/2,y=(roadCoord(dj*3,1)+roadCoord(dj*3+3,1))/2,px=(x-left)*scale,py=(y-top)*scale;if(px<60||px>w-60||py<20||py>h-20)continue;
   const type=regionType(di,dj),reserve=type==='offroad'?natureReserve(di,dj):null;
+  let px=((roadCoord(di*3,0)+roadCoord(di*3+3,0))/2-left)*scale,py=((roadCoord(dj*3,1)+roadCoord(dj*3+3,1))/2-top)*scale;
+  if(reserve?.giant){
+   const i=Math.floor(di/4)*12,j=Math.floor(dj/4)*12;
+   const cx=((roadCoord(i,0)+roadCoord(i+12,0))/2-left)*scale,cy=((roadCoord(j,1)+roadCoord(j+12,1))/2-top)*scale;
+   if(cx>=60&&cx<=w-60&&cy>=20&&cy<=h-20){px=cx;py=cy;}
+  }
+  if(px<60||px>w-60||py<20||py>h-20)continue;
   if(reserve){if(labelledReserves.has(reserve.key))continue;labelledReserves.add(reserve.key);}
   const name=(type==='city'?districtAt(di*3,dj*3).name:reserve?.name||regionName(di,dj)).toUpperCase();g.font='bold 11px Arial';const tw=g.measureText(name).width;g.fillStyle=type==='airport'?'#34555e':type==='offroad'?'#6b6243':type==='oldtown'?'#755744':'#173f35ec';g.beginPath();g.roundRect(px-tw/2-8,py-12,tw+16,24,5);g.fill();g.fillStyle='#f1f0cf';g.textAlign='center';g.fillText(name,px,py+4);
  }
