@@ -212,7 +212,7 @@ const $=id=>document.getElementById(id),canvas=$('game');
 let ctx=canvas.getContext('2d',{alpha:false});
 const mini=$('mini'),mctx=mini.getContext('2d'), atlas=$('atlas'),actx=atlas.getContext('2d');
 const TAU=Math.PI*2,STEP=1000/120,SPACING=500,HALF=65,LANE=22,WORLD_SEED=4271;
-const DAY_PHASE_MS=180000,TWILIGHT_MS=10000,DAY_TRAFFIC_LIMIT=48,NIGHT_TRAFFIC_LIMIT=16;
+const DAY_PHASE_MS=180000,TWILIGHT_MS=10000,DAY_TRAFFIC_LIMIT=48,NIGHT_TRAFFIC_LIMIT=24;
 let dayCycleMs=0;
 const MINIMAP_SPAN=1900,MINIMAP_LOOK_AHEAD=480,MINIMAP_CACHE_PAD=64;
 const minimapView={offsetX:0,offsetY:0,terrain:document.createElement('canvas'),cachedRegion:null};
@@ -975,7 +975,8 @@ function highwayRoute(axis,index,lane,direction){
  const route=polyRoute(direction>0?[a,b]:[b,a]);route.closed=false;route.highway={axis,index,lane,direction};return route;
 }
 const DRIVER_PACE={chilled:.76,normal:1,speeder:1.48,emergency:1.56,gang:1};
-const FAST_TRAFFIC_BRAKE=.00135;
+const FAST_TRAFFIC_BRAKE=.00135,SPEEDER_TOP_SPEED=192/SPEED_KMH;
+const HIGHWAY_CRUISE_MIN=.28,HIGHWAY_CRUISE_RANGE=.1;
 function trafficDriver(model,id,gang){
  if(gang)return 'gang';
  if(Object.hasOwn(EMERGENCY_PAINT,model))return 'emergency';
@@ -1005,7 +1006,14 @@ function trafficCandidate(route,distance,roadType,cruise,initial=false,gang=0){
  const fx=Math.cos(c.angle),fy=Math.sin(c.angle);
  if(traffic.some(other=>{const dx=other.x-c.x,dy=other.y-c.y,along=dx*fx+dy*fy,side=-dx*fy+dy*fx;return Math.abs(along)<c.hw+other.hw+60&&Math.abs(side)<c.hh+other.hh+8;}))return null;
  const id=Math.floor(random()*1e8),driver=trafficDriver(model,id,gang);
- const desiredCruise=gang?cruise:cruise*VEHICLE_TYPES[model].pace*DRIVER_PACE[driver];
+ const modelPace=VEHICLE_TYPES[model].pace,driverPace=DRIVER_PACE[driver];
+ let desiredCruise=gang?cruise:cruise*modelPace*driverPace;
+ if(route.highway&&(driver==='speeder'||driver==='chilled')){
+  const fraction=clamp((cruise-HIGHWAY_CRUISE_MIN)/HIGHWAY_CRUISE_RANGE,0,1);
+  desiredCruise=driver==='chilled'?lerp(50,65,fraction)/SPEED_KMH:
+   lerp(HIGHWAY_CRUISE_MIN*modelPace*driverPace,SPEEDER_TOP_SPEED,fraction);
+ }
+ if(driver==='speeder')desiredCruise=Math.min(desiredCruise,SPEEDER_TOP_SPEED);
  Object.assign(c,{route,seg:p.index,routeD:p.d,roadType,cruise:desiredCruise,driver,gang,cooldown:0,id,senseIn:0,trafficLimit:desiredCruise,progressTime:0,checkX:c.x,checkY:c.y,stuckFor:0,reverseFor:0,rejoinAll:false});
  // New vehicles join at road speed, already facing their lane.
  c.vx=fx*desiredCruise;c.vy=fy*desiredCruise;
@@ -1046,7 +1054,7 @@ function refillHighwayAhead(ahead,target,maxSpawns){
   const route=highwayRoute(axis,index,random()<.5?54:100,travel);
   const start=route.segments[0],origin=axis===1?start.x:start.y;
   const distance=(position+direction*lerp(near,far,random())-origin)*travel;
-  const c=trafficCandidate(route,distance,'highway',.28+random()*.1);
+  const c=trafficCandidate(route,distance,'highway',HIGHWAY_CRUISE_MIN+random()*HIGHWAY_CRUISE_RANGE);
   if(!c)continue;
   if(traffic.length===target){
    // Swap only after finding a safe new slot. Keep visible cars and cars
@@ -1080,7 +1088,7 @@ function refillTraffic(initial=false){
   let route,roadType='city',cruise=.15+random()*.07;
   const roll=random();
   if(highways.length&&(roll<.4||!pool.length&&!scenic.length)){
-   const hw=choose(highways);route=highwayRoute(hw.axis,hw.index,random()<.5?54:100,random()<.5?1:-1);roadType='highway';cruise=.28+random()*.1;
+   const hw=choose(highways);route=highwayRoute(hw.axis,hw.index,random()<.5?54:100,random()<.5?1:-1);roadType='highway';cruise=HIGHWAY_CRUISE_MIN+random()*HIGHWAY_CRUISE_RANGE;
   }else if(scenic.length&&(roll<.65||!pool.length)){
    const s=choose(scenic),loops=s.trafficLoops;
    route=polyRoute(loops.length>1?choose(loops):loops[0]);
