@@ -233,7 +233,8 @@ function roadHalf(i,axis){return isHighway(i)?148:mod(i,5)===0?82:worldHash(i,ax
 function roadIndex(v,axis){let i=Math.floor((v-240)/SPACING);while(v<roadCoord(i,axis))i--;while(v>=roadCoord(i+1,axis))i++;return i;}
 const xs=[],ys=[],blocks=[],buildings=[],obstacles=[],trees=[],parked=[],traffic=[],skids=[],particles=[],explosions=[],boundaries=[];
 let vehicleRemovalPending=false;
-const chunks=new Map(),previewChunks=new Map();
+const chunks=new Map(),previewChunks=new Map(),preparedChunks=new Map(),preparedScenes=new Map();
+let pendingChunks=[];
 const worldWindow={i:NaN,j:NaN,radius:3,generation:0,maxLoaded:0,generated:0};
 const streetRoots=['Juniper','Cedar','Linden','Mercer','Willow','Orchard','Palm','Union','Atlantic','Foundry','Mason','Elm','King','Prospect','Beacon','Alder','Birch','Harbour','Market','Vine'];
 function streetName(i,axis){if(isHighway(i))return axis?'East–west Expressway':'North–south Expressway';const root=streetRoots[Math.floor(worldHash(i,axis,31)*streetRoots.length)];return root+(roadHalf(i,axis)>70?' Boulevard':axis?' Avenue':' Street');}
@@ -531,9 +532,19 @@ function insideRoadBend(bend,x,y,pad=0){
 }
 function projectSegment(x,y,a,b){const dx=b.x-a.x,dy=b.y-a.y,len2=dx*dx+dy*dy,t=clamp(((x-a.x)*dx+(y-a.y)*dy)/(len2||1),0,1),px=a.x+dx*t,py=a.y+dy*t;return {x:px,y:py,t,distance:Math.hypot(x-px,y-py),angle:Math.atan2(dy,dx)};}
 function roadObject(points,width,kind='street'){const segments=[];for(let n=1;n<points.length;n++){const a=points[n-1],b=points[n];segments.push({a,b,width,kind,l:Math.min(a.x,b.x)-width/2,r:Math.max(a.x,b.x)+width/2,t:Math.min(a.y,b.y)-width/2,bottom:Math.max(a.y,b.y)+width/2});}return {points,width,kind,segments};}
-function boxOnSegment(box,a,b,pad){
- const left=box.x-box.hw-pad,right=box.x+box.hw+pad,top=box.y-box.hh-pad,bottom=box.y+box.hh+pad,dx=b.x-a.x,dy=b.y-a.y;let enter=0,leave=1;
- for(const [from,delta,lo,hi]of [[a.x,dx,left,right],[a.y,dy,top,bottom]]){if(Math.abs(delta)<1e-7){if(from<lo||from>hi)return false;}else{const u=(lo-from)/delta,v=(hi-from)/delta;enter=Math.max(enter,Math.min(u,v));leave=Math.min(leave,Math.max(u,v));}}return enter<=leave;
+function boxOnSegment(left,top,right,bottom,ax,ay,bx,by){
+ if(Math.max(ax,bx)<left||Math.min(ax,bx)>right||Math.max(ay,by)<top||Math.min(ay,by)>bottom)return false;
+ const dx=bx-ax,dy=by-ay;
+ let enter=0,leave=1;
+ if(Math.abs(dx)>=1e-7){
+  const u=(left-ax)/dx,v=(right-ax)/dx;
+  enter=Math.max(enter,Math.min(u,v));leave=Math.min(leave,Math.max(u,v));
+ }else if(ax<left||ax>right)return false;
+ if(Math.abs(dy)>=1e-7){
+  const u=(top-ay)/dy,v=(bottom-ay)/dy;
+  enter=Math.max(enter,Math.min(u,v));leave=Math.min(leave,Math.max(u,v));
+ }else if(ay<top||ay>bottom)return false;
+ return enter<=leave;
 }
 function natureCover(x,y,salt){
  const i=Math.floor(x/230),j=Math.floor(y/230),u=x/230-i,v=y/230-j;
@@ -766,7 +777,9 @@ function oldTownTrafficLoops(nodes){
  return loops;
 }
 function getScene(a,b){
- const key=a+','+b;if(activeScenes.has(key))return activeScenes.get(key);if(sceneCache.has(key))return sceneCache.get(key);
+ const key=a+','+b;
+ const cached=activeScenes.get(key)||preparedScenes.get(key)||sceneCache.get(key);
+ if(cached)return cached;
  const type=regionType(a,b);if(type==='city')return null;
  const x=roadCoord(a*3,0),y=roadCoord(b*3,1),w=roadCoord(a*3+3,0)-x,h=roadCoord(b*3+3,1)-y;
  const rng=seededRandom(Math.floor(worldHash(a,b,184)*4294967296)),pick=v=>v[Math.floor(rng()*v.length)];
@@ -781,7 +794,13 @@ function getScene(a,b){
  const obstacle=(q,kind)=>{const o={...q,angle:0,vx:0,vy:0,invMass:0,kind};s.obstacles.push(o);return o;};
  const away=(q,extra=3)=>{
   const left=q.x-q.hw-extra,right=q.x+q.hw+extra,top=q.y-q.hh-extra,bottom=q.y+q.hh+extra;
-  return !railReserved(q,railSpace,extra)&&s.roads.every(r=>r.segments.every(seg=>right<seg.l||left>seg.r||bottom<seg.t||top>seg.bottom||!boxOnSegment(q,seg.a,seg.b,r.width/2+extra)));
+  if(railReserved(q,railSpace,extra))return false;
+  for(const road of s.roads)for(const seg of road.segments){
+   if(right<seg.l||left>seg.r||bottom<seg.t||top>seg.bottom)continue;
+   const pad=road.width/2+extra;
+   if(boxOnSegment(q.x-q.hw-pad,q.y-q.hh-pad,q.x+q.hw+pad,q.y+q.hh+pad,seg.a.x,seg.a.y,seg.b.x,seg.b.y))return false;
+  }
+  return true;
  };
  const occupied=q=>s.buildings.concat(s.obstacles).some(o=>Math.abs(q.x-o.x)<q.hw+o.hw+5&&Math.abs(q.y-o.y)<q.hh+o.hh+5);
  const portals=[];
@@ -1143,6 +1162,40 @@ function maintainTraffic(dt){
  }
  refillTraffic();
 }
+function resetPendingChunks(){
+ const {i,j,radius}=worldWindow,outer=radius+1;
+ preparedScenes.clear();
+ for(const [key,block] of preparedChunks){
+  if(Math.abs(block.i-i)>outer||Math.abs(block.j-j)>outer)preparedChunks.delete(key);
+  else if(block.scene)preparedScenes.set(block.scene.key,block.scene);
+ }
+ pendingChunks=[];
+ for(let y=j-outer;y<=j+outer;y++)for(let x=i-outer;x<=i+outer;x++){
+  if(Math.abs(x-i)<outer&&Math.abs(y-j)<outer)continue;
+  const key=x+','+y;
+  if(!preparedChunks.has(key))pendingChunks.push({x,y,key});
+ }
+}
+function prepareNextChunk(){
+ if(!pendingChunks.length)return;
+ const {i,j,radius,left,right,top,bottom}=worldWindow;
+ // Prioritize the strip we are driving toward, including a diagonal corner
+ // when both axes are about to cross. Keep the rest ready for sudden turns.
+ const x=player.x+player.vx*550,y=player.y+player.vy*550;
+ const west=x-left,east=right-x,north=y-top,south=bottom-y;
+ const nextX=roadIndex(x,0),nextY=roadIndex(y,1);
+ let nearest=0,best=Infinity;
+ for(let n=0;n<pendingChunks.length;n++){
+  const tile=pendingChunks[n],dx=tile.x-i,dy=tile.y-j;
+  const costX=dx>radius?east:dx< -radius?west:-Infinity;
+  const costY=dy>radius?south:dy< -radius?north:-Infinity;
+  const cost=Math.max(costX,costY)+.01*(Math.abs(tile.x-nextX)+Math.abs(tile.y-nextY));
+  if(cost<best){nearest=n;best=cost;}
+ }
+ const [tile]=pendingChunks.splice(nearest,1),block=generateBlock(tile.x,tile.y);
+ preparedChunks.set(tile.key,block);
+ if(block.scene)preparedScenes.set(block.scene.key,block.scene);
+}
 function streamWorld(force=false){
  const radius=Math.max(3,Math.ceil(Math.max(viewW,viewH)/(2*zoom*SPACING))+2);
  // Grid boundaries run down the middle of the road. Keep the loaded window
@@ -1153,7 +1206,13 @@ function streamWorld(force=false){
  const initial=!Number.isFinite(worldWindow.i);
  Object.assign(worldWindow,{i,j,radius,left:roadCoord(i,0)-roadHalf(i,0),right:roadCoord(i+1,0)+roadHalf(i+1,0),top:roadCoord(j,1)-roadHalf(j,1),bottom:roadCoord(j+1,1)+roadHalf(j+1,1)});
  for(const [key,b]of chunks)if(Math.abs(b.i-i)>radius||Math.abs(b.j-j)>radius)chunks.delete(key);
- for(let cy=j-radius;cy<=j+radius;cy++)for(let cx=i-radius;cx<=i+radius;cx++){const key=cx+','+cy;if(!chunks.has(key)){chunks.set(key,generateBlock(cx,cy));worldWindow.generated++;}}
+ for(let cy=j-radius;cy<=j+radius;cy++)for(let cx=i-radius;cx<=i+radius;cx++){
+  const key=cx+','+cy;
+  if(chunks.has(key))continue;
+  const block=preparedChunks.get(key)||generateBlock(cx,cy);
+  chunks.set(key,block);preparedChunks.delete(key);worldWindow.generated++;
+ }
+ resetPendingChunks();
  blocks.length=buildings.length=obstacles.length=trees.length=parked.length=xs.length=ys.length=0;
  activeScenes.clear();for(const b of chunks.values()){if(b.scene)activeScenes.set(b.scene.key,b.scene);blocks.push(b);buildings.push(...b.buildings);obstacles.push(...b.obstacles);trees.push(...b.trees);parked.push(...b.parked);}
  for(let n=i-radius;n<=i+radius+1;n++)xs.push(roadCoord(n,0));for(let n=j-radius;n<=j+radius+1;n++)ys.push(roadCoord(n,1));
@@ -1301,10 +1360,12 @@ function railStationsIn(l,t,r,b){
 }
 function railReserved(box,reservation,pad=10){
  if(reservation.stations.some(s=>Math.abs(box.x-s.x)<box.hw+220&&Math.abs(box.y-(s.y-48))<box.hh+76))return true;
+ const left=box.x-box.hw,right=box.x+box.hw,top=box.y-box.hh,bottom=box.y+box.hh,margin=25+pad;
  for(const p of reservation.pieces){
-  if(box.x+box.hw<p.l||box.x-box.hw>p.r||box.y+box.hh<p.t||box.y-box.hh>p.b)continue;
-  for(const seg of p.route.segments)if(boxOnSegment(box,{x:seg.x,y:seg.y},{x:seg.x+seg.dx,y:seg.y+seg.dy},25+pad))return true;
- }return false;
+  if(right<p.l||left>p.r||bottom<p.t||top>p.b)continue;
+  for(const seg of p.route.segments)if(boxOnSegment(left-margin,top-margin,right+margin,bottom+margin,seg.x,seg.y,seg.x+seg.dx,seg.y+seg.dy))return true;
+ }
+ return false;
 }
 function railRefreshWorld(){
  const r=worldWindow.radius,l=roadCoord(worldWindow.i-r,0),t=roadCoord(worldWindow.j-r,1),right=roadCoord(worldWindow.i+r+1,0),bottom=roadCoord(worldWindow.j+r+1,1);
@@ -1787,16 +1848,41 @@ function railModeHUD(){
  put('jobInstruction',railway.player?.signal?'Signal ahead · Automatic safety braking.':service.ms>0?(job.service==='freight'?'Loading / unloading freight…':'Passengers boarding / leaving…'):target?'Stop with the center of any car inside the purple zone for 2 seconds. Switches follow your route.':railJunctionHint()+'. W / S drive · Space brakes · E accepts a job.');
  $('jobProgressFill').style.width=Math.min(100,service.ms/2200*100)+'%';$('jobProgress').setAttribute('aria-valuenow',String(Math.min(100,Math.round(service.ms/2200*100))));
 }
-function railTrace(g,p,a=0,b=p.length){
- g.beginPath();let first=true;for(let d=a;d<b;d+=18){const q=routeAt(p.route,d);if(first){g.moveTo(q.x,q.y);first=false;}else g.lineTo(q.x,q.y);}const q=routeAt(p.route,b);g.lineTo(q.x,q.y);
+function railCenterPath(piece){
+ if(piece.centerPath)return piece.centerPath;
+ const path=new Path2D(),point={};
+ routeAt(piece.route,0,point);path.moveTo(point.x,point.y);
+ for(let d=18;d<piece.length;d+=18){routeAt(piece.route,d,point);path.lineTo(point.x,point.y);}
+ routeAt(piece.route,piece.length,point);path.lineTo(point.x,point.y);
+ return piece.centerPath=path;
+}
+function railTrackDetails(piece){
+ if(piece.trackDetails)return piece.trackDetails;
+ const sleepers=new Path2D(),rails=[],point={};
+ for(let d=0;d<piece.length;d+=13){
+  routeAt(piece.route,d,point);
+  const nx=-Math.sin(point.angle)*16,ny=Math.cos(point.angle)*16;
+  sleepers.moveTo(point.x-nx,point.y-ny);sleepers.lineTo(point.x+nx,point.y+ny);
+ }
+ for(const side of [-8,8]){
+  const path=new Path2D();
+  piece.points.forEach((q,n)=>{
+   const next=piece.points[Math.min(n+1,piece.points.length-1)],prev=piece.points[Math.max(0,n-1)],a=Math.atan2(next.y-prev.y,next.x-prev.x);
+   const x=q.x-Math.sin(a)*side,y=q.y+Math.cos(a)*side;
+   if(n)path.lineTo(x,y);else path.moveTo(x,y);
+  });
+  rails.push(path);
+ }
+ return piece.trackDetails={sleepers,rails};
 }
 function railDrawTrack(g,p,map=false,mapScale=1){
- g.lineCap='butt';g.lineJoin='round';railTrace(g,p);g.strokeStyle=map?'#3e5a50':'#6e7770';g.lineWidth=map?Math.max(18,2.8/mapScale):42;g.stroke();
- if(map){g.strokeStyle='#e0c48b';g.lineWidth=Math.max(5,.95/mapScale);g.stroke();return;}
- railTrace(g,p);g.strokeStyle='#a59d85';g.lineWidth=32;g.stroke();
- g.strokeStyle='#665e51';g.lineWidth=4;g.beginPath();
- for(let d=0;d<p.length;d+=13){const q=routeAt(p.route,d);if(!visible(q.x,q.y,30))continue;const nx=-Math.sin(q.angle)*16,ny=Math.cos(q.angle)*16;g.moveTo(q.x-nx,q.y-ny);g.lineTo(q.x+nx,q.y+ny);}g.stroke();
- for(const side of [-8,8]){g.beginPath();p.points.forEach((q,n)=>{const next=p.points[Math.min(n+1,p.points.length-1)],prev=p.points[Math.max(0,n-1)],a=Math.atan2(next.y-prev.y,next.x-prev.x),x=q.x-Math.sin(a)*side,y=q.y+Math.cos(a)*side;n?g.lineTo(x,y):g.moveTo(x,y);});g.strokeStyle='#374d48';g.lineWidth=4;g.stroke();g.strokeStyle='#d9d7bb';g.lineWidth=1.6;g.stroke();}
+ const center=railCenterPath(p);
+ g.lineCap='butt';g.lineJoin='round';g.strokeStyle=map?'#3e5a50':'#6e7770';g.lineWidth=map?Math.max(18,2.8/mapScale):42;g.stroke(center);
+ if(map){g.strokeStyle='#e0c48b';g.lineWidth=Math.max(5,.95/mapScale);g.stroke(center);return;}
+ g.strokeStyle='#a59d85';g.lineWidth=32;g.stroke(center);
+ const {sleepers,rails}=railTrackDetails(p);
+ g.strokeStyle='#665e51';g.lineWidth=4;g.stroke(sleepers);
+ for(const rail of rails){g.strokeStyle='#374d48';g.lineWidth=4;g.stroke(rail);g.strokeStyle='#d9d7bb';g.lineWidth=1.6;g.stroke(rail);}
 }
 function railDrawStation(g,s,map=false){
  if(map){g.fillStyle='#f4d48c';g.strokeStyle='#304b42';g.lineWidth=5;g.beginPath();g.arc(s.x,s.y,27,0,TAU);g.fill();g.stroke();return;}
@@ -1821,10 +1907,10 @@ function railDrawElevated(){
  // Whole-network passes join the decks before laying rails across them. No
  // turnout or streamed edge can expose a ground-level stretch between decks.
  ctx.save();ctx.translate(10,15);ctx.strokeStyle='#233b3866';ctx.lineWidth=68;ctx.lineJoin='round';ctx.lineCap='butt';
- for(const p of pieces){railTrace(ctx,p);ctx.stroke();}ctx.restore();
+ for(const p of pieces)ctx.stroke(railCenterPath(p));ctx.restore();
  ctx.save();ctx.translate(0,5);ctx.strokeStyle='#4e645c';ctx.lineWidth=64;
- for(const p of pieces){railTrace(ctx,p);ctx.stroke();}ctx.restore();
- for(const [width,color]of [[64,'#50645c'],[57,'#c0c3ad']]){ctx.lineWidth=width;ctx.strokeStyle=color;for(const p of pieces){railTrace(ctx,p);ctx.stroke();}}
+ for(const p of pieces)ctx.stroke(railCenterPath(p));ctx.restore();
+ for(const [width,color]of [[64,'#50645c'],[57,'#c0c3ad']]){ctx.lineWidth=width;ctx.strokeStyle=color;for(const p of pieces)ctx.stroke(railCenterPath(p));}
  for(const p of pieces)railDrawTrack(ctx,p);
  for(const p of pieces)if(p.kind==='e')for(let d=140;d<p.length;d+=320){
   const q=routeAt(p.route,d);if(!visible(q.x,q.y,55))continue;
@@ -1835,7 +1921,7 @@ function railDrawElevated(){
 function railDrawJunctionChoice(){
  const pending=railway.manualTurn;if(progress.mode!=='train'||jobTarget()||!pending?.connector)return;
  const piece=railGeometry(pending.connector);if(piece.r<bounds.l||piece.l>bounds.r||piece.b<bounds.t||piece.t>bounds.b)return;
- ctx.save();railTrace(ctx,piece);ctx.strokeStyle='#e7efaa';ctx.lineWidth=4;ctx.setLineDash([11,8]);ctx.stroke();ctx.setLineDash([]);
+ ctx.save();ctx.strokeStyle='#e7efaa';ctx.lineWidth=4;ctx.setLineDash([11,8]);ctx.stroke(railCenterPath(piece));ctx.setLineDash([]);
  const node=railNode(piece.i,piece.j);textAt(pending.choice<0?'← LEFT':pending.choice>0?'RIGHT →':'STRAIGHT',node.x,node.y-RAIL_BEND-35,9,'#f1edba');ctx.restore();
 }
 function railDrawTrackAndTrains(night){
@@ -5373,6 +5459,7 @@ function updateHUD(){
  }
 }
 function loop(now){
+ const frameStart=performance.now();
  const elapsed=Math.min(80,Math.max(0,now-last));last=now;
  trackFrameTime(elapsed);
  if(!activeModal&&!document.hidden){accumulator+=elapsed;while(accumulator>=STEP){physics(STEP);accumulator-=STEP;}}
@@ -5387,7 +5474,11 @@ function loop(now){
  if(activeModal==='mapModal'&&mapView.dirty)drawAtlas();
  hudClock+=elapsed;
  if(!activeModal&&hudClock>=100){hudClock=0;updateHUD();}
- if(!activeModal&&!document.hidden)drawMini(elapsed);
+ if(!activeModal&&!document.hidden){
+  drawMini(elapsed);
+  // Stage one tile at a time after the main work on frames with some headroom.
+  if(performance.now()-frameStart<3)prepareNextChunk();
+ }
  requestAnimationFrame(loop);
 }
 if(progress.position)Object.assign(player,progress.position);snapshotBody(player);safePosition={x:player.x,y:player.y,angle:player.angle};camera.x=player.x;camera.y=player.y;interpolatePlayer();
