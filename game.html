@@ -1628,7 +1628,7 @@ function railUpdatePlayer(dt){
  const sign=Math.sign(t.speed)||Math.sign(previous)||1;railEnsure(t,Math.max(650,t.speed*t.speed/(2*brake)+300));
  const clearance=railClearance(t,sign,t.speed*t.speed/(2*brake)+220);
  t.signal=Number.isFinite(clearance);if(t.signal)t.speed=sign*Math.min(Math.abs(t.speed),Math.sqrt(2*brake*Math.max(0,clearance-20)),clearance/dt);
- const move=t.speed*dt;t.d+=move;if(Math.abs(t.speed)>.001)t.lastDirection=Math.sign(t.speed);railSyncPlayer();player.braking=!!emergency||!!(up&&previous<0)||!!(down&&previous>0)||assistBraking||t.signal;
+ const move=t.speed*dt;t.stepTravel=move;t.d+=move;if(Math.abs(t.speed)>.001)t.lastDirection=Math.sign(t.speed);railSyncPlayer();player.braking=!!emergency||!!(up&&previous<0)||!!(down&&previous>0)||assistBraking||t.signal;
  return Math.abs(move);
 }
 function railRoadSpawn(){
@@ -1708,6 +1708,7 @@ function railSpawnNPC(){
  railEnsure(t);railway.npcs.push(t);return true;
 }
 function railUpdateNPC(t,dt){
+ t.stepTravel=0;
  railEnsure(t);const target=t.target,p=railSample(t),arrival=target&&p.piece.id===target.edge?target.d-(p.ref.reverse?p.piece.length-p.local:p.local):Infinity;
  const along=p.ref.reverse?-arrival:arrival;
  if(t.wait>0){t.wait-=dt;t.speed=0;t.signal=false;t.signalWait=0;t.blockingTrain=null;if(t.wait<=0){t.serviced=target.id;t.target=railStation(target.i+1+(t.seed%2),target.j+(t.seed%3===0?1:0));}return;}
@@ -1719,7 +1720,7 @@ function railUpdateNPC(t,dt){
   t.pieces=t.pieces.slice(0,p.index+1);railNext(t,1);t.blockedFor=0;
  }
  if(t.signal)limit=Math.min(limit,Math.sqrt(2*.0003*Math.max(0,clearance-20)),clearance/dt);
- t.speed=limit<t.speed?Math.max(limit,t.speed-.0004*dt):Math.min(limit,t.speed+.00008*dt);if(Number.isFinite(clearance))t.speed=Math.min(t.speed,clearance/dt);t.d+=t.speed*dt;
+ t.speed=limit<t.speed?Math.max(limit,t.speed-.0004*dt):Math.min(limit,t.speed+.00008*dt);if(Number.isFinite(clearance))t.speed=Math.min(t.speed,clearance/dt);t.stepTravel=t.speed*dt;t.d+=t.stepTravel;
  t.signalWait=t.signal&&t.speed<.005?(t.signalWait||0)+dt:0;
 }
 function railYieldDeadlock(cycle){
@@ -1730,7 +1731,7 @@ function railYieldDeadlock(cycle){
  // Swap the leading cab while keeping every carriage on the same track.
  t.d=railLength(t)-t.d+RAIL_GAP*(RAIL_CARS-1);
  t.pieces=t.pieces.slice().reverse().map(ref=>({id:ref.id,reverse:!ref.reverse}));
- Object.assign(t,{speed:0,signal:false,signalWait:0,blockedFor:0,blockingTrain:null});
+ Object.assign(t,{speed:0,stepTravel:0,signal:false,signalWait:0,blockedFor:0,blockingTrain:null});
  return true;
 }
 function railResolveNPCDeadlocks(){
@@ -1773,7 +1774,26 @@ function railUpdate(dt){
  for(const t of railway.npcs)railUpdateNPC(t,dt);
  railResolveNPCDeadlocks();
 }
-function railCarriages(t){const out=[];for(let n=0;n<RAIL_CARS;n++){const p=railSample(t,t.d-n*RAIL_GAP);out.push({...p,hw:35,hh:12,kind:'rail',invMass:0,vx:Math.cos(p.angle)*t.speed,vy:Math.sin(p.angle)*t.speed,color:t.color,model:'train',carriage:n});}return out;}
+function railRenderDistance(t){
+ // A signed step distance stays valid when adding or trimming track rebases t.d.
+ return t.d-(t.stepTravel||0)*(1-renderAlpha);
+}
+function railVisualPose(t,d){
+ const center=railSample(t,d);
+ // Aim through the two wheel positions so the body turns smoothly across track segments.
+ const front=railSample(t,d+22),rear=railSample(t,d-22);
+ if(front.x!==rear.x||front.y!==rear.y)center.angle=Math.atan2(front.y-rear.y,front.x-rear.x);
+ return center;
+}
+function railCarriage(t,n,d){
+ const p=railVisualPose(t,d-n*RAIL_GAP);
+ return {...p,hw:35,hh:12,kind:'rail',invMass:0,vx:Math.cos(p.angle)*t.speed,vy:Math.sin(p.angle)*t.speed,color:t.color,model:'train',carriage:n};
+}
+function railCarriages(t,d=t.d){
+ const out=[];
+ for(let n=0;n<RAIL_CARS;n++)out.push(railCarriage(t,n,d));
+ return out;
+}
 function railOnBridge(body){return body?.kind==='rail'||body?.model==='train';}
 function railJobReward(job){return job.service==='freight'?90:35+25*(job.stops.length-1);}
 function railCleanJob(raw,accepted){
@@ -1921,7 +1941,7 @@ function railDrawElevated(){
 function railDrawJunctionChoice(){
  const pending=railway.manualTurn;if(progress.mode!=='train'||jobTarget()||!pending?.connector)return;
  const piece=railGeometry(pending.connector);if(piece.r<bounds.l||piece.l>bounds.r||piece.b<bounds.t||piece.t>bounds.b)return;
- ctx.save();ctx.strokeStyle='#e7efaa';ctx.lineWidth=4;ctx.setLineDash([11,8]);ctx.stroke(railCenterPath(piece));ctx.setLineDash([]);
+ ctx.save();ctx.strokeStyle=JOB_ROUTE_COLOR;ctx.lineWidth=4;ctx.setLineDash([11,8]);ctx.stroke(railCenterPath(piece));ctx.setLineDash([]);
  const node=railNode(piece.i,piece.j);textAt(pending.choice<0?'← LEFT':pending.choice>0?'RIGHT →':'STRAIGHT',node.x,node.y-RAIL_BEND-35,9,'#f1edba');ctx.restore();
 }
 function railDrawTrackAndTrains(night){
@@ -1933,7 +1953,7 @@ const railFadeCanvas=document.createElement('canvas');
 function railDrawUpperLayer(night){
  const opacity=railTrackOpacity();
  const visibleNPC=opacity<1&&railway.npcs.some(t=>{
-  const {x,y}=railSample(t);
+  const {x,y}=railSample(t,railRenderDistance(t));
   return visible(x,y,RAIL_GAP*(RAIL_CARS-1)+160);
  });
  if(visibleNPC){
@@ -1970,7 +1990,7 @@ function railPaintVehicle(g,c,x,y,angle,look){
 }
 function railDrawTrains(){
  const all=progress.mode==='train'&&railway.player?[...railway.npcs,railway.player]:railway.npcs;
- for(const t of all){const mine=t===railway.player,look=mine?equippedAppearance:null,bodies=railCarriages(t);
+ for(const t of all){const mine=t===railway.player,look=mine?equippedAppearance:null,bodies=railCarriages(t,railRenderDistance(t));
   ctx.strokeStyle='#334a43';ctx.lineWidth=4;for(let n=1;n<bodies.length;n++){const a=bodies[n-1],b=bodies[n];if(!visible(a.x,a.y,100))continue;ctx.beginPath();ctx.moveTo(a.x-Math.cos(a.angle)*35,a.y-Math.sin(a.angle)*35);ctx.lineTo(b.x+Math.cos(b.angle)*35,b.y+Math.sin(b.angle)*35);ctx.stroke();}
   for(const b of bodies)if(visible(b.x,b.y,65)){b.freight=mine?currentJob()?.service==='freight':t.seed%3===0;b.loaded=mine?currentJob()?.index>0:true;railPaintVehicle(ctx,b,b.x,b.y,b.angle,look);}
   const p=bodies[0];if(visible(p.x,p.y,80)&&t.signal){circle(p.x,p.y-29,4,'#e0a566');}
@@ -1978,7 +1998,7 @@ function railDrawTrains(){
 }
 function railDrawTrainLights(train,beam){
  const reversing=train.speed<-.001||Math.abs(train.speed)<=.001&&train.lastDirection===-1;
- const end=reversing?RAIL_CARS-1:0,c=railCarriages(train)[end],angle=c.angle+(reversing?Math.PI:0);
+ const end=reversing?RAIL_CARS-1:0,c=railCarriage(train,end,railRenderDistance(train)),angle=c.angle+(reversing?Math.PI:0);
  drawVehicleLights({...c,angle,prevX:c.x,prevY:c.y,prevAngle:angle},beam);
 }
 function railDrawMap(g,m,labels=false){
@@ -1988,7 +2008,7 @@ function railDrawMap(g,m,labels=false){
  const stations=railStationsIn(m.left,m.top,r,b);for(const s of stations)railDrawStation(g,s,true);g.restore();
  if(labels)for(const s of stations){const x=(s.x-m.left)*m.scale,y=(s.y-m.top)*m.scale;g.font='bold 10px Arial';g.textAlign='center';const width=g.measureText(s.name).width+14;g.fillStyle='#28453fed';g.fillRect(x-width/2,y-26,width,17);g.fillStyle='#f4d48c';g.fillText(s.name,x,y-14);}
 }
-function railDrawMapTrains(g,m){for(const t of railway.npcs){const p=railSample(t),x=(p.x-m.left)*m.scale,y=(p.y-m.top)*m.scale;g.save();g.translate(x,y);g.rotate(p.angle);g.fillStyle='#f0c978';g.strokeStyle='#35564c';g.lineWidth=1;g.fillRect(-6,-3,12,6);g.strokeRect(-6,-3,12,6);g.restore();}}
+function railDrawMapTrains(g,m,interpolate=false){for(const t of railway.npcs){const p=railSample(t,interpolate?railRenderDistance(t):t.d),x=(p.x-m.left)*m.scale,y=(p.y-m.top)*m.scale;g.save();g.translate(x,y);g.rotate(p.angle);g.fillStyle='#f0c978';g.strokeStyle='#35564c';g.lineWidth=1;g.fillRect(-6,-3,12,6);g.strokeRect(-6,-3,12,6);g.restore();}}
 function railDrawTarget(){
  const target=jobTarget()||railway.destination;if(!target||!visible(target.x,target.y,260))return;
  const hw=RAIL_STOP_HALF_LENGTH,hh=RAIL_STOP_HALF_WIDTH;
@@ -2755,7 +2775,15 @@ const camera={x:player.x,y:player.y};
 const renderedPlayer={x:player.x,y:player.y,angle:player.angle};
 let renderAlpha=1;
 function snapshotBody(c){c.prevX=c.x;c.prevY=c.y;c.prevAngle=c.angle;}
-function interpolatePlayer(){renderedPlayer.x=lerp(player.prevX,player.x,renderAlpha);renderedPlayer.y=lerp(player.prevY,player.y,renderAlpha);renderedPlayer.angle=lerp(player.prevAngle,player.angle,renderAlpha);}
+function interpolatePlayer(){
+ const train=progress.mode==='train'?railway.player:null;
+ if(train){
+  const {x,y,angle}=railVisualPose(train,railRenderDistance(train));
+  Object.assign(renderedPlayer,{x,y,angle});
+  return;
+ }
+ renderedPlayer.x=lerp(player.prevX,player.x,renderAlpha);renderedPlayer.y=lerp(player.prevY,player.y,renderAlpha);renderedPlayer.angle=lerp(player.prevAngle,player.angle,renderAlpha);
+}
 let started=false,activeModal=null,previousFocus=null,simTime=0,distance=progress.earnedMm/1000,last=performance.now(),accumulator=0,hudClock=0,toastTimer=0,shake=0,impactCooldown=0;
 const keys=Object.create(null);
 let safePosition={x:player.x,y:player.y,angle:player.angle};
@@ -5384,7 +5412,7 @@ function drawMini(elapsed=0){
   if(px<0||px>w||py<0||py>h)continue;
   mctx.fillStyle='#e69b8a';mctx.beginPath();mctx.arc(px,py,4,0,TAU);mctx.fill();
  }
- drawPickupMapMarkers(mctx,m,true);railDrawMapTrains(mctx,m);
+ drawPickupMapMarkers(mctx,m,true);railDrawMapTrains(mctx,m,true);
  const px=(x-m.left)*m.scale,py=(y-m.top)*m.scale;
  mctx.beginPath();mctx.arc(px,py,20,0,TAU);mctx.fillStyle='#e7f2b41a';mctx.fill();playerMapMarker(mctx,px,py,1.45,angle);
 }
@@ -5467,8 +5495,14 @@ function loop(now){
  else accumulator=0;
  if(!activeModal&&!document.hidden)renderAlpha=clamp(accumulator/STEP,0,1);
  interpolatePlayer();
- const railFocus=progress.mode==='train'?RAIL_GAP:0,lookX=player.vx*(railFocus?90:140)-Math.cos(player.angle)*railFocus,lookY=player.vy*(railFocus?90:140)-Math.sin(player.angle)*railFocus,blend=1-Math.exp(-elapsed*.005);
- const targetX=renderedPlayer.x+lookX,targetY=renderedPlayer.y+lookY;
+ const train=progress.mode==='train'?railway.player:null;
+ let targetX=renderedPlayer.x+player.vx*140,targetY=renderedPlayer.y+player.vy*140;
+ if(train){
+  // Follow the middle carriage, with look-ahead measured along the track.
+  const focus=railSample(train,railRenderDistance(train)-RAIL_GAP+train.speed*90);
+  targetX=focus.x;targetY=focus.y;
+ }
+ const blend=1-Math.exp(-elapsed*.005);
  camera.x=lerp(camera.x,targetX,blend);camera.y=lerp(camera.y,targetY,blend);shake*=Math.pow(.88,elapsed/16);
  if(!document.hidden&&(!activeModal||!sceneryCache.valid))draw();
  if(activeModal==='mapModal'&&mapView.dirty)drawAtlas();
