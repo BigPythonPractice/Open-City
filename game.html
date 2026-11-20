@@ -4035,11 +4035,13 @@ function updatePlayer(dt){
  else{turbo.rechargeDelay=Math.max(0,turbo.rechargeDelay-dt);if(turbo.rechargeDelay===0)turbo.charge=Math.min(1,turbo.charge+dt/(st.rechargeSeconds*1000));if(turbo.charge>=1)turbo.depleted=false;}
  const enginePower=(grass?.00024:dirt?st.acceleration*.72:st.acceleration)*(turbo.active?1.9:1)*(powerActive('speed')?1.35:1),brakePower=.00062*(forwardSpeed>0?st.brakeMultiplier:1);
  const speedLimit=(grass?.16:dirt?st.maxSpeed*.72:st.maxSpeed*(turbo.active?st.boostMultiplier:1))*speedPower;
- const coastingBoost=!grass&&!dirt&&forwardSpeed>speedLimit+.000001;
+ const coastingBoost=!grass&&!dirt&&forwardSpeed>speedLimit;
+ const holdingThrottle=accel&&!brake&&!handbrake;
+ const dragStep=dt/16*(coastingBoost&&holdingThrottle?.6:1);
  if(accel&&!coastingBoost)forwardSpeed+=enginePower*dt;if(brake)forwardSpeed-=brakePower*dt;
- forwardSpeed*=Math.pow(grass?.955:dirt?.982:.988,dt/16);
- // Temporary speed expires smoothly, even while regular turbo is still active.
- if(coastingBoost)forwardSpeed=Math.max(speedLimit,forwardSpeed-dt*.00045);
+ forwardSpeed*=Math.pow(grass?.955:dirt?.982:.988,dragStep);
+ // Ease back to the current limit while the throttle is held.
+ if(coastingBoost&&holdingThrottle)forwardSpeed=Math.max(speedLimit,forwardSpeed);
  forwardSpeed=clamp(forwardSpeed,-.12,coastingBoost?Math.max(speedLimit,forwardSpeed):speedLimit);
  const stop=!accel&&!brake&&!handbrake&&forwardSpeed!==0?jobTarget():null;
  const assistBraking=!!stop&&insideJobBay(stop);
