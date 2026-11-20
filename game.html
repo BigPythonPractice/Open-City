@@ -1700,10 +1700,10 @@ function railUpdatePlayer(dt){
  else{turbo.rechargeDelay=Math.max(0,turbo.rechargeDelay-dt);if(!turbo.rechargeDelay)turbo.charge=Math.min(1,turbo.charge+dt/(st.rechargeSeconds*1000));if(turbo.charge===1)turbo.depleted=false;}
  const brake=.00048*st.brakeMultiplier,accel=st.acceleration*(turbo.active?1.65:1),limit=st.maxSpeed*(turbo.active?st.boostMultiplier:1)*(powerActive('speed')?1.3:1);
  const assistBraking=!up&&!down&&!emergency&&previous!==0&&railAtStop(jobTarget());
- const rollingResistance=.000014,speedCap=Math.max(limit,Math.abs(previous));
+ const rollingResistance=.000014,throttleCoastResistance=rollingResistance*.6,speedCap=Math.max(limit,Math.abs(previous));
  if(emergency)t.speed=Math.sign(t.speed)*Math.max(0,Math.abs(t.speed)-brake*dt*1.9);
  // Above the current limit, holding the throttle still lets the train coast.
- else if(speedCap>limit&&accelerating)t.speed=Math.sign(previous)*Math.max(limit,Math.abs(previous)-rollingResistance*dt);
+ else if(speedCap>limit&&accelerating)t.speed=Math.sign(previous)*Math.max(limit,Math.abs(previous)-throttleCoastResistance*dt);
  else if(up&&!down)t.speed+=t.speed<0?Math.min(-t.speed,brake*dt):accel*dt;
  else if(down&&!up)t.speed-=t.speed>0?Math.min(t.speed,brake*dt):accel*dt;
  else t.speed=Math.sign(t.speed)*Math.max(0,Math.abs(t.speed)-dt*(rollingResistance+(assistBraking?JOB_BAY_BRAKE:0)));
