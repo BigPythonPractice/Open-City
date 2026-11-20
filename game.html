@@ -234,7 +234,7 @@ function roadIndex(v,axis){let i=Math.floor((v-240)/SPACING);while(v<roadCoord(i
 const xs=[],ys=[],blocks=[],buildings=[],obstacles=[],trees=[],parked=[],traffic=[],skids=[],particles=[],explosions=[],boundaries=[];
 let vehicleRemovalPending=false;
 const chunks=new Map(),previewChunks=new Map(),preparedChunks=new Map(),preparedScenes=new Map();
-let pendingChunks=[];
+let pendingChunks=[],chunkPreparationQueued=false;
 const worldWindow={i:NaN,j:NaN,radius:3,generation:0,maxLoaded:0,generated:0};
 const streetRoots=['Juniper','Cedar','Linden','Mercer','Willow','Orchard','Palm','Union','Atlantic','Foundry','Mason','Elm','King','Prospect','Beacon','Alder','Birch','Harbour','Market','Vine'];
 function streetName(i,axis){if(isHighway(i))return axis?'East–west Expressway':'North–south Expressway';const root=streetRoots[Math.floor(worldHash(i,axis,31)*streetRoots.length)];return root+(roadHalf(i,axis)>70?' Boulevard':axis?' Avenue':' Street');}
@@ -1196,6 +1196,18 @@ function prepareNextChunk(){
  preparedChunks.set(tile.key,block);
  if(block.scene)preparedScenes.set(block.scene.key,block.scene);
 }
+function queueChunkPreparation(frameStart){
+ if(!pendingChunks.length||chunkPreparationQueued)return;
+ if(typeof requestIdleCallback!=='function'){
+  if(performance.now()-frameStart<3)prepareNextChunk();
+  return;
+ }
+ chunkPreparationQueued=true;
+ requestIdleCallback(deadline=>{
+  chunkPreparationQueued=false;
+  if(!activeModal&&!document.hidden&&deadline.timeRemaining()>2)prepareNextChunk();
+ });
+}
 function streamWorld(force=false){
  const radius=Math.max(3,Math.ceil(Math.max(viewW,viewH)/(2*zoom*SPACING))+2);
  // Grid boundaries run down the middle of the road. Keep the loaded window
@@ -1919,6 +1931,7 @@ function railDrawStation(g,s,map=false){
  if(s.freight){for(let x=-204;x<-130;x+=23){g.fillStyle='#ad8e62';g.fillRect(x,-71,18,20);g.strokeStyle='#d2b47b';g.lineWidth=2;g.strokeRect(x+2,-69,14,16);}}
  else for(let n=0;n<5;n++){g.fillStyle=['#b17b67','#9dab79','#c9b57c'][n%3];g.beginPath();g.arc(-180+n*70,-44,3.2,0,TAU);g.fill();}
  g.restore();
+ return true;
 }
 function railTrackOpacity(){return progress.mode==='train'?1:.28;}
 function railDrawElevated(){
@@ -1936,7 +1949,9 @@ function railDrawElevated(){
   const q=routeAt(p.route,d);if(!visible(q.x,q.y,55))continue;
   ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.angle);ctx.fillStyle='#4f6259';ctx.fillRect(-5,-33,10,7);ctx.fillRect(-5,26,10,7);ctx.fillStyle='#d5d3bb';ctx.fillRect(-4,-33,8,3);ctx.fillRect(-4,26,8,3);ctx.restore();
  }
- for(const s of railway.localStations)railDrawStation(ctx,s);
+ let hasRails=pieces.length>0;
+ for(const s of railway.localStations)if(railDrawStation(ctx,s))hasRails=true;
+ return hasRails;
 }
 function railDrawJunctionChoice(){
  const pending=railway.manualTurn;if(progress.mode!=='train'||jobTarget()||!pending?.connector)return;
@@ -1944,31 +1959,79 @@ function railDrawJunctionChoice(){
  ctx.save();ctx.strokeStyle=JOB_ROUTE_COLOR;ctx.lineWidth=4;ctx.setLineDash([11,8]);ctx.stroke(railCenterPath(piece));ctx.setLineDash([]);
  const node=railNode(piece.i,piece.j);textAt(pending.choice<0?'← LEFT':pending.choice>0?'RIGHT →':'STRAIGHT',node.x,node.y-RAIL_BEND-35,9,'#f1edba');ctx.restore();
 }
-function railDrawTrackAndTrains(night){
- ctx.save();if(night)ctx.filter='brightness('+(1-night*.46)+')';
- paintScenery(sceneryCache.railElevated);railDrawTrains();ctx.restore();
- if(night&&nightLightTextures){ctx.save();ctx.globalAlpha*=night;for(const t of railway.npcs)railDrawTrainLights(t,nightLightTextures.beam);if(progress.mode==='train'&&railway.player)railDrawTrainLights(railway.player,nightLightTextures.beam);ctx.restore();}
-}
 const railFadeCanvas=document.createElement('canvas');
-function railDrawUpperLayer(night){
- const opacity=railTrackOpacity();
- const visibleNPC=opacity<1&&railway.npcs.some(t=>{
-  const {x,y}=railSample(t,railRenderDistance(t));
-  return visible(x,y,RAIL_GAP*(RAIL_CARS-1)+160);
- });
- if(visibleNPC){
-  // Composite overlapping track and train artwork at a single opacity.
-  const screen=ctx,layer=railFadeCanvas,w=canvas.width,h=canvas.height;
-  if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
-  const g=layer.getContext('2d');
-  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);
-  g.setTransform(screen.getTransform());
-  ctx=g;
-  try{railDrawTrackAndTrains(night);}finally{ctx=screen;}
-  ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha*=opacity;ctx.drawImage(layer,0,0);ctx.restore();
+const railNightCache={canvas:document.createElement('canvas'),build:-1};
+function shadeRailLayer(g,w,h,night){
+ g.save();g.setTransform(1,0,0,1,0,0);
+ g.globalCompositeOperation='source-atop';g.globalAlpha=night*.46;
+ g.fillStyle='#000';g.fillRect(0,0,w,h);g.restore();
+}
+function paintRailScenery(night){
+ if(!sceneryCache.hasRails)return;
+ const source=sceneryCache.railElevated;
+ if(night===1){
+  const cache=railNightCache,layer=cache.canvas,w=source.width,h=source.height;
+  if(cache.build!==sceneryCache.builds){
+   if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
+   const g=layer.getContext('2d');
+   g.clearRect(0,0,w,h);g.drawImage(source,0,0);shadeRailLayer(g,w,h,night);
+   cache.build=sceneryCache.builds;
+  }
+  paintScenery(layer);
  }else{
-  ctx.save();ctx.globalAlpha*=opacity;railDrawTrackAndTrains(night);ctx.restore();
+  ctx.save();
+  if(night)ctx.filter='brightness('+(1-night*.46)+')';
+  paintScenery(source);ctx.restore();
  }
+}
+function railTrainPatch(trains,night,transform){
+ const {a,d,e,f}=transform;
+ let left=Infinity,top=Infinity,right=-Infinity,bottom=-Infinity;
+ for(const {train,bodies} of trains){
+  const leading=railLeadingCar(train);
+  for(const b of bodies){
+   const padding=night&&b.carriage===leading?170:55;
+   left=Math.min(left,(b.x-padding)*a+e);right=Math.max(right,(b.x+padding)*a+e);
+   top=Math.min(top,(b.y-padding)*d+f);bottom=Math.max(bottom,(b.y+padding)*d+f);
+  }
+ }
+ const x=Math.max(0,Math.floor(left)),y=Math.max(0,Math.floor(top));
+ return {x,y,w:Math.min(canvas.width,Math.ceil(right))-x,h:Math.min(canvas.height,Math.ceil(bottom))-y};
+}
+function railDrawComposite(trains,night){
+ const screen=ctx,transform=screen.getTransform(),{x,y,w,h}=railTrainPatch(trains,night,transform);
+ if(w<=0||h<=0){paintRailScenery(night);return;}
+ const layer=railFadeCanvas;
+ // Grow in steps so small changes in the train's screen bounds reuse the surface.
+ if(layer.width<w)layer.width=Math.min(canvas.width,Math.ceil(w/128)*128);
+ if(layer.height<h)layer.height=Math.min(canvas.height,Math.ceil(h/128)*128);
+ const g=layer.getContext('2d');
+ g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);
+ g.save();g.beginPath();g.rect(0,0,w,h);g.clip();
+ g.setTransform(transform.a,0,0,transform.d,transform.e-x,transform.f-y);
+ ctx=g;
+ try{
+  paintRailScenery(0);railDrawTrains(trains);
+  if(night){shadeRailLayer(g,w,h,night);railDrawHeadlights(trains,night);}
+ }finally{g.restore();ctx=screen;}
+ // Outside the local patch, the static track can go straight to the screen.
+ // Inside it, overlapping track and train artwork share the same opacity.
+ screen.save();screen.setTransform(1,0,0,1,0,0);
+ screen.beginPath();screen.rect(0,0,canvas.width,canvas.height);screen.rect(x,y,w,h);screen.clip('evenodd');
+ screen.setTransform(transform);paintRailScenery(night);screen.restore();
+ screen.save();screen.setTransform(1,0,0,1,0,0);screen.drawImage(layer,0,0,w,h,x,y,w,h);screen.restore();
+}
+function railDrawUpperLayer(night){
+ const mine=progress.mode==='train'?railway.player:null;
+ const all=mine?[...railway.npcs,mine]:railway.npcs,trains=[],opacity=railTrackOpacity();
+ for(const train of all){
+  const d=railRenderDistance(train),p=railSample(train,d);
+  if(visible(p.x,p.y,RAIL_GAP*(RAIL_CARS-1)+170))trains.push({train,bodies:railCarriages(train,d)});
+ }
+ ctx.save();ctx.globalAlpha*=opacity;
+ if(trains.length&&(opacity<1||night))railDrawComposite(trains,night);
+ else{paintRailScenery(night);railDrawTrains(trains);}
+ ctx.restore();
  if(progress.mode==='train'){railDrawJunctionChoice();railDrawTarget();}
 }
 function railPaintVehicle(g,c,x,y,angle,look){
@@ -1988,18 +2051,25 @@ function railPaintVehicle(g,c,x,y,angle,look){
  if(look?.lighting?.color){g.fillStyle=look.lighting.color;g.fillRect(-26,-12,49,1.5);g.fillRect(-26,10.5,49,1.5);}
  g.fillStyle='#364a42';g.fillRect(-41,-3,7,6);g.fillRect(35,-3,6,6);g.restore();
 }
-function railDrawTrains(){
- const all=progress.mode==='train'&&railway.player?[...railway.npcs,railway.player]:railway.npcs;
- for(const t of all){const mine=t===railway.player,look=mine?equippedAppearance:null,bodies=railCarriages(t,railRenderDistance(t));
+function railDrawTrains(trains){
+ for(const {train:t,bodies} of trains){const mine=t===railway.player,look=mine?equippedAppearance:null;
   ctx.strokeStyle='#334a43';ctx.lineWidth=4;for(let n=1;n<bodies.length;n++){const a=bodies[n-1],b=bodies[n];if(!visible(a.x,a.y,100))continue;ctx.beginPath();ctx.moveTo(a.x-Math.cos(a.angle)*35,a.y-Math.sin(a.angle)*35);ctx.lineTo(b.x+Math.cos(b.angle)*35,b.y+Math.sin(b.angle)*35);ctx.stroke();}
   for(const b of bodies)if(visible(b.x,b.y,65)){b.freight=mine?currentJob()?.service==='freight':t.seed%3===0;b.loaded=mine?currentJob()?.index>0:true;railPaintVehicle(ctx,b,b.x,b.y,b.angle,look);}
   const p=bodies[0];if(visible(p.x,p.y,80)&&t.signal){circle(p.x,p.y-29,4,'#e0a566');}
  }
 }
-function railDrawTrainLights(train,beam){
- const reversing=train.speed<-.001||Math.abs(train.speed)<=.001&&train.lastDirection===-1;
- const end=reversing?RAIL_CARS-1:0,c=railCarriage(train,end,railRenderDistance(train)),angle=c.angle+(reversing?Math.PI:0);
+function railLeadingCar(train){
+ return train.speed<-.001||Math.abs(train.speed)<=.001&&train.lastDirection===-1?RAIL_CARS-1:0;
+}
+function railDrawTrainLights(train,beam,bodies){
+ const end=railLeadingCar(train),c=bodies?bodies[end]:railCarriage(train,end,railRenderDistance(train)),angle=c.angle+(end?Math.PI:0);
  drawVehicleLights({...c,angle,prevX:c.x,prevY:c.y,prevAngle:angle},beam);
+}
+function railDrawHeadlights(trains,night){
+ if(!nightLightTextures)return;
+ ctx.save();ctx.globalAlpha*=night;
+ for(const {train,bodies} of trains)railDrawTrainLights(train,nightLightTextures.beam,bodies);
+ ctx.restore();
 }
 function railDrawMap(g,m,labels=false){
  const w=g.canvas.width,h=g.canvas.height,r=m.left+w/m.scale,b=m.top+h/m.scale;
@@ -5201,7 +5271,7 @@ function prepareScenery(){
      if(visible(b.x,b.y,b.hw+overhang,b.hh+overhang)){drawBuilding(b);cache.hasRoofs=true;}
     }
    }
-   else if(kind==='railElevated')railDrawElevated();
+   else if(kind==='railElevated')cache.hasRails=railDrawElevated();
    else{
     drawRoads();
     for(const b of blocks)if(visible(b.x+b.w/2,b.y+b.h/2,b.w/2+15,b.h/2+15))drawBlock(b);
@@ -5510,8 +5580,7 @@ function loop(now){
  if(!activeModal&&hudClock>=100){hudClock=0;updateHUD();}
  if(!activeModal&&!document.hidden){
   drawMini(elapsed);
-  // Stage one tile at a time after the main work on frames with some headroom.
-  if(performance.now()-frameStart<3)prepareNextChunk();
+  queueChunkPreparation(frameStart);
  }
  requestAnimationFrame(loop);
 }
