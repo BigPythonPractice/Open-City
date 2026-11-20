@@ -1293,7 +1293,16 @@ function projectRoute(c){
 const RAIL_CELL=6,RAIL_BEND=145,RAIL_GAP=82,RAIL_CARS=3;
 const RAIL_STOP_HALF_LENGTH=54,RAIL_STOP_HALF_WIDTH=28;
 const RAIL_NPC_CRUISE=.21,RAIL_NPC_TURN_SPEED=.13;
-const railway={pieces:new Map(),stations:new Map(),nodes:new Map(),local:[],localStations:[],bridges:[],npcs:[],player:null,spawnIn:12000,roadSpawnIn:2400,serial:0,version:-1,nav:null,navKey:'',destination:null,manualTurn:null,jobRouteKey:null,jobBlocks:new Set(),reservations:new Map()};
+const RAIL_JOB_BANDS=[
+ {name:'Regional',min:8,max:28},
+ {name:'Intercity',min:32,max:85},
+ {name:'Long haul',min:95,max:185},
+ {name:'Cross-country',min:200,max:340},
+ {name:'Transcontinental',min:350,max:500}
+];
+const RAIL_JOB_CYCLE=[0,1,2,3,4,2,1,3],RAIL_JOB_MAX_KM=RAIL_JOB_BANDS.at(-1).max;
+const RAIL_GRID_KM=SPACING*RAIL_CELL*.0008,RAIL_LOCAL_PATH_RANGE=5,RAIL_PATH_LIMIT=512;
+const railway={pieces:new Map(),metrics:new Map(),paths:new Map(),stations:new Map(),nodes:new Map(),local:[],localStations:[],bridges:[],npcs:[],player:null,spawnIn:12000,roadSpawnIn:2400,serial:0,version:-1,nav:null,navKey:'',destination:null,manualTurn:null,jobRouteKey:null,jobBlocks:new Set(),reservations:new Map()};
 const railPorts={E:[1,0],S:[0,1],W:[-1,0],N:[0,-1]},railOpposite={E:'W',W:'E',N:'S',S:'N'};
 function railNode(i,j){
  const key=i+','+j;if(railway.nodes.has(key))return railway.nodes.get(key);
@@ -1306,15 +1315,30 @@ function railNode(i,j){
 function railEdgeId(i,j,axis){return 'e:'+i+':'+j+':'+axis;}
 function railEdgeAt(n,port){return port==='E'?railEdgeId(n.i,n.j,0):port==='W'?railEdgeId(n.i-1,n.j,0):port==='S'?railEdgeId(n.i,n.j,1):railEdgeId(n.i,n.j-1,1);}
 function railPortPoint(n,p){const [x,y]=railPorts[p];return {x:n.x+x*RAIL_BEND,y:n.y+y*RAIL_BEND};}
-function railCurve(out,a,b,c,d){
+function railCurve(append,a,b,c,d){
  const steps=Math.max(24,Math.ceil((Math.hypot(a.x-b.x,a.y-b.y)+Math.hypot(b.x-c.x,b.y-c.y)+Math.hypot(c.x-d.x,c.y-d.y))/12));
- if(!out.length)out.push(a);
- for(let k=1;k<=steps;k++){const t=k/steps,u=1-t;out.push({x:u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*c.x+t*t*t*d.x,y:u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*c.y+t*t*t*d.y});}
+ for(let k=1;k<=steps;k++){
+  const t=k/steps,u=1-t;
+  append(u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*c.x+t*t*t*d.x,u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*c.y+t*t*t*d.y);
+ }
 }
-function railGeometry(id){
- if(railway.pieces.has(id))return railway.pieces.get(id);
- const [kind,si,sj,last,port2]=id.split(':'),i=Number(si),j=Number(sj),n=railNode(i,j),points=[];
- let from=null,to=null,axis=null,stationD=null;
+function buildRailPiece(id,detailed){
+ const [kind,si,sj,last,port2]=id.split(':'),i=Number(si),j=Number(sj),n=railNode(i,j);
+ const points=detailed?[]:null,segments=detailed?[]:null;
+ let from=null,to=null,axis=null,stationD=null,length=0;
+ let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity,lastX,lastY;
+ const append=(x,y)=>{
+  if(lastX!==undefined){
+   const dx=x-lastX,dy=y-lastY,len=Math.hypot(dx,dy);
+   if(len>=.01){if(segments)segments.push({x:lastX,y:lastY,dx,dy,len,start:length});length+=len;}
+  }
+  if(points)points.push({x,y});
+  if(x<minX)minX=x;if(x>maxX)maxX=x;
+  if(y<minY)minY=y;if(y>maxY)maxY=y;
+  lastX=x;lastY=y;
+ };
+ const point=p=>append(p.x,p.y);
+ const curve=(a,b,c,d)=>{if(lastX===undefined)point(a);railCurve(append,a,b,c,d);};
  if(kind==='e'){
   axis=Number(last);from=n;to=railNode(i+(axis===0),j+(axis===1));
   const p=railPortPoint(from,axis?'S':'E'),q=railPortPoint(to,axis?'N':'W');
@@ -1324,29 +1348,39 @@ function railGeometry(id){
    const stationX=clamp((roadCoord(i*6+4,0)+roadCoord(i*6+5,0))/2,p.x+430,q.x-430);
    const mid={x:stationX,y:sy},a={x:mid.x-205,y:sy},b={x:mid.x+205,y:sy};
    const gate=regionType(i*2,j*2)==='airport'?{x:Math.min(a.x-80,roadCoord(i*6+3,0)+140),y:top}:p;
-   if(gate!==p)points.push(p,gate);
+   if(gate!==p){point(p);point(gate);}
    const dx=(a.x-gate.x)*.55;
-   railCurve(points,gate,{x:gate.x+dx,y:gate.y},{x:a.x-dx,y:a.y},a);
-   points.push(mid,b);stationD=polyRoute(points.slice(0,-1)).length;
-   const dx2=(q.x-b.x)*.55;railCurve(points,b,{x:b.x+dx2,y:b.y},{x:q.x-dx2,y:q.y},q);
+   curve(gate,{x:gate.x+dx,y:gate.y},{x:a.x-dx,y:a.y},a);
+   point(mid);stationD=length;point(b);
+   const dx2=(q.x-b.x)*.55;curve(b,{x:b.x+dx2,y:b.y},{x:q.x-dx2,y:q.y},q);
   }else{
    const area=regionType(i*2,j*2+1),sx=area==='airport'?roadCoord(i*6,0):area==='oldtown'?roadCoord(i*6,0)+18:area==='offroad'?roadCoord(i*6+2,0)+120:(p.x+q.x)/2;
    const mid={x:sx,y:clamp((roadCoord(j*6+4,1)+roadCoord(j*6+5,1))/2,p.y+450,q.y-450)};
    const gate=regionType(i*2,j*2)==='airport'?{x:roadCoord(i*6,0),y:Math.min(mid.y-150,roadCoord(j*6+3,1)+140)}:p;
-   if(gate!==p)points.push(p,gate);
+   if(gate!==p){point(p);point(gate);}
    const dy=(mid.y-gate.y)*.65,dy2=(q.y-mid.y)*.65;
-   railCurve(points,gate,{x:gate.x,y:gate.y+dy},{x:mid.x,y:mid.y-dy},mid);
-   railCurve(points,mid,{x:mid.x,y:mid.y+dy2},{x:q.x,y:q.y-dy2},q);
+   curve(gate,{x:gate.x,y:gate.y+dy},{x:mid.x,y:mid.y-dy},mid);
+   curve(mid,{x:mid.x,y:mid.y+dy2},{x:q.x,y:q.y-dy2},q);
   }
  }else{
   const a=railPortPoint(n,last),b=railPortPoint(n,port2),va=railPorts[last],vb=railPorts[port2];
-  if(railOpposite[last]===port2)points.push(a,b);
-  else railCurve(points,a,{x:a.x-va[0]*RAIL_BEND*.56,y:a.y-va[1]*RAIL_BEND*.56},{x:b.x-vb[0]*RAIL_BEND*.56,y:b.y-vb[1]*RAIL_BEND*.56},b);
+  if(railOpposite[last]===port2){point(a);point(b);}
+  else curve(a,{x:a.x-va[0]*RAIL_BEND*.56,y:a.y-va[1]*RAIL_BEND*.56},{x:b.x-vb[0]*RAIL_BEND*.56,y:b.y-vb[1]*RAIL_BEND*.56},b);
  }
- const route=polyRoute(points);route.closed=false;
- const xs=points.map(p=>p.x),ys=points.map(p=>p.y),piece={id,kind,i,j,axis,from,to,points,route,length:route.length,stationD,l:Math.min(...xs)-55,r:Math.max(...xs)+55,t:Math.min(...ys)-55,b:Math.max(...ys)+55,reservation:kind==='e'?id:'j:'+i+':'+j};
- railway.pieces.set(id,piece);if(railway.pieces.size>1000)railway.pieces.delete(railway.pieces.keys().next().value);return piece;
+ const metrics={length,l:minX-55,r:maxX+55,t:minY-55,b:maxY+55,reservation:kind==='e'?id:'j:'+i+':'+j};
+ railway.metrics.set(id,metrics);
+ if(railway.metrics.size>6000)railway.metrics.delete(railway.metrics.keys().next().value);
+ // Off-screen corridor planning needs only length and bounds. Keep the
+ // sampled track points and collision segments for pieces that are in use.
+ return detailed?{id,kind,i,j,axis,from,to,points,route:{segments,length,closed:false},stationD,...metrics}:metrics;
 }
+function railGeometry(id){
+ if(railway.pieces.has(id))return railway.pieces.get(id);
+ const piece=buildRailPiece(id,true);
+ railway.pieces.set(id,piece);if(railway.pieces.size>1000)railway.pieces.delete(railway.pieces.keys().next().value);
+ return piece;
+}
+function railMetrics(id){return railway.metrics.get(id)||buildRailPiece(id,false);}
 function railTurn(n,from,to){const ports=['E','S','W','N'],reverse=ports.indexOf(from)>ports.indexOf(to);return {id:'j:'+n.i+':'+n.j+':'+(reverse?to:from)+':'+(reverse?from:to),reverse};}
 function railStation(i,j){
  const id='station:'+i+':'+j;if(railway.stations.has(id))return railway.stations.get(id);
@@ -1399,25 +1433,59 @@ function railEnd(ref,dir){
  return {node:back?p.from:p.to,port:p.axis===0?(back?'E':'W'):(back?'S':'N')};
 }
 function railOutgoing(node,port){return {id:railEdgeAt(node,port),reverse:port==='W'||port==='N'};}
-// A* on oriented junction approaches. Excluding the incoming port prevents
-// impossible instant U-turns; a destination behind the train is reached by
-// reversing, or by taking a proper loop through neighbouring junctions.
+function railStationGridDistance(node,station){
+ return Math.max(station.i-node.i,node.i-station.i-1,0)+Math.abs(station.j-node.j);
+}
 function railPath(node,incoming,target){
- const destination=railGeometry(target.edge),ends=[destination.from,destination.to],bound=3;
+ const cache=railway.paths,key=node.key+':'+incoming+':'+target.edge+':'+target.d;
+ if(cache.has(key))return cache.get(key);
+ const destination=railGeometry(target.edge),pieces=[];
+ let distance=0;
+ if(destination.axis===0){
+  if(railStationGridDistance(node,destination)>RAIL_PATH_LIMIT)return null;
+  // Long trips follow grid corridors and use the local search for the final
+  // approach. A perpendicular step gives a train room to change direction.
+  while(railStationGridDistance(node,destination)>RAIL_LOCAL_PATH_RANGE){
+   const horizontal=node.i<destination.i?'E':node.i>destination.i+1?'W':null;
+   const vertical=node.j<destination.j?'S':node.j>destination.j?'N':null;
+   const port=horizontal&&horizontal!==incoming?horizontal:
+    vertical&&vertical!==incoming?vertical:horizontal?'N':node.i===destination.i?'E':'W';
+   const turn=railTurn(node,incoming,port),edge=railOutgoing(node,port);
+   pieces.push(turn,edge);
+   distance+=railMetrics(turn.id).length+railMetrics(edge.id).length;
+   const [di,dj]=railPorts[port];node=railNode(node.i+di,node.j+dj);incoming=railOpposite[port];
+  }
+ }
+ const local=railLocalPath(node,incoming,target,destination);
+ const result=local?{pieces:[...pieces,...local.pieces],distance:distance+local.distance}:null;
+ cache.set(key,result);if(cache.size>64)cache.delete(cache.keys().next().value);
+ return result;
+}
+// Excluding the incoming port makes reversals follow a real loop through the junctions.
+function railLocalPath(node,incoming,target,destination){
+ const ends=[destination.from,destination.to],bound=3;
  const loI=Math.min(node.i,...ends.map(n=>n.i))-bound,hiI=Math.max(node.i,...ends.map(n=>n.i))+bound,loJ=Math.min(node.j,...ends.map(n=>n.j))-bound,hiJ=Math.max(node.j,...ends.map(n=>n.j))+bound;
  const heuristic=n=>Math.hypot(n.x-target.x,n.y-target.y)*.82;
  const first={node,incoming,cost:0,score:heuristic(node),prev:null,via:[]},open=[first],best=new Map([[node.key+incoming,0]]);
  let finish=null,goal=Infinity,visits=0;
  while(open.length&&visits++<3500){
-  let k=0;for(let n=1;n<open.length;n++)if(open[n].score<open[k].score)k=n;const state=open.splice(k,1)[0];if(state.score>=goal)continue;
+  let k=0;for(let n=1;n<open.length;n++)if(open[n].score<open[k].score)k=n;
+  const state=open.splice(k,1)[0];
+  if(state.score>=goal)break;
+  if(state.cost>best.get(state.node.key+state.incoming))continue;
   for(const port of ['E','S','W','N']){
    if(port===state.incoming)continue;
-   const turn=railTurn(state.node,state.incoming,port),edge=railOutgoing(state.node,port),geometry=railGeometry(edge.id),turnLength=railGeometry(turn.id).length;
-   const partial=edge.reverse?geometry.length-target.d:target.d;
-   if(edge.id===target.edge){const cost=state.cost+turnLength+partial;if(cost<goal){goal=cost;finish={prev:state,via:[turn,edge]};}continue;}
-   const end=railEnd(edge,1),n=end.node;if(n.i<loI||n.i>hiI||n.j<loJ||n.j>hiJ)continue;
-   const cost=state.cost+turnLength+geometry.length,key=n.key+end.port;if(cost>=(best.get(key)??Infinity))continue;
-   best.set(key,cost);open.push({node:n,incoming:end.port,cost,score:cost+heuristic(n),prev:state,via:[turn,edge]});
+   const edge=railOutgoing(state.node,port),[di,dj]=railPorts[port],i=state.node.i+di,j=state.node.j+dj;
+   if(edge.id!==target.edge&&(i<loI||i>hiI||j<loJ||j>hiJ))continue;
+   const turn=railTurn(state.node,state.incoming,port),length=railMetrics(edge.id).length,turnLength=railMetrics(turn.id).length;
+   if(edge.id===target.edge){
+    const cost=state.cost+turnLength+(edge.reverse?length-target.d:target.d);
+    if(cost<goal){goal=cost;finish={prev:state,via:[turn,edge]};}
+    continue;
+   }
+   const n=railNode(i,j),arrive=railOpposite[port],cost=state.cost+turnLength+length,key=n.key+arrive;
+   if(cost>=(best.get(key)??Infinity))continue;
+   best.set(key,cost);open.push({node:n,incoming:arrive,cost,score:cost+heuristic(n),prev:state,via:[turn,edge]});
   }
  }
  if(!finish)return null;const chunks=[];for(let s=finish;s;s=s.prev)chunks.push(s.via);return {pieces:chunks.reverse().flat(),distance:goal};
@@ -1583,7 +1651,7 @@ function railProtectJobRoute(t,target){
  if(rear)plans.push(railPlan(t,target,-1));
  const plan=plans.filter(Boolean).sort((a,b)=>a.distance-b.distance)[0];
  const refs=plan?.pieces||(dir<0?t.pieces.slice(0,rear.index+1):t.pieces.slice(front.index));
- for(const ref of refs)blocks.add(railGeometry(ref.id).reservation);
+ for(const ref of refs)blocks.add(railMetrics(ref.id).reservation);
 }
 function railReserveTrains(trains){
  const reservations=railway.reservations,exits=[];
@@ -1813,24 +1881,58 @@ function railCleanJob(raw,accepted){
  const stops=[];
  for(const s of raw.stops){if(!s||!Number.isInteger(s.i)||!Number.isInteger(s.j)||Math.abs(s.i)>1e7||Math.abs(s.j)>1e7)return null;stops.push({...railStation(s.i,s.j)});}
  if(stops.some((s,n)=>n&&s.id===stops[n-1].id))return null;
- const routeKm=railJobDistance(stops);if(!Number.isFinite(routeKm)||routeKm<=0)return null;
+ if(stops.slice(1).some((s,n)=>railStationGridDistance(stops[n],s)>RAIL_PATH_LIMIT))return null;
+ const routeKm=railJobDistance(stops);if(!Number.isFinite(routeKm)||routeKm<=0||routeKm>RAIL_JOB_MAX_KM)return null;
  return {version:3,id:raw.id,accepted,index:raw.index,service:raw.service,stops,routeKm,cleanDriving:Number.isInteger(raw.cleanDriving)?clamp(raw.cleanDriving,0,100):100,takedowns:0};
 }
 function railJobDistance(stops){
  let total=0;for(let n=1;n<stops.length;n++){const a=stops[n-1],forward=railMakeTrain({id:a.edge,d:a.d}),backward=railMakeTrain({id:a.edge,d:a.d+RAIL_GAP*(RAIL_CARS-1)}),plans=[railPlan(forward,stops[n],1),railPlan(backward,stops[n],-1)].filter(Boolean);if(!plans.length)return NaN;total+=Math.min(...plans.map(p=>p.distance))*.0008;}return Math.round(total*10)/10;
 }
+function railFreightDestination(i,j,pickup){
+ let closest=null,best=Infinity;
+ for(let y=j-2;y<=j+2;y++)for(let x=i-2;x<=i+2;x++){
+  const distance=(x-i)**2+(y-j)**2;
+  if(distance>=best||x===pickup.i&&y===pickup.j||regionType(x*2+1,y*2)!=='city')continue;
+  if(!['industrial','harbor'].includes(districtAt((x*2+1)*3,y*6).style))continue;
+  closest={i:x,j:y};best=distance;
+ }
+ return closest?railStation(closest.i,closest.j):railStation(i,j);
+}
+function railOfferStops(first,count,port,drift,estimate,freight){
+ const [di,dj]=railPorts[port],cells=Math.max(count-1,Math.round(estimate/RAIL_GRID_KM)),stops=[first];
+ for(let n=1;n<count;n++){
+  const distance=Math.round(cells*n/(count-1)),side=Math.round(distance*drift),forward=distance-Math.abs(side);
+  const i=first.i+di*forward-dj*side,j=first.j+dj*forward+di*side;
+  stops.push(freight?railFreightDestination(i,j,first):railStation(i,j));
+ }
+ return stops;
+}
 function railCreateOffer(){
- const ci=Math.floor(roadIndex(player.x,0)/6),cj=Math.floor(roadIndex(player.y,1)/6),serial=progress.jobSerial+1,rng=seededRandom(Math.floor(worldHash(ci,cj,serial+975)*4294967296)),stations=[];
+ const ci=Math.floor(roadIndex(player.x,0)/RAIL_CELL),cj=Math.floor(roadIndex(player.y,1)/RAIL_CELL);
+ const serial=progress.jobSerial+1,number=progress.jobOfferCounts.train;
+ const rng=seededRandom(Math.floor(worldHash(ci,cj,serial+975)*4294967296)),stations=[];
  for(let j=cj-2;j<=cj+2;j++)for(let i=ci-2;i<=ci+2;i++)stations.push(railStation(i,j));
  stations.sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y));
- const service=progress.jobOfferCounts.train%3===2?'freight':'passenger',first=service==='freight'?(stations.find(s=>s.freight)||stations[0]):stations[0],count=service==='freight'?2:2+Math.floor(rng()*3),stops=[{...first}];
- const direction=rng()<.5?1:-1;
- while(stops.length<count){const previous=stops.at(-1),i=previous.i+direction*(1+Math.floor(rng()*2)),j=previous.j+(rng()<.4?(rng()<.5?-1:1):0);let next=railStation(i,j);
-  if(service==='freight'){const yards=[];for(let y=j-2;y<=j+2;y++)for(let x=i-2;x<=i+2;x++){const s=railStation(x,y);if(s.id!==first.id&&s.freight)yards.push(s);}yards.sort((a,b)=>Math.hypot(a.x-next.x,a.y-next.y)-Math.hypot(b.x-next.x,b.y-next.y));if(yards.length)next=yards[0];}
-  stops.push({...next});
+ const freight=number%3===2,service=freight?'freight':'passenger';
+ const first=freight?(stations.find(s=>s.freight)||stations[0]):stations[0],count=freight?2:2+Math.floor(rng()*3);
+ const band=RAIL_JOB_BANDS[RAIL_JOB_CYCLE[number%RAIL_JOB_CYCLE.length]];
+ const nearLimit=band.max===RAIL_JOB_MAX_KM&&Math.floor(number/RAIL_JOB_CYCLE.length)%2===0;
+ const goal=nearLimit?band.max-1:lerp(band.min,band.max,rng()),port=['E','S','W','N'][Math.floor(rng()*4)],drift=(rng()-.5)*.65;
+ let estimate=goal,best=null;
+ for(let attempt=0;attempt<5;attempt++){
+  const stops=railOfferStops(first,count,port,drift,estimate,freight&&attempt<3);
+  const km=railJobDistance(stops);
+  if(!Number.isFinite(km))break;
+  if(km>=band.min&&km<=band.max&&(!best||Math.abs(goal-km)<Math.abs(goal-best.routeKm))){
+   best={stops:stops.map(s=>({...s})),routeKm:km};
+   if(!nearLimit||km>=band.max-3)break;
+  }
+  const correction=goal-km,step=km<band.min||km>band.max?Math.sign(correction)*Math.max(Math.abs(correction),RAIL_GRID_KM):correction;
+  estimate=clamp(estimate+step,RAIL_GRID_KM,RAIL_JOB_MAX_KM+20);
  }
- const offer={version:3,id:serial,index:0,accepted:false,service,stops,routeKm:railJobDistance(stops)};
- if(!Number.isFinite(offer.routeKm))return null;progress.jobSerial=serial;progress.jobOfferCounts.train++;progress.offers.train=offer;progressDirty=true;return offer;
+ if(!best)return null;
+ const offer={version:3,id:serial,index:0,accepted:false,service,...best};
+ progress.jobSerial=serial;progress.jobOfferCounts.train++;progress.offers.train=offer;progressDirty=true;return offer;
 }
 function railAtStop(target){
  const t=railway.player;if(!target||!t)return false;
@@ -1861,9 +1963,34 @@ function railUpdateNavigation(){
  const current=railSample(t),key=target.id+':'+current.index+':'+current.ref.id+':'+current.ref.reverse+':'+Math.floor(current.local/60);
  if(railway.navKey===key)return;railway.navKey=key;
  const plans=[railPlan(t,target,1),railPlan(t,target,-1)].filter(Boolean).sort((a,b)=>a.distance-b.distance);railway.nav=plans[0]||null;
- const plan=railway.nav,points=[];
- if(plan){let remaining=plan.distance;for(let n=0;n<plan.pieces.length;n++){const ref=plan.pieces[n],p=railGeometry(ref.id),start=n===0?plan.offset:0,end=Math.min(p.length,start+remaining);for(let d=start;d<end;d+=36)points.push(railPoint(ref,d));points.push(railPoint(ref,end));remaining-=end-start;if(remaining<=.1)break;}}
- routeNavigation.points=points;routeNavigation.guidance={segments:[],turns:[],recentTurn:null};
+ const plan=railway.nav;
+ if(plan){
+  plan.mapSpans=[];let remaining=plan.distance;
+  for(let i=0;i<plan.pieces.length&&remaining>.1;i++){
+   const ref=plan.pieces[i],bounds=railMetrics(ref.id),start=i===0?plan.offset:0,end=Math.min(bounds.length,start+remaining);
+   plan.mapSpans.push({ref,bounds,start,end});remaining-=end-start;
+  }
+ }
+ routeNavigation.points=[];routeNavigation.guidance={segments:[],turns:[],recentTurn:null};
+}
+function traceRailMap(g,m,w,h){
+ const right=m.left+w/m.scale,bottom=m.top+h/m.scale,point={};
+ let joined=false;
+ for(const {ref,bounds,start,end} of railway.nav?.mapSpans||[]){
+  if(bounds.r<m.left||bounds.l>right||bounds.b<m.top||bounds.t>bottom){joined=false;continue;}
+  const piece=railGeometry(ref.id);
+  const trace=d=>{
+   routeAt(piece.route,ref.reverse?piece.length-d:d,point);
+   const x=(point.x-m.left)*m.scale,y=(point.y-m.top)*m.scale;
+   if(joined)g.lineTo(x,y);else g.moveTo(x,y);
+   joined=true;
+  };
+  for(let d=start;d<end;d+=36)trace(d);
+  trace(end);
+ }
+}
+function railJourneyName(km){
+ return RAIL_JOB_BANDS.find(band=>km<=band.max)?.name||RAIL_JOB_BANDS.at(-1).name;
 }
 function railModeHUD(){
  railUpdateNavigation();const job=currentJob(),target=jobTarget(),offer=currentOffer(),shown=target?job:offer,nav=railway.nav;
@@ -1873,7 +2000,7 @@ function railModeHUD(){
  put('jobDistanceBonusValue',shown?'+'+Math.round(shown.routeKm*2)+' KM for '+shown.routeKm.toFixed(1)+' km':'');
  put('newJobLabel',target?'End job':'Next job');$('newJobKey').hidden=!!target;$('newJobBtn').classList.toggle('next-job',!target);
  put('jobTitle',target?target.name:offer?(offer.service==='freight'?'Freight delivery':offer.stops.length+'-station passenger service'):'Finding nearby stations…');
- put('jobStage',target?'Station '+(job.index+1)+' of '+job.stops.length:'AWAITING ACCEPTANCE');
+ put('jobStage',target?'Station '+(job.index+1)+' of '+job.stops.length:offer?railJourneyName(offer.routeKm):'AWAITING ACCEPTANCE');
  put('jobDistance',target?(railAtStop(target)?'◎ STOP HERE':nav?(nav.direction<0?'↶ REVERSE · ':'→ ')+(nav.distance*.0008).toFixed(1)+' km':'Follow the railway'):shown?shown.routeKm.toFixed(1)+' km by rail':'');
  put('jobCargo',target?(job.service==='freight'?(job.index?'Freight aboard':'Collect freight'):(job.index?'Passengers aboard':'Passengers waiting')):offer?'Pickup: '+offer.stops[0].name:'');
  put('jobReward',shown?'Completion +'+railJobReward(shown)+' KM':'Earn KM on the railway');
@@ -3396,7 +3523,8 @@ function drawRouteMap(g,m,routeStart=null){
   const segments=routeNavigation.guidance.segments;
   for(let i=routeStart.index;i<segments.length;i++){const s=segments[i];trace(s.x+s.dx,s.y+s.dy);}
   const end=routeNavigation.points.at(-1);if(end)trace(end.x,end.y);
- }else for(const p of routeNavigation.points)trace(p.x,p.y);
+ }else if(progress.mode==='train')traceRailMap(g,m,w,h);
+ else for(const p of routeNavigation.points)trace(p.x,p.y);
  g.strokeStyle='#281b3be6';g.lineWidth=7;g.stroke();g.strokeStyle=color;g.lineWidth=4;g.stroke();
  const stops=job?job.stops:[waypoint],index=job?.index??0;
  for(let n=index;n<stops.length;n++){
