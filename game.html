@@ -352,6 +352,7 @@ function dressBuilding(b,options={}){
  b.facade=town?town.facades[Math.floor(n/7)%town.facades.length]:b.style==='down'?'#a4b6af':'#cec4a7';
  b.accent=town?town.accent:['#71988b','#ad936d','#7f999b','#bb8d74'][Math.floor(n/11)%4];
  b.town=town?.id;b.height=options.height??(b.architecture==='tower'?19:b.role==='hospital'?12:6+n%5);
+ if(options.businessDistrict&&options.role==='office')b.commercialTower=true;
  if(b.role==='pharmacy'){b.roofTone='#668f70';b.facade='#a9bf91';b.accent='#417e59';}
  if(b.role==='hospital'){b.roofTone='#d5d7c1';b.facade='#e1deca';b.accent='#62978d';}
  if(b.role==='firestation'){b.roofTone='#a37665';b.facade='#c1a38b';b.accent='#aa6656';}
@@ -517,6 +518,22 @@ function layoutCivicOffice(b,build,tree,railSpace,root){
 }
 
 function addCommercialBillboard(buildings,i,j){
+ const offices=buildings.filter(b=>b.role==='office');
+ if(offices.length){
+  // Select each tower independently and fit the sign and its legs on its own roof.
+  for(const roof of offices){
+   const bx=Math.round(roof.x),by=Math.round(roof.y);
+   if(worldHash(bx,by,750)>=.28)continue;
+   const surface=roof.architecture==='lantern'?lanternOfficeRoof(roof):
+    {x:roof.x-roof.hw+7,y:roof.y-roof.hh+7,w:roof.hw*2-14,h:roof.hh*2-14};
+   const w=Math.min(126,surface.w-16),h=Math.min(48,w*.40,surface.h-24);
+   if(w<40||h<16)continue;
+   const roll=worldHash(bx,by,751);
+   roof.billboard={x:surface.x+surface.w*.5,y:surface.y+surface.h-h*.5-14,w,h,
+    chart:roll<.40,ad:Math.floor(roll*6)%3,phase:worldHash(bx,by,753)*19000};
+  }
+  return;
+ }
  if(worldHash(i,j,750)>=.34)return;
  const roof=buildings.find(b=>b.role==='office'&&b.hw>=38&&b.hh>=30)||
   buildings.find(b=>['atrium','luxury'].includes(b.role)&&b.hw>=38&&b.hh>=30);
@@ -533,6 +550,23 @@ function addCommercialBillboard(buildings,i,j){
    w:Math.min(roof.billboard.w,surface.w*.83),h:Math.min(roof.billboard.h,surface.h*.39)});
  }
 }
+function commercialTowerLots(i,j,columns){
+ const lots=[],gap=columns===3?.03:.024,span=.91-gap*(columns-1);
+ const offset=Math.floor(worldHash(i,j,911)*6),heights=[32,68,99,46,83,57];
+ for(let row=0;row<2;row++){
+  // Unequal widths share the full frontage, keeping the dense six/ten-tower mix.
+  const weights=Array.from({length:columns},(_,col)=>.70+worldHash(i*5+col,j*2+row,912)*.95);
+  const total=weights.reduce((sum,n)=>sum+n,0);
+  let u=.045;
+  for(let col=0;col<columns;col++){
+   const uw=span*weights[col]/total,depth=.35+worldHash(i*5+col,j*2+row,913)*.065;
+   const v=.045+row*.50+worldHash(i*5+col,j*2+row,915)*(.42-depth);
+   const height=heights[mod(col+row*columns+offset,heights.length)]+Math.floor(worldHash(i*5+col,j*2+row,916)*17)-8;
+   lots.push({u,v,uw,depth,height});u+=uw+gap;
+  }
+ }
+ return lots;
+}
 function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
  const {x,y,w,h,type}=b;
  const area=(u,v,uw,vh)=>[x+u*w,y+v*h,w*uw,h*vh];
@@ -546,13 +580,10 @@ function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
   const plan=parcelPattern(b.i,b.j,5);
   b.name=root+' '+['Exchange Court','Lantern Square','Meridian Offices','Garden Terrace','Arcade Towers'][plan];
   pave('plaza',.06,.06,.88,.88);
-  // Six solid high-rises share narrow pedestrian lanes instead of low glass halls.
-  // Keep the existing rail filter and vary heights without changing the street grid.
-  for(let row=0;row<2;row++)for(let col=0;col<3;col++){
-   const n=row*3+col,variation=worldHash(b.i*3+col,b.j*2+row,908);
-   const u=.045+col*.31,v=.055+row*.46;
+  // Keep six towers with varied widths, depths and visible floor counts.
+  for(const [n,{u,v,uw,depth,height}] of commercialTowerLots(b.i,b.j,3).entries()){
    const kind=['lantern','spire','lantern','skygarden','lantern'][mod(n+plan,5)];
-   roof(u,v,.28,.40,'','office',kind,46+Math.floor(variation*25));
+   roof(u,v,uw,depth,'','office',kind,height);
   }
   for(const u of [.18,.49,.80])addSiteFixture(b,railSpace,'flowerBed',u,.963,.17,.025,b.finish[2]);
   for(const v of [.25,.71])addSiteFixture(b,railSpace,'flowerBed',.973,v,.022,.13,b.finish[2]);
@@ -1980,12 +2011,10 @@ function generateDevelopment(s,road,building,obstacle,away,rng){
  const finish=districtFinish('commercial',i,j);
  const name=['Exchange Campus','Glassworks Centre','Meridian Forum'][variant];
  s.name=commercialName(s.a,s.b)+' · '+name;
- // Ten closely spaced towers fill the two-parcel campus, with a central walk.
- // The existing roof helper keeps their solid footprints clear of rails and each other.
- for(let row=0;row<2;row++)for(let col=0;col<5;col++){
-  const variation=worldHash(i*5+col,j*2+row,910);
-  const kind=['lantern','spire','skygarden'][mod(col+row+variant,3)];
-  roof(.045+col*.184,.055+row*.505,.16,.385,'','office',kind,49+Math.floor(variation*25));
+ // Ten varied towers retain the central walk and existing rail/road clearances.
+ for(const [n,{u,v,uw,depth,height}] of commercialTowerLots(i,j,5).entries()){
+  const kind=['lantern','spire','skygarden'][mod(n+variant,3)];
+  roof(u,v,uw,depth,'','office',kind,height);
  }
  s.decor.push({kind:'campusCourt',...box(.04,.05,.92,.90),color:finish[2]});
  for(const u of [.13,.31,.69,.87]){
@@ -3605,7 +3634,7 @@ function railSetDestination(x,y){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
-const WORLD_LAYOUT_VERSION=19;
+const WORLD_LAYOUT_VERSION=20;
 const TROPHIES=[
  {id:'gold-bar',name:'Gold bar',price:2500},
  {id:'gold-stack',name:'Gold bar stack',price:8000},
@@ -3867,7 +3896,7 @@ function relocateWorldStops(stops,index,mode,bands,savedLayout){
    area.type!=='oldtown'&&stop.site.startsWith('scenic:oldtown:');
   const newTown=savedLayout<9&&area.type==='oldtown';
   const i0=roadIndex(stop.x,0),j0=roadIndex(stop.y,1);
-  const developmentVersion=area.type==='industrial'?13:area.residential?18:area.commercial?19:10;
+  const developmentVersion=area.type==='industrial'?13:area.residential?18:area.commercial?20:10;
   const development=savedLayout<developmentVersion?streetDevelopment(i0,j0,area.type):null;
   const siteChanged=development||savedLayout<10&&(area.type==='docks'||area.type==='oilfield');
   const newReserve=savedLayout<WORLD_LAYOUT_VERSION&&area.type==='offroad'&&!reserveBiomeAt(area.a,area.b,savedLayout);
@@ -7187,12 +7216,14 @@ function roofPolygon(points,color){ctx.fillStyle=color;ctx.beginPath();points.fo
 function medicalCross(x,y,size,color){rect(x-size*.18,y-size*.5,size*.36,size,color);rect(x-size*.5,y-size*.18,size,size*.36,color);}
 function lanternOfficeRoof(b){
  const x=b.x-b.hw+5,y=b.y-b.hh+5,w=b.hw*2-10,h=b.hh*2-10;
- const rise=Math.min(h*.51,4+(b.height||40)*1.56),run=Math.min(w*.21,rise*.58,35);
+ const rise=b.commercialTower?h*(.24+.44*clamp(((b.height||40)-24)/84,0,1)):Math.min(h*.51,4+(b.height||40)*1.56);
+ const run=Math.min(w*.21,rise*.58,35);
  return {x:x+2,y:y+2,w:w-run-4,h:h-rise-Math.min(8,h*.12)-2,run,rise};
 }
 function drawLanternOffice(b,x,y,w,h){
  const roof=lanternOfficeRoof(b),left=roof.x,top=roof.y,right=left+roof.w,bottom=top+roof.h;
- const {run,rise}=roof,depth=Math.hypot(run,rise),floors=clamp(Math.round(rise/7),4,11);
+ const {run,rise}=roof,depth=Math.hypot(run,rise);
+ const floors=b.commercialTower?clamp(Math.round((b.height||40)/8),3,14):clamp(Math.round(rise/7),4,11);
  const fascia=b.facade,glass=b.roofTone;
  rect(x,y,w,h,'#839596');
  rect(x+2,y+2,w-4,h-4,'#9aacab');
