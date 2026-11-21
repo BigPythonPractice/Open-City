@@ -304,6 +304,14 @@ const OLD_TOWNS=[
  {id:'merchant',name:'Merchant Quarter',plaza:'MARKET SQUARE',ground:'#b3aaa0',street:'#c6beb0',edge:'#92877d',roofs:['#6f9c8d','#73948d','#a27e69','#71979b'],facades:['#c8947a','#d0b276','#94aaa3','#c9aaa0'],accent:'#c3b69a',architecture:'merchant',mix:['merchant','merchant','merchant','gable','deco'],dx:78,dy:104},
  {id:'sandstone',name:'Sandstone Quarter',plaza:'COURT OF PALMS',ground:'#c4b58f',street:'#d4c4a2',edge:'#a39270',roofs:['#cdbb94','#b7a381','#d5c5a1','#baa789'],facades:['#d9c8a5','#ccb18d','#e0ccaa'],accent:'#6f9a98',architecture:'courtyard',mix:['courtyard','courtyard','courtyard','dome','garden'],dx:104,dy:107}
 ];
+const OLD_TOWN_BUSINESSES={
+ flowerShop:{names:['FLOWER SHOP','JUNIPER FLORIST','WILD FLOWERS'],accent:'#688e73'},
+ souvenirShop:{names:['SOUVENIRS','OLD TOWN GIFTS','CURIO SHOP'],accent:'#92728a'},
+ hotel:{names:['GRAND HOTEL','BELLEVUE HOTEL','CROWN HOTEL'],accent:'#576d83'},
+ motel:{names:['WAYFARER MOTEL','GATEWAY MOTEL','OLD GATE MOTEL'],accent:'#62898c'},
+ inn:{names:['THE LANTERN INN','FOX & FIR INN','THE STONE INN'],accent:'#9d744b'},
+ restaurant:{names:['TRATTORIA','TOWN RESTAURANT','THE OLD TABLE'],accent:'#ad6c54'}
+};
 const AIRPORTS={
  regional:{name:'Regional Airfield',u0:.19,u1:.81,v0:.23,v1:.82,runways:[.68],width:76,ends:[.23,.77],taxi:.51,apron:[.25,.39,.50,.16],hangars:[.27,.46],hangarV:.29,hangarW:.12,hangarH:.075,stands:[.32,.47,.62],planeV:.425,planes:['prop','prop','regional']},
  metro:{name:'City Airport',u0:.07,u1:.93,v0:.09,v1:.92,runways:[.69],width:126,ends:[.12,.88],taxi:.48,apron:[.12,.29,.75,.23],hangars:[.14,.33],hangarV:.14,hangarW:.14,hangarH:.10,stands:[.23,.43,.64,.79],planeV:.35,planes:['regional','jet','jet','regional']},
@@ -1576,6 +1584,91 @@ function oldTownLane(points,before,after,axis,low,high,reverse){
  if(after)points.push(seam(points.at(-1),after,high));
  return reverse?points.reverse():points;
 }
+function oldTownLot(s,nodes,plaza,away,sizes,salt){
+ const {left,right,top,bottom}=s.land;
+ for(const [hw,hh] of sizes){
+  let best=null,rank=-Infinity;
+  for(let row=0;row<3;row++)for(let col=0;col<3;col++){
+   const corners=[nodes[row][col],nodes[row][col+1],nodes[row+1][col],nodes[row+1][col+1]];
+   const x=corners.reduce((sum,p)=>sum+p.x,0)/4,y=corners.reduce((sum,p)=>sum+p.y,0)/4;
+   for(const [dx,dy] of [[0,0],[-26,0],[26,0],[0,-24],[0,24]]){
+    const q={x:x+dx,y:y+dy,hw,hh};
+    if(q.x-hw<left+12||q.x+hw>right-12||q.y-hh<top+12||q.y+hh>bottom-12)continue;
+    if(Math.hypot(Math.max(0,Math.abs(q.x-plaza.x)-hw),Math.max(0,Math.abs(q.y-plaza.y)-hh))<86)continue;
+    if(!away(q,12)||s.buildings.some(b=>['civic','pharmacy','castle','motel'].includes(b.role)&&oldTownLotOverlap(q,b)))continue;
+    const score=worldHash(Math.round(q.x),Math.round(q.y),salt);
+    if(score>rank){best=q;rank=score;}
+   }
+  }
+  if(best)return best;
+ }
+ return null;
+}
+function oldTownLotOverlap(lot,item){
+ const hw=item.hw??item.r,hh=item.hh??item.r;
+ return Math.abs(item.x-lot.x)<lot.hw+hw+5&&Math.abs(item.y-lot.y)<lot.hh+hh+5;
+}
+function clearOldTownLot(s,lot){
+ s.buildings=s.buildings.filter(b=>!oldTownLotOverlap(lot,b));
+ s.trees=s.trees.filter(t=>!oldTownLotOverlap(lot,t));
+}
+function markOldTownBusiness(b,role){
+ const business=OLD_TOWN_BUSINESSES[role];
+ b.role=role;b.label=business.names[b.detail%business.names.length];b.accent=business.accent;
+ if(role==='hotel')b.height=19;
+}
+function addOldTownFeatures(s,nodes,plaza,building,away){
+ const col=mod(s.a,4),row=mod(s.b,4),x=Math.floor(s.a/4),y=Math.floor(s.b/4);
+ const ward=col+row*4,castleWard=[5,6,9,10][Math.floor(worldHash(x,y,881)*4)];
+ if(ward===castleWard){
+  const lot=oldTownLot(s,nodes,plaza,away,[[112,99],[100,89],[87,74]],882);
+  if(lot){
+   clearOldTownLot(s,lot);
+   const names={terracotta:'REDKEEP CASTLE',alpine:'HIGH PEAK CASTLE',merchant:'MERCHANT CASTLE',sandstone:'GOLDSTONE CASTLE'};
+   const castle=building(lot,names[s.town.id],'old',{role:'castle',architecture:'castle',height:30});
+   castle.roofTone=s.town.roofs[0];
+  }
+ }
+ const motelWard=[1,7,14,8][Math.floor(worldHash(x,y,883)*4)];
+ if(ward===motelWard||s.portals.length&&worldHash(s.a,s.b,884)<.12){
+  const lot=oldTownLot(s,nodes,plaza,away,[[105,81],[93,73],[82,65]],885);
+  if(lot){
+   clearOldTownLot(s,lot);
+   const motel=building({x:lot.x,y:lot.y-lot.hh*.47,hw:lot.hw-8,hh:lot.hh*.43},'','old',
+    {role:'motel',architecture:s.town.architecture,height:8});
+   markOldTownBusiness(motel,'motel');
+   const court={kind:'motelCourt',x:lot.x,y:lot.y+lot.hh*.45,hw:lot.hw-8,hh:lot.hh*.49};
+   s.decor.push(court);
+   for(const [n,side] of [-1,1].entries()){
+    const color=n?'#ba8168':'#819996';
+    const car=makeCar(court.x+side*court.hw*.58,court.y-court.hh*.25,Math.PI/2,color,'parked',n?'sedan':'hatchback');
+    s.parked.push(car);
+   }
+  }
+ }
+ const homes=s.buildings.filter(b=>!b.role);
+ const rotation=Math.floor(worldHash(x,y,886)*4),types=['flowerShop','souvenirShop','inn','restaurant'];
+ const main=mod(col+row+rotation,4);
+ const roles=[types[main],types[(main+2)%4]];
+ if(ward===5||ward===10||worldHash(s.a,s.b,887)<.17)roles.unshift('hotel');
+ if(worldHash(s.a,s.b,888)<.84)roles.push('weatheredHouse');
+ if(worldHash(s.a,s.b,889)<.25)roles.push('weatheredHouse');
+ for(const [n,role] of roles.entries()){
+  let best=null,rank=-Infinity;
+  for(const b of homes){
+   if(b.role)continue;
+   const distance=Math.hypot(b.x-plaza.x,b.y-plaza.y);
+   const close=1-Math.min(1,distance/1000),area=b.hw*b.hh/2000;
+   const preference=role==='weatheredHouse'?-close:role==='hotel'?area+close*.45:close*.76;
+   const score=preference+worldHash(Math.round(b.x),Math.round(b.y),890+n)*.79;
+   if(score>rank){best=b;rank=score;}
+  }
+  if(!best)break;
+  if(role==='weatheredHouse'){
+   best.role=role;best.label='';
+  }else markOldTownBusiness(best,role);
+ }
+}
 function generateOldTown(s,road,building,away,occupied,point,rng){
  const {a,b,x,y,w,h}=s,west=mod(a,4)>0,east=mod(a,4)<3,north=mod(b,4)>0,south=mod(b,4)<3;
  const right=roadCoord(a*3+3,0),bottom=roadCoord(b*3+3,1),col0=a*4,row0=b*4;
@@ -1634,6 +1727,7 @@ function generateOldTown(s,road,building,away,occupied,point,rng){
   if(p.x<land.left+13||p.x>land.right-13||p.y<land.top+13||p.y>land.bottom-13)continue;
   if(Math.hypot(p.x-plaza.x,p.y-plaza.y)>88&&away(q,9)&&!occupied(q))s.trees.push({...p,r:9,tone:rng()});
  }
+ addOldTownFeatures(s,nodes,plaza,building,away);
  s.entry=s.portals[0]||plaza;s.showcase=plaza;
 }
 function generateIndustrialScene(s,point,box,road,building,obstacle,away,rng){
@@ -6809,6 +6903,7 @@ function drawSceneDetails(s){
    roofPolygon([[-d.hw*.78,d.hh*.08],[-d.hw*.17,-d.hh*.67],[d.hw*.64,-d.hh*.22],[d.hw*.11,d.hh*.24]],'#d4cbb14a');
    ctx.restore();
   }
+  if(d.kind==='motelCourt'&&visible(d.x,d.y,d.hw+5,d.hh+5))drawMotelCourt(d);
   if(d.kind==='oldplaza'&&visible(d.x,d.y,100)){
    drawOldTownMosaic(s.town,d.x,d.y);
    circle(d.x,d.y,53,s.town.ground);ctx.strokeStyle=s.town.street;ctx.lineWidth=3;ctx.beginPath();ctx.arc(d.x,d.y,65,0,TAU);ctx.stroke();
@@ -7232,7 +7327,163 @@ function drawBank(b){
   ctx.restore();
  }
 }
+function drawOldTownCastle(b){
+ const {x:cx,y:cy,hw,hh}=b,x=cx-hw,y=cy-hh,w=hw*2,h=hh*2;
+ const square=b.town==='merchant'||b.town==='sandstone';
+ const stone=b.town==='sandstone'?'#b7a383':'#a29b89',light=b.town==='sandstone'?'#e0c9a0':'#d4c8b0';
+ const shadow='#665f52',line='#746e61',roof=b.roofTone;
+ rect(x+11,y+14,w,h,'#283d3660');rect(x+3,y+5,w,h,'#33443a44');
+ const wall=14,tower=Math.min(25,w*.115,h*.135),left=x+tower,top=y+tower,right=x+w-tower,bottom=y+h-tower;
+ rounded(left-9,top-9,right-left+18,bottom-top+18,5,line);
+ rect(left+1,top+1,right-left-2,bottom-top-2,'#a7a385');
+ rect(left+wall,top+wall,right-left-wall*2,bottom-top-wall*2,'#bcbc99');
+ for(let py=top+wall+7;py<bottom-wall;py+=8)rect(left+wall+2,py,right-left-wall*2-4,1,'#847d6250');
+ const battlements=(x,y,length,vertical)=>{
+  ctx.save();ctx.translate(x,y);if(vertical)ctx.rotate(Math.PI/2);
+  rect(0,-wall/2,length,wall,line);
+  rect(0,-wall/2,length,wall-4,stone);rect(0,-wall/2,length,2,'#dbcbb0');
+  for(let n=4;n<length-5;n+=13){
+   rect(n,-wall/2-1,7,7,light);rect(n+1,-wall/2+5,6,2,shadow);
+  }
+  ctx.restore();
+ };
+ battlements(left,top,right-left,false);battlements(left,bottom,right-left,false);
+ battlements(left,top,bottom-top,true);battlements(right,top,bottom-top,true);
+ for(const tx of [left,right])for(const ty of [top,bottom]){
+  if(square){
+   rounded(tx-tower+4,ty-tower+5,tower*2-2,tower*2,4,'#4c544a55');
+   rounded(tx-tower,ty-tower,tower*2,tower*2,3,shadow);
+   rect(tx-tower+2,ty-tower+2,tower*2-4,tower*2-6,stone);
+   rect(tx-tower*.59,ty-tower*.59,tower*1.18,tower*1.18,roof);
+   rect(tx-tower*.46,ty-tower*.49,tower*.92,2,'#474b4155');
+   for(const d of [-.72,0,.72]){
+    rect(tx+d*tower-3,ty-tower,6,6,light);rect(tx+d*tower-3,ty+tower-6,6,6,light);
+    rect(tx-tower,ty+d*tower-3,6,6,light);rect(tx+tower-6,ty+d*tower-3,6,6,light);
+   }
+  }else{
+   circle(tx+5,ty+7,tower,'#34453c55');circle(tx,ty,tower,shadow);
+   circle(tx,ty,tower-2,light);circle(tx,ty,tower-6,line);circle(tx,ty,tower-8,roof);
+   for(let n=0;n<8;n++){
+    const angle=n*TAU/8,r=tower-3;
+    circle(tx+Math.cos(angle)*r,ty+Math.sin(angle)*r,2.7,stone);
+   }
+   ctx.strokeStyle='#f0dfbc80';ctx.lineWidth=1.5;ctx.beginPath();
+   ctx.moveTo(tx-tower*.67,ty);ctx.lineTo(tx,ty-2);ctx.lineTo(tx+tower*.60,ty+tower*.27);ctx.stroke();
+   circle(tx-1,ty-2,3.5,'#dec49f');
+  }
+ }
+ const keepW=w*.40,keepH=h*.355,kx=cx-keepW/2,ky=cy-keepH*.70;
+ rect(kx+7,ky+8,keepW,keepH,'#5b5a4359');rect(kx,ky,keepW,keepH,light);
+ rect(kx+4,ky+4,keepW-8,keepH-10,roof);
+ roofPolygon([[kx+4,ky+4],[cx,ky+13],[cx,ky+keepH-14],[kx+4,ky+keepH-6]],'#f3e0aa29');
+ roofPolygon([[cx,ky+13],[kx+keepW-4,ky+4],[kx+keepW-4,ky+keepH-6],[cx,ky+keepH-14]],'#39443b45');
+ rect(cx-1,ky+13,2,keepH-27,'#f5dfaa9e');
+ for(const tx of [cx-keepW*.28,cx+keepW*.28]){
+  rounded(tx-5,ky+keepH-12,10,11,2,stone);rounded(tx-3,ky+keepH-10,6,7,2,'#5c6c65');
+  rect(tx-7,ky+keepH+2,14,11,'#809477');circle(tx-2,ky+keepH+7,3.5,'#697f61');
+ }
+ rect(cx-22,bottom-8,44,14,light);
+ rounded(cx-13,bottom-7,26,13,3,shadow);
+ for(let dx=-8;dx<=8;dx+=4)rect(cx+dx,bottom-4,1.4,8,'#ad9980');
+ rect(cx-32,bottom-21,64,12,'#4f5548');
+ textAt(b.label,cx,bottom-12,Math.min(8,(61/b.label.length)*1.55),'#f5e8c9');
+}
+function drawWeatheredHouse(b){
+ const x=b.x-b.hw,y=b.y-b.hh,w=b.hw*2,h=b.hh*2,cx=b.x,cy=b.y;
+ rect(x+5,y+7,w,h,'#37433855');rect(x,y,w,h,'#96927c');
+ rounded(x+3,y+3,w-6,h-6,2,b.facade);
+ const torn=[[x+4,y+4],[x+w-5,y+4],[x+w-6,cy-12],[cx+w*.12,cy-3],
+  [cx+w*.27,cy+8],[cx+w*.07,cy+17],[cx-4,cy+10],[cx-w*.12,cy+22],[x+4,cy+14]];
+ rect(x+5,y+5,w-10,h-10,'#6a6254');
+ for(let px=x+7;px<x+w-9;px+=8){
+  rect(px,cy-11,3,h*.51,'#9c896b');rect(px+1,cy,1,h*.29,'#beaa8c');
+ }
+ for(let py=cy+9;py<y+h-8;py+=8)rect(x+6,py,w-12,1,'#4a4941');
+ roofPolygon(torn,b.roofTone);
+ ctx.save();traceNaturePolygon(ctx,torn.map(([x,y])=>({x,y})));ctx.clip();
+ for(let py=y+10;py<cy+23;py+=6)rect(x+5,py,w-10,1,'#e4d1a567');
+ rect(cx-1,y+4,2,cy-y+4,'#e5c6a281');
+ ctx.restore();
+ roofPolygon([[x+2,cy+14],[x+w*.26,cy+20],[x+w*.36,cy+23],[x+2,cy+26]],'#aa8269');
+ rect(cx+1,y+h-16,w*.20,12,'#4b4d42');rect(cx+4,y+h-13,w*.14,2,'#b59a70');rect(cx+4,y+h-8,w*.13,2,'#b59a70');
+ for(let n=0;n<7;n++){
+  const u=worldHash(b.detail,n,898),v=worldHash(b.detail,n,899),px=x+w*(.11+u*.77),py=cy+h*(.17+v*.27);
+  roofPolygon([[px-2,py],[px+2,py-2],[px+4,py+2],[px,py+4]],n%2?'#b9a889':'#8b765f');
+ }
+ for(const [u,v] of [[.09,.76],[.13,.88],[.88,.83],[.83,.89]])circle(x+w*u,y+h*v,3.4,'#788263');
+}
+function drawOldTownBusiness(b){
+ const {x:cx,y:cy,hw,hh,accent,role}=b,x=cx-hw,y=cy-hh,w=hw*2,h=hh*2;
+ const front=y+h,aw=Math.min(w-7,Math.max(w*.61,b.label.length*5.4)),top=front-16;
+ if(role==='motel'||role==='hotel'){
+  const rooms=role==='motel'?Math.max(4,Math.floor(w/23)):4,step=(w-14)/rooms;
+  rect(x+7,top-17,w-14,16,'#56675e');
+  for(let n=0;n<rooms;n++){
+   const px=x+7+(n+.5)*step;
+   rect(px-step*.39,top-16,step*.78,12,b.facade);
+   rounded(px-step*.31,top-14,step*.62,8,1,'#586e69');
+   rect(px-step*.26,top-13,step*.20,1.8,'#b7c9aa');
+   rect(px-1,top-14,1,8,'#d8cfb0');
+  }
+  rect(x+6,top-2,w-12,2,'#ead8af');
+  if(role==='hotel'){
+   const r=Math.min(9,w*.12);
+   for(const px of [x+w*.25,x+w*.75]){
+    rounded(px-r,cy-r,r*2,r*1.3,2,'#474f4866');
+    rounded(px-r,cy-r-2,r*2-2,r*1.25,2,b.facade);
+    rounded(px-r*.62,cy-r-1,r*1.17,r*.75,1,accent);
+   }
+  }
+ }else if(role==='inn'){
+  const fy=top-22;
+  rect(x+6,fy,w-12,18,'#bba17b');
+  for(const px of [cx-w*.30,cx,cx+w*.30])rect(px-1.8,fy,3.6,18,'#705544');
+  roofPolygon([[x+8,fy+1],[cx-4,fy+16],[cx-8,fy+17],[x+8,fy+4]],'#775843');
+  roofPolygon([[x+w-8,fy+1],[cx+4,fy+16],[cx+8,fy+17],[x+w-8,fy+4]],'#775843');
+  circle(cx,fy+6,5,'#e7c181');rect(cx-.7,fy-1,1.4,9,'#7c6247');
+ }else{
+  const edge=x+5,width=w-10,awningY=top-11;
+  rect(edge+2,awningY+3,width,11,'#47514355');rect(edge,awningY,width,10,accent);
+  for(let px=edge+1;px<edge+width-2;px+=8)rect(px,awningY,Math.min(3,edge+width-px),9,'#eedbb3');
+  rect(edge,awningY+9,width,1.4,'#715949');
+  if(role==='flowerShop'){
+   for(const side of [-1,1]){
+    const px=cx+side*w*.28;
+    rounded(px-7,awningY-11,14,8,1.5,'#4c6755');
+    for(let k=-1;k<=1;k++)circle(px+k*4,awningY-8+Math.abs(k),2.6,k===0?'#e7c16e':side>0?'#cf8da0':'#e0a884');
+   }
+  }else if(role==='souvenirShop'){
+   for(const side of [-1,1]){
+    const px=cx+side*w*.24;
+    rounded(px-7,awningY-13,14,9,1.3,'#e4d3ac');
+    for(let n=0;n<3;n++)rect(px-5+n*4,awningY-11,3,5,['#88a495','#bd876b','#9393a1'][n]);
+   }
+  }else{
+   for(const side of [-1,1]){
+    const px=cx+side*w*.25,py=awningY-13;
+    for(const dx of [-7,7])rounded(px+dx-2,py-3,4,6,1,'#925f47');
+    circle(px,py,6,side>0?'#b77a5e':'#e1c29b');circle(px-1,py,2.4,'#ece4c6');circle(px+3,py+1,1.5,'#f3e9c8');
+   }
+  }
+ }
+ rect(cx-aw/2,front-6,aw,5,accent);
+ rounded(cx-aw/2,top,aw,10,1.5,'#384b43');
+ textAt(b.label,cx,top+7.5,Math.min(8.4,(aw-5)/(b.label.length*.63)),'#f6ecd3');
+}
+function drawMotelCourt(d){
+ const {x,y,hw,hh}=d,left=x-hw,top=y-hh,w=hw*2,h=hh*2;
+ rect(left,top,w,h,'#9f9e8a');
+ rect(left+3,top+3,w-6,h-6,'#777e71');
+ rect(left+4,top+5,w-8,2,'#c9bd95');
+ for(let n=0;n<=4;n++){
+  const px=left+6+(w-12)*n/4;
+  rect(px,top+6,1.4,h*.52,'#d9cda4');
+ }
+ rect(left+4,y+hh-6,w-8,1.5,'#ad9e7e');
+}
 function drawBuilding(b){
+ if(b.role==='castle'){drawOldTownCastle(b);return;}
+ if(b.role==='weatheredHouse'){drawWeatheredHouse(b);return;}
  const x=b.x-b.hw,y=b.y-b.hh,w=b.hw*2,h=b.hh*2,kind=b.architecture||'flat',tone=b.roofTone||b.color,accent=b.accent||'#71988b';
  const inset=5,rx=x+inset,ry=y+inset,rw=w-inset*2,rh=h-inset*2,cx=b.x,cy=b.y;
  const height=b.height||8;
@@ -7428,7 +7679,8 @@ function drawBuilding(b){
   rect(rx+3,ry+5,rw-6,4,accent);
  }
  if(b.role==='pharmacy'&&kind!=='pharmacy')medicalCross(cx,cy,Math.min(rw,rh)*.48,'#dce9c4');
- if(b.label&&w>32&&h>25){
+ if(OLD_TOWN_BUSINESSES[b.role])drawOldTownBusiness(b);
+ else if(b.label&&w>32&&h>25){
   const aw=Math.min(w-8,Math.max(48,b.label.length*4.2)),sign=b.role==='pharmacy'?'#3d825a':b.role==='hospital'?'#4f837a':b.role==='policestation'||b.role==='postoffice'||b.role==='luxury'||b.role==='bank'||b.role==='government'?accent:b.role==='firestation'?'#965849':'#2c5146';
   rect(cx-aw/2,y+h-6,aw,8,b.role==='pharmacy'?'#74a773':accent);
   if(b.town||b.role==='pharmacy')for(let n=0;n<aw;n+=10)rect(cx-aw/2+n,y+h-6,Math.min(5,aw-n),8,'#ece0b480');
