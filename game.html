@@ -880,8 +880,8 @@ function plannedSectorBlock(i,j,theme){
   }
   if(nearest>=0)[plan[n],plan[nearest]]=[plan[nearest],site];
  }
- // Pair a few ordinary parcels after amenity placement. Leave intervening
- // blocks and every main junction in the surrounding street grid intact.
+ // Pair ordinary parcels after amenity placement, with more campuses downtown.
+ // Leave intervening blocks and every main junction in the surrounding grid.
  const eligible=site=>commercial?site.type==='offices':['housing','terraces'].includes(site.type);
  const pairs=[];
  for(let y=1;y<11;y++)for(let x=1;x<11;x++)for(const vertical of [false,true]){
@@ -893,9 +893,9 @@ function plannedSectorBlock(i,j,theme){
   pairs.push({n,m,i,j,vertical,clearLots,score:worldHash(i,j,vertical?742:741)});
  }
  pairs.sort((a,b)=>b.clearLots-a.clearLots||a.score-b.score);
- const occupied=new Set();
+ const occupied=new Set(),maxMergedParcels=commercial?16:8;
  for(const {n,m,i,j,vertical,score} of pairs){
-  if(occupied.size>=8)break;
+  if(occupied.size>=maxMergedParcels)break;
   const x=n%12,y=Math.floor(n/12),endX=m%12,endY=Math.floor(m/12);
   if([...occupied].some(q=>q%12>=x-1&&q%12<=endX+1&&Math.floor(q/12)>=y-1&&Math.floor(q/12)<=endY+1))continue;
   const development={i,j,vertical,type:commercial?'offices':'terraces',variant:Math.floor(score*1000)%3};
@@ -2987,7 +2987,7 @@ function railSetDestination(x,y){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
-const WORLD_LAYOUT_VERSION=10;
+const WORLD_LAYOUT_VERSION=11;
 const TROPHIES=[
  {id:'gold-bar',name:'Gold bar',price:2500},
  {id:'gold-stack',name:'Gold bar stack',price:8000},
@@ -3249,8 +3249,9 @@ function relocateWorldStops(stops,index,mode,bands,savedLayout){
    area.type!=='oldtown'&&stop.site.startsWith('scenic:oldtown:');
   const newTown=savedLayout<9&&area.type==='oldtown';
   const i0=roadIndex(stop.x,0),j0=roadIndex(stop.y,1);
-  const development=savedLayout<10?streetDevelopment(i0,j0,area.type):null;
-  const siteChanged=savedLayout<10&&(development||area.type==='docks'||area.type==='oilfield');
+  const developmentVersion=area.commercial?11:10;
+  const development=savedLayout<developmentVersion?streetDevelopment(i0,j0,area.type):null;
+  const siteChanged=development||savedLayout<10&&(area.type==='docks'||area.type==='oilfield');
   const changedScene=siteChanged?getScene(area.a,area.b,development):null;
   const blocked=changedScene&&!savedDistrictStopFits(changedScene,stop,vehicle,mode);
   const newSector=(savedLayout<6&&area.industrial||savedLayout<7&&area.residential||savedLayout<8&&area.commercial||newTown)&&!onGridRoad(stop.x,stop.y);
@@ -5844,12 +5845,6 @@ function drawResidentialStreet(road,signs){
  const along=type==='stop'?(dir===1?length-exitInset-19:entryInset+19):length*(dir===1?.32:.68),side=curb*dir;
  if(signs)drawTrafficSign(a.x+unit.x*along-unit.y*side,a.y+unit.y*along+unit.x*side,type,dir);
  else if(type==='children')drawSpeedTable(a,b,width,dir===1?.53:.47);
- else if(type==='stop'){
-  const right=side-dir*8;
-  ctx.save();ctx.translate(a.x+unit.x*along,a.y+unit.y*along);if(!horizontal)ctx.rotate(Math.PI/2);
-  rect(-2,Math.min(2*dir,right),4,Math.abs(right-2*dir),'#e5dbc3');
-  ctx.restore();
- }
 }
 function drawRoads(){
  rect(bounds.l,bounds.t,bounds.r-bounds.l,bounds.b-bounds.t,'#a6b09b');
