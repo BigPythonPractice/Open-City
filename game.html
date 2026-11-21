@@ -412,32 +412,21 @@ function parcelPattern(i,j,count){
  const phase=Math.floor(worldHash(sx,sy,716)*count),step=worldHash(sx,sy,717)<.5?-1:1;
  return mod(i+step*j+phase,count);
 }
-function addSiteFixture(b,railSpace,kind,u,v,uw,vh,color){
+function addSiteFixture(b,kind,u,v,uw,vh,color){
  const q={kind,x:b.x+b.w*u,y:b.y+b.h*v,hw:b.w*uw/2,hh:b.h*vh/2,angle:0,invMass:0,vx:0,vy:0,color};
  const overlaps=o=>Math.abs(o.x-q.x)<q.hw+(o.hw??o.r)+2&&Math.abs(o.y-q.y)<q.hh+(o.hh??o.r)+2;
- if(railReserved(q,railSpace)||b.buildings.some(overlaps)||b.obstacles.some(overlaps)||b.trees.some(overlaps))return;
+ if(b.buildings.some(overlaps)||b.obstacles.some(overlaps)||b.trees.some(overlaps))return;
  b.decor.push(q);b.obstacles.push(q);
 }
-function layoutCafeSquare(b,build,tree,railSpace){
+function layoutCafeSquare(b,build,tree){
  const {x,y,w,h}=b,plan=parcelPattern(b.i,b.j,3);
  const cafeSide=plan===1?.73:.27,terraceSide=1-cafeSide;
  const theme=[['#ac6150','#e9cda4'],['#4b8281','#eadbb3'],['#bc8951','#e6cea0']][plan];
- // Fit the café and its entire terrace around the elevated railway as one composition.
- let flipX=false,flipY=false,cafeWidth=.41,cafeHeight=.34,siteFound=false;
- for(const scale of [1,.76,.54]){
-  for(const [mx,my] of [[false,false],[true,false],[false,true],[true,true]]){
-   const site={x:x+w*(mx?1-cafeSide:cafeSide),y:y+h*(my?.715:.285),hw:w*.205*scale,hh:h*.17*scale};
-   if(railReserved(site,railSpace))continue;
-   flipX=mx;flipY=my;cafeWidth=.41*scale;cafeHeight=.34*scale;siteFound=true;break;
-  }
-  if(siteFound)break;
- }
- const U=u=>flipX?1-u:u,V=v=>flipY?1-v:v;
- const yard=(kind,u,v,uw,vh,color)=>b.decor.push({kind,x:x+(U(u+uw/2)-uw/2)*w,y:y+(V(v+vh/2)-vh/2)*h,w:w*uw,h:h*vh,color});
- const furnish=(kind,u,v,uw,vh)=>addSiteFixture(b,railSpace,kind,U(u),V(v),uw,vh,theme[0]);
+ const yard=(kind,u,v,uw,vh,color)=>b.decor.push({kind,x:x+u*w,y:y+v*h,w:w*uw,h:h*vh,color});
+ const furnish=(kind,u,v,uw,vh)=>addSiteFixture(b,kind,u,v,uw,vh,theme[0]);
  yard('plaza',.045,.045,.91,.91);
  yard('terracePaving',terraceSide-.19,.14,.38,.35,theme[1]);
- build(x+(U(cafeSide)-cafeWidth/2)*w,y+(V(.285)-cafeHeight/2)*h,cafeWidth*w,cafeHeight*h,['COFFEE ROASTERS','CAFÉ ARCADE','GARDEN CAFÉ'][plan],'arts',{role:'cafe',architecture:['barrel','deco','greenhouse'][plan]});
+ build(x+(cafeSide-.205)*w,y+h*.115,w*.41,h*.34,['COFFEE ROASTERS','CAFÉ ARCADE','GARDEN CAFÉ'][plan],'arts',{role:'cafe',architecture:['barrel','deco','greenhouse'][plan]});
  for(const dx of [-.085,.085])for(const dy of [.22,.40]){
   furnish('parasol',terraceSide+dx,dy,.085,.085);
  }
@@ -445,7 +434,7 @@ function layoutCafeSquare(b,build,tree,railSpace){
  furnish('courtFountain',cx,.73,plan===2?.24:.29,.14);
  for(const u of [.18,.82]){
   for(const v of [.60,.87])furnish('flowerBed',u,v,.18,.065);
-  tree(x+w*U(u),y+h*V(.73),10);
+  tree(x+w*u,y+h*.73,10);
  }
  for(const v of [.585,.875])yard('plazaBench',cx-.06,v,.12,.018);
 }
@@ -499,7 +488,7 @@ function generateIndustrialBlock(b,build,park,prop,rng){
  }
 }
 
-function layoutCivicOffice(b,build,tree,railSpace,root){
+function layoutCivicOffice(b,build,tree,root){
  const {x,y,w,h,type}=b,police=type==='policestation';
  b.name=root+(police?' Police Station':' Post Office');
  build(x+w*.16,y+h*.12,w*.68,h*.34,police?'POLICE':'POST OFFICE','campus',{role:type,architecture:type,maxAspect:3.9});
@@ -512,7 +501,7 @@ function layoutCivicOffice(b,build,tree,railSpace,root){
  );
  for(const n of [0,2]){
   const car=makeCar(bayX+(n+.5)*bayW/3,bayY+bayH*.5,Math.PI/2,police?EMERGENCY_PAINT.police:'#e3bc75','parked',police?'police':'van');
-  if(!railReserved({...car,hw:car.hh,hh:car.hw},railSpace))b.parked.push(car);
+  b.parked.push(car);
  }
  for(const u of [.11,.89])tree(x+w*u,y+h*.35,8);
 }
@@ -567,7 +556,7 @@ function commercialTowerLots(i,j,columns){
  }
  return lots;
 }
-function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
+function layoutCommercialBlock(b,build,tree,rng,root){
  const {x,y,w,h,type}=b;
  const area=(u,v,uw,vh)=>[x+u*w,y+v*h,w*uw,h*vh];
  const pave=(kind,u,v,uw,vh)=>{
@@ -585,8 +574,8 @@ function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
    const kind=['lantern','spire','lantern','skygarden','lantern'][mod(n+plan,5)];
    roof(u,v,uw,depth,'','office',kind,height);
   }
-  for(const u of [.18,.49,.80])addSiteFixture(b,railSpace,'flowerBed',u,.963,.17,.025,b.finish[2]);
-  for(const v of [.25,.71])addSiteFixture(b,railSpace,'flowerBed',.973,v,.022,.13,b.finish[2]);
+  for(const u of [.18,.49,.80])addSiteFixture(b,'flowerBed',u,.963,.17,.025,b.finish[2]);
+  for(const v of [.25,.71])addSiteFixture(b,'flowerBed',.973,v,.022,.13,b.finish[2]);
  }else if(type==='luxury'){
   b.name=root+' Boutique Row';
   pave('plaza',.075,.43,.85,.45);
@@ -615,30 +604,33 @@ function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
   );
   for(const n of [0,2]){
    const van=makeCar(bayX+(n+.5)*bayW/3,bayY+bayH*.5,Math.PI/2,'#68797e','parked','armoredvan');
-   if(!railReserved({...van,hw:van.hh,hh:van.hw},railSpace))b.parked.push(van);
+   b.parked.push(van);
   }
   for(const u of [.14,.42])tree(x+w*u,y+h*.77,10);
  }else{
   b.name=root+' Plaza';
-  layoutCafeSquare(b,build,tree,railSpace);
+  layoutCafeSquare(b,build,tree);
  }
 }
 
 function generateBlock(i,j){
  const feature=featureAt(i,j);
  if(!isStreetRegion(feature.type))return sceneTile(getScene(feature.a,feature.b),i,j);
+ const stationLot=stationParcelAt(i,j);
+ if(stationLot){
+  const {left,top,w,h}=stationLot;
+  return {key:i+','+j,i,j,x:left,y:top,w,h,type:'station',style:stationLot.style,stationLot,buildings:[],obstacles:[],trees:[],parked:[],decor:[],name:railStationName(stationLot)};
+ }
  const development=streetDevelopment(i,j,feature.type);
  if(development)return sceneTile(getScene(feature.a,feature.b,development),i,j);
- const railSpace=railReservationsForArea(roadCoord(i,0),roadCoord(j,1),roadCoord(i+1,0),roadCoord(j+1,1));
  const rng=seededRandom(Math.floor(worldHash(i,j,81)*4294967296)),pick=a=>a[Math.floor(rng()*a.length)],district=districtAt(i,j),style=district.style;
  const x=roadCoord(i,0)+roadHalf(i,0),y=roadCoord(j,1)+roadHalf(j,1),w=roadCoord(i+1,0)-roadHalf(i+1,0)-x,h=roadCoord(j+1,1)-roadHalf(j+1,1)-y;
  const baseType=pick(typeWeights[style]),landmark=worldHash(i,j,234);
  const residential=feature.residential,root=residential?residentialName(feature.a,feature.b):null;
  const streetTheme=feature.commercial?'commercial':residential?'residential':null;
  const sectorBlock=streetTheme?plannedSectorBlock(i,j,streetTheme):null;
- const plannedType=feature.industrial||sectorBlock?.type||(
+ const type=feature.industrial||sectorBlock?.type||(
   i===4&&j===4?'hospital':i===5&&j===4?'pharmacy':landmark<.055?'hospital':landmark<.09?'pharmacy':landmark<.12?'firestation':baseType);
- const type=(['sports','hospital','pharmacy','firestation','canal'].includes(plannedType)&&railReserved({x:x+w/2,y:y+h/2,hw:w/2,hh:h/2},railSpace,0))?'park':plannedType;
  const b={key:i+','+j,i,j,x,y,w,h,style,type,park:type==='park'||type==='sports',lot:type==='parking',buildings:[],obstacles:[],trees:[],parked:[],decor:[],name:district.name};
  b.theme=feature.industrial?'industrial':streetTheme;
  b.finish=districtFinish(b.theme,i,j);
@@ -651,32 +643,29 @@ function generateBlock(i,j){
    const [tone,facade,accent]=b.finish;
    roof.roofTone=roof.detail%5===0?roof.color:tone;roof.facade=facade;roof.accent=accent;
   }
-  if(!railReserved(roof,railSpace))b.buildings.push(roof);return roof;
+  b.buildings.push(roof);
+  return roof;
  };
- const tree=(tx,ty,r=9)=>{const t={x:tx,y:ty,r:r+rng()*3,tone:rng()};if(!railReserved({...t,hw:t.r,hh:t.r},railSpace))b.trees.push(t);};
+ const tree=(tx,ty,r=9)=>b.trees.push({x:tx,y:ty,r:r+rng()*3,tone:rng()});
  const car=(cx,cy,a=0)=>b.parked.push(makeCar(cx,cy,a,pick(['#d3c7a1','#729b91','#c87d60','#a5b2b0','#8b9da6']),'parked',['sedan','sedan','hatchback','van','motorbike'][Math.floor(worldHash(Math.floor(cx),Math.floor(cy),212)*5)]));
  const solid=(sx,sy,sw,sh,kind='water')=>b.obstacles.push({x:sx+sw/2,y:sy+sh/2,hw:sw/2,hh:sh/2,angle:0,vx:0,vy:0,invMass:0,kind});
  if(feature.industrial){
   const prop=(px,py,pw,ph,kind,details={})=>{
    const body={x:px+pw/2,y:py+ph/2,hw:pw/2,hh:ph/2,angle:0,vx:0,vy:0,invMass:0,kind,...details};
-   if(railReserved(body,railSpace)||b.buildings.some(o=>Math.abs(o.x-body.x)<o.hw+body.hw&&Math.abs(o.y-body.y)<o.hh+body.hh))return;
+   if(b.buildings.some(o=>Math.abs(o.x-body.x)<o.hw+body.hw&&Math.abs(o.y-body.y)<o.hh+body.hh))return;
    b.obstacles.push(body);b.decor.push(body);
   };
-  const park=(cx,cy,angle)=>{
-   const body={x:cx,y:cy,hw:10,hh:21};
-   if(!railReserved(body,railSpace))car(cx,cy,angle);
-  };
-  generateIndustrialBlock(b,build,park,prop,rng);
+  generateIndustrialBlock(b,build,car,prop,rng);
   return b;
  }
  if(feature.commercial){
-  layoutCommercialBlock(b,build,tree,railSpace,rng,commercialName(feature.a,feature.b));
+  layoutCommercialBlock(b,build,tree,rng,commercialName(feature.a,feature.b));
   addCommercialBillboard(b.buildings,i,j);
   return b;
  }
  const m=25,iw=w-m*2,ih=h-m*2;
  if(type==='policestation'||type==='postoffice'){
-  layoutCivicOffice(b,build,tree,railSpace,root);
+  layoutCivicOffice(b,build,tree,root);
  }else if(type==='localshops'){
   b.name=root+' Shops & Cafés';
   const col=iw/3;
@@ -684,7 +673,7 @@ function generateBlock(i,j){
   for(const [n,label] of [pick(['BAKERY','GROCER']),pick(['CORNER CAFÉ','COFFEE HOUSE']),pick(['BOOKSHOP','FLORIST'])].entries()){
    const bx=x+m+n*col;
    build(bx+3,y+m+ih*.10,col-9,ih*.39,label,n===1?'arts':'old',{role:n===1?'cafe':'shop',architecture:n===1?'deco':'gable'});
-   if(n===1)for(const side of [-1,1])addSiteFixture(b,railSpace,'parasol',(bx+col*(.5+side*.24)-x)/w,(y+m+ih*.67-y)/h,.062,.072,b.finish[2]);
+   if(n===1)for(const side of [-1,1])addSiteFixture(b,'parasol',(bx+col*(.5+side*.24)-x)/w,(y+m+ih*.67-y)/h,.062,.072,b.finish[2]);
    tree(bx+col/2,y+m+ih*.81,9);
   }
  }else if(type==='hospital'){
@@ -744,7 +733,7 @@ function generateBlock(i,j){
   if(garden>=0){
    for(const u of [.66,.83])for(const v of [.65,.83]){
     if(garden===0)tree(x+w*u,y+h*v,14);
-    else addSiteFixture(b,railSpace,garden===1?'flowerBed':'parasol',u,v,garden===1?.105:.073,garden===1?.13:.073,b.finish[2]);
+    else addSiteFixture(b,garden===1?'flowerBed':'parasol',u,v,garden===1?.105:.073,garden===1?.13:.073,b.finish[2]);
    }
   }
   b.name=root?root+[' Orchard',' Allotments',' Picnic Green'][garden]:pick(['Willow Green','Juniper Park','Cedar Gardens','Alder Grove','Birch Meadows']);
@@ -766,7 +755,7 @@ function generateBlock(i,j){
   for(let n=0;n<3;n++){tree(x+42+n*(w-84)/2,y+h-20,8);b.decor.push({kind:'boat',x:x+40+n*(w-80)/3,y:wy+wh*.42,w:Math.min(38,w*.12),h:17});}
  }else if(type==='plaza'){
   b.name=pick(['Meridian Square','Founders Plaza','Union Gardens','Market Square']);
-  layoutCafeSquare(b,build,tree,railSpace);
+  layoutCafeSquare(b,build,tree);
  }else if(type==='parking'){
   b.name='Northside Auto';build(x+m,y+m,iw,ih*.23,'NORTHSIDE AUTO',style,{maxAspect:4,role:'showroom'});
   const rows=2,cols=Math.max(3,Math.floor(iw/46));
@@ -836,7 +825,6 @@ const COMMERCIAL_ZONES={
  finance:{name:'Financial District',blocks:['offices','offices','offices','luxury','bank','offices','offices','plaza','offices']},
  civic:{name:'Civic Centre',blocks:['offices','plaza','offices','offices','government','luxury','offices','plaza','offices']}
 };
-const COMMERCIAL_LANDMARKS=new Set(['luxury','government','bank']);
 const INDUSTRIAL_NAMES={docks:'Container Terminal',factory:'Factory District',airport:'Airport',shopping:'Retail Park',mechanic:'Motor Works',oilfield:'Oil Field'};
 const INDUSTRIAL_GROUND={factory:'#969d92',shopping:'#a1a996',mechanic:'#909c93'};
 const INDUSTRIAL_ROOFS={
@@ -967,7 +955,7 @@ function commercialKind(a,b){
 function commercialName(a,b){
  return districtRoots[Math.floor(worldHash(Math.floor(a/4),Math.floor(b/4),687)*districtRoots.length)]+' Centre';
 }
-function planMergedDevelopments(plan,i0,j0,railSpace,type,accepts){
+function planMergedDevelopments(plan,i0,j0,type,accepts){
  const options=[];
  for(const [cols,rows] of [[2,2],[3,2],[2,3]])for(let y=0;y<=12-rows;y++)for(let x=0;x<=12-cols;x++){
   const lots=[];
@@ -980,9 +968,6 @@ function planMergedDevelopments(plan,i0,j0,railSpace,type,accepts){
  let mergedLots=0;
  for(const {i,j,cols,rows,lots,score} of options){
   if(mergedLots+lots.length>30||lots.some(n=>plan[n].development))continue;
-  const left=roadCoord(i,0)+roadHalf(i,0),right=roadCoord(i+cols,0)-roadHalf(i+cols,0);
-  const top=roadCoord(j,1)+roadHalf(j,1),bottom=roadCoord(j+rows,1)-roadHalf(j+rows,1);
-  if(railReserved({x:(left+right)/2,y:(top+bottom)/2,hw:(right-left)/2,hh:(bottom-top)/2},railSpace,8))continue;
   const development={i,j,cols,rows,type,variant:Math.floor(score*1000)%3};
   for(const n of lots)plan[n].development=development;
   mergedLots+=lots.length;
@@ -998,7 +983,7 @@ function plannedSectorBlock(i,j,theme){
  }
  return plan[index];
 }
-function planResidentialParks(plan,areas,i0,j0,isClear){
+function planResidentialParks(plan,areas,i0,j0){
  areas.sort((a,b)=>a.score-b.score);
  for(const [size,area] of areas.entries()){
   // The two Community Park zones supply one four-sided district park and one linear park.
@@ -1007,9 +992,9 @@ function planResidentialParks(plan,areas,i0,j0,isClear){
   for(const [cols,rows] of shapes)for(let dy=0;dy<=3-rows;dy++)for(let dx=0;dx<=3-cols;dx++){
    const x=area.x+dx,y=area.y+dy,i=i0+x,j=j0+y,lots=[];
    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)lots.push((y+row)*12+x+col);
+   if(lots.some(n=>plan[n].type==='station'))continue;
    const existing=lots.filter(n=>plan[n].type==='park').length;
-   const clear=lots.filter(isClear).length;
-   const score=4*existing+clear+worldHash(i,j,870+cols*3+rows);
+   const score=4*existing+worldHash(i,j,870+cols*3+rows);
    if(score>rank){best={i,j,cols,rows,lots};rank=score;}
   }
   const {i,j,cols,rows,lots}=best;
@@ -1017,7 +1002,7 @@ function planResidentialParks(plan,areas,i0,j0,isClear){
   for(const n of lots)plan[n]={type:'park',development};
  }
 }
-function consolidateResidentialParks(plan,i0,j0,isClear){
+function consolidateResidentialParks(plan,i0,j0){
  const neighbors=n=>{
   const x=n%12,y=Math.floor(n/12);
   return [x>0?n-1:-1,x<11?n+1:-1,y>0?n-12:-1,y<11?n+12:-1].filter(m=>m>=0);
@@ -1041,7 +1026,7 @@ function consolidateResidentialParks(plan,i0,j0,isClear){
     const existing=lots.filter(isSingle).length;
     if(!existing)continue;
     const adjoining=lots.flatMap(neighbors).filter(n=>plan[n].development?.type==='park').length;
-    const score=existing*16+lots.filter(isClear).length-adjoining*2+worldHash(i0+x,j0+y,877+cols*3+rows);
+    const score=existing*16-adjoining*2+worldHash(i0+x,j0+y,877+cols*3+rows);
     if(score>rank){best={x,y,cols,rows,lots};rank=score;}
    }
   }
@@ -1074,21 +1059,28 @@ function consolidateResidentialParks(plan,i0,j0,isClear){
   assign(start%12,Math.floor(start/12),vertical?1:2,vertical?2:1,[n,m]);
  }
 }
+function markStationParcels(plan,i0,j0){
+ for(let y=0;y<12;y+=6)for(let x=3;x<12;x+=6){
+  const a=(i0+x)/3,b=(j0+y)/3;
+  if(!isStreetRegion(regionType(a,b)))continue;
+  const lot=railStationLot((i0+x-3)/6,(j0+y)/6);
+  plan[(lot.row-j0)*12+lot.col-i0]={type:'station'};
+ }
+}
 function buildStreetSectorPlan(i0,j0,theme){
- const railSpace=railReservationsForArea(roadCoord(i0,0),roadCoord(j0,1),roadCoord(i0+12,0),roadCoord(j0+12,1));
  if(theme==='industrial'){
   const plan=Array.from({length:144},(_,n)=>({
    type:industrialKind(Math.floor((i0+n%12)/3),Math.floor((j0+Math.floor(n/12))/3))
   }));
+  markStationParcels(plan,i0,j0);
   // Keep at least half of each compound in production and leave room for its trade suppliers.
-  planMergedDevelopments(plan,i0,j0,railSpace,'factory',types=>
+  planMergedDevelopments(plan,i0,j0,'factory',types=>
    types.every(type=>type==='factory'||type==='mechanic'||type==='shopping')&&
    types.filter(type=>type==='factory'||type==='mechanic').length>=types.length/2);
   return plan;
  }
  const commercial=theme==='commercial',zoneAt=commercial?commercialKind:residentialKind;
  const zones=commercial?COMMERCIAL_ZONES:RESIDENTIAL_ZONES;
- const landmarks=commercial?COMMERCIAL_LANDMARKS:RESIDENTIAL_AMENITIES;
  const plan=Array(144),parkAreas=[];
  for(let y=0;y<4;y++)for(let x=0;x<4;x++){
   const a=i0/3+x,b=j0/3+y,kind=zoneAt(a,b),blocks=zones[kind].blocks;
@@ -1100,27 +1092,8 @@ function buildStreetSectorPlan(i0,j0,theme){
    plan[(y*3+dy)*12+x*3+dx]={type,sport};
   }
  }
- const clear=Array(144);
- const isClear=n=>{
-  if(clear[n]!==undefined)return clear[n];
-  const x=i0+n%12,y=j0+Math.floor(n/12);
-  const l=roadCoord(x,0)+roadHalf(x,0),r=roadCoord(x+1,0)-roadHalf(x+1,0);
-  const t=roadCoord(y,1)+roadHalf(y,1),bottom=roadCoord(y+1,1)-roadHalf(y+1,1);
-  clear[n]=!railReserved({x:(l+r)/2,y:(t+bottom)/2,hw:(r-l)/2,hh:(bottom-t)/2},railSpace,0);
-  return clear[n];
- };
- if(!commercial)planResidentialParks(plan,parkAreas,i0,j0,isClear);
- // Move sites that need clear ground to a nearby parcel in the same sector.
- for(const [n,site] of plan.entries()){
-  if(!landmarks.has(site.type)||isClear(n))continue;
-  let nearest=-1,bestDistance=Infinity;
-  for(const [m,spare] of plan.entries()){
-   if(landmarks.has(spare.type)||spare.development)continue;
-   const distance=Math.abs(n%12-m%12)+Math.abs(Math.floor(n/12)-Math.floor(m/12));
-   if(distance<bestDistance&&isClear(m)){nearest=m;bestDistance=distance;}
-  }
-  if(nearest>=0)[plan[n],plan[nearest]]=[plan[nearest],site];
- }
+ markStationParcels(plan,i0,j0);
+ if(!commercial)planResidentialParks(plan,parkAreas,i0,j0);
  if(commercial){
   // Keep a parcel between office campuses and keep main junctions open.
    const pairs=[];
@@ -1129,10 +1102,9 @@ function buildStreetSectorPlan(i0,j0,theme){
    if(nx>10||ny>10||Math.floor(x/3)!==Math.floor(nx/3)||Math.floor(y/3)!==Math.floor(ny/3))continue;
    if(plan[n].type!=='offices'||plan[m].type!=='offices')continue;
    const i=i0+x,j=j0+y;
-   const clearLots=Number(isClear(n))+Number(isClear(m));
-   pairs.push({n,m,i,j,vertical,clearLots,score:worldHash(i,j,vertical?742:741)});
+   pairs.push({n,m,i,j,vertical,score:worldHash(i,j,vertical?742:741)});
   }
-  pairs.sort((a,b)=>b.clearLots-a.clearLots||a.score-b.score);
+  pairs.sort((a,b)=>a.score-b.score);
   const occupied=new Set();
   for(const {n,m,i,j,vertical,score} of pairs){
    if(occupied.size>=16)break;
@@ -1149,7 +1121,7 @@ function buildStreetSectorPlan(i0,j0,theme){
    let branch=-1,rank=-1;
    for(let dy=0;dy<3;dy++)for(let dx=0;dx<3;dx++){
     const col=x*3+dx,row=y*3+dy,index=row*12+col,site=plan[index];
-    if(site.type!=='offices'||site.development||!isClear(index))continue;
+    if(site.type!=='offices'||site.development)continue;
     const score=worldHash(i0+col,j0+row,747);
     if(score>rank){branch=index;rank=score;}
    }
@@ -1161,8 +1133,8 @@ function buildStreetSectorPlan(i0,j0,theme){
    if(!site.development&&['luxury','government','plaza'].includes(site.type)&&worldHash(i0+n%12,j0+Math.floor(n/12),909)<.88)site.type='offices';
   }
  }else{
-  planMergedDevelopments(plan,i0,j0,railSpace,'terraces',types=>types.every(type=>type==='housing'||type==='terraces'));
-  consolidateResidentialParks(plan,i0,j0,isClear);
+  planMergedDevelopments(plan,i0,j0,'terraces',types=>types.every(type=>type==='housing'||type==='terraces'));
+  consolidateResidentialParks(plan,i0,j0);
  }
  return plan;
 }
@@ -1392,6 +1364,7 @@ function generateFarmland(s,reserve,road,building,obstacle,away,occupied,rng){
  s.portals=portals;s.entry=portals[0];
  s.showcase={x:cx,y:cy+(cy-land.top>land.bottom-cy?-98:98)};
  s.farm=FARM_BIOMES[reserve.biome];s.fields=[];s.livestock=[];
+ if(s.roadsOnly)return;
  const setback=width/2+18,edge=21;
  const columns=[[land.left+edge,cx-setback],[cx+setback,land.right-edge]];
  const rows=[[land.top+edge,cy-setback],[cy+setback,land.bottom-edge]];
@@ -1445,6 +1418,7 @@ function generateDenseForest(s,reserve,road){
  }
  s.showcase=s.portals.length?center:hub;
  s.entry=s.portals[0]||hub;s.plants=[];
+ if(s.roadsOnly)return;
  const {left,right,top,bottom}=s.land,spacing=32,rowSpacing=27,roadHalf=DENSE_FOREST_ROAD_WIDTH/2;
  for(let row=Math.floor(top/rowSpacing)-1;row*rowSpacing<bottom+rowSpacing;row++){
   for(let col=Math.floor(left/spacing)-1;col*spacing<right+spacing;col++){
@@ -1519,6 +1493,7 @@ function generateNature(s,road,building,obstacle,away,occupied,rng){
    road([p,nearest],53,'dirt');
   }
  }
+ if(s.roadsOnly)return;
  const channelShape=s.canyon||s.water;
  if(channelShape)addChannelObstacles(channelShape,land,s.bridges,obstacle,s.canyon?'canyon':'water');
  const center=s.showcase;
@@ -1739,6 +1714,8 @@ function generateOldTown(s,road,building,away,occupied,point,rng){
   if(row===3||col===3)junctions.push(rightNode,diagonal,belowNode);
  }
 
+
+ if(s.roadsOnly)return;
  const ward=Math.floor(worldHash(a,b,732)*3);
  const landmark=oldTownLandmark(a,b),plaza=nodes[1+Math.floor(rng()*2)][1+Math.floor(rng()*2)];
  s.plazaName=landmark.square||s.town.plaza;
@@ -1795,15 +1772,17 @@ function generateIndustrialScene(s,point,box,road,building,obstacle,away,rng){
  }
  const middle=[u0,.34,.5,.67,u1].map(u=>point(u,transfer));
  road(middle,width+4,kind);s.showcase=point(.50,transfer);s.entry=point(u0,transfer);
+ if(docks&&Object.values(open).filter(Boolean).length===2)s.basin=box(.225,.49,.55,.295);
+ if(s.roadsOnly)return;
  const place=(q,kind,options={})=>{
   if(q.x-q.hw<left||q.x+q.hw>right||q.y-q.hh<top||q.y+q.hh>bottom||!away(q,5))return;
   const prop=obstacle(q,kind);Object.assign(prop,options);s.decor.push(prop);
  };
  const pad=(kind,u,v,uw,vh)=>s.decor.push({kind,...box(u,v,uw,vh)});
  if(docks){
-  const waterfront=Object.values(open).filter(Boolean).length===2;
+  const waterfront=!!s.basin;
   if(waterfront){
-   const basin=box(.225,.49,.55,.295);
+   const basin=s.basin;
    s.decor.push({kind:'dockBasin',...basin},{kind:'quay',...box(.20,.426,.60,.064)});
    obstacle(basin,'water');
    for(const u of [.34,.65]){
@@ -2033,19 +2012,48 @@ function generateDevelopment(s,road,building,obstacle,away,rng){
 
 }
 
-function getScene(a,b,development){
+function stationLotOverlap(q,lot,pad=0){
+ return Math.abs(q.x-lot.x)<q.hw+lot.w/2+pad&&Math.abs(q.y-lot.y)<q.hh+lot.h/2+pad;
+}
+function clearScenicStationLot(scene,lot){
+ const inside=(x,y,hw,hh)=>stationLotOverlap({x,y,hw,hh},lot,2);
+ scene.stationLot=lot;
+ scene.buildings=scene.buildings.filter(b=>!inside(b.x,b.y,b.hw+(b.height||0),b.hh+(b.height||0)));
+ const clearAircraft=new Set(scene.decor.filter(d=>{
+  if(d.kind!=='plane')return false;
+  const p=AIRCRAFT[d.model],reach=Math.max(p.length,p.span)/2+5;
+  return inside(d.x,d.y,reach,reach);
+ }));
+ scene.obstacles=scene.obstacles.filter(b=>b.plane?!clearAircraft.has(b.plane):!inside(b.x,b.y,b.hw,b.hh));
+ scene.parked=scene.parked.filter(b=>{
+  const hw=Math.abs(Math.cos(b.angle))*b.hw+Math.abs(Math.sin(b.angle))*b.hh;
+  const hh=Math.abs(Math.sin(b.angle))*b.hw+Math.abs(Math.cos(b.angle))*b.hh;
+  return !inside(b.x,b.y,hw,hh);
+ });
+ scene.trees=scene.trees.filter(t=>!inside(t.x,t.y,t.r*1.4+6,t.r*1.4+6));
+ if(scene.plants)scene.plants=scene.plants.filter(p=>!inside(p.x,p.y,p.r,p.r));
+ if(scene.livestock)scene.livestock=scene.livestock.filter(p=>!inside(p.x,p.y,p.size+6,p.size+6));
+ scene.decor=scene.decor.filter(d=>{
+  if(d.kind==='runway'||d.kind==='apron'||d.kind==='quay')return true;
+  if(d.kind==='plane')return !clearAircraft.has(d);
+  if(d.kind==='stand')return !clearAircraft.has(d.plane);
+  if(d.hw!==undefined)return !inside(d.x,d.y,d.hw,d.hh);
+  if(d.w!==undefined)return !inside(d.x+d.w/2,d.y+d.h/2,d.w/2,d.h/2);
+  return !inside(d.x,d.y,d.r||22,d.r||22);
+ });
+}
+function getScene(a,b,development,roadsOnly=false){
  const key=development?'development:'+development.i+','+development.j:a+','+b;
  const cached=activeScenes.get(key)||preparedScenes.get(key)||sceneCache.get(key);
- if(cached)return cached;
+ if(cached&&!roadsOnly)return cached;
  const type=development?.type||regionType(a,b);if(!development&&isStreetRegion(type))return null;
  const i=development?.i??a*3,j=development?.j??b*3;
  const cols=development?.cols??3,rows=development?.rows??3;
  if(development){a=Math.floor(i/3);b=Math.floor(j/3);}
  const x=roadCoord(i,0),y=roadCoord(j,1),w=roadCoord(i+cols,0)-x,h=roadCoord(j+rows,1)-y;
  const rng=seededRandom(Math.floor((development?worldHash(i,j,184):worldHash(a,b,184))*4294967296)),pick=v=>v[Math.floor(rng()*v.length)];
- const railSpace=railReservationsForArea(x,y,x+w,y+h);
  const s={key,a,b,type,name:regionName(a,b),x,y,w,h,roads:[],buildings:[],obstacles:[],trees:[],parked:[],decor:[],trafficLoops:[],town:type==='oldtown'?oldTownStyle(a,b):null,forest:worldHash(a,b,183)>.5,vertical:type==='airport'&&worldHash(a,b,185)>.5};
- s.development=development;
+ s.development=development;s.roadsOnly=roadsOnly;
  let siteX=x,siteY=y,siteW=w,siteH=h;
  const point=(u,v)=>s.vertical?{x:siteX+v*siteW,y:siteY+u*siteH}:{x:siteX+u*siteW,y:siteY+v*siteH};
  const box=(u,v,uw,vh)=>{const p=point(u+uw/2,v+vh/2);return {...p,hw:(s.vertical?vh*siteW:uw*siteW)/2,hh:(s.vertical?uw*siteH:vh*siteH)/2};};
@@ -2060,13 +2068,12 @@ function getScene(a,b,development){
  const building=(q,label='',style='old',options={})=>{
   const b={...q,angle:0,vx:0,vy:0,invMass:0,kind:'building',style,label,color:pick(palette[style]),detail:Math.floor(rng()*1000)};
   dressBuilding(b,{town:s.town,...options});
-  if(!railReserved(b,railSpace))s.buildings.push(b);
+  s.buildings.push(b);
   return b;
  };
  const obstacle=(q,kind)=>{const o={...q,angle:0,vx:0,vy:0,invMass:0,kind};s.obstacles.push(o);return o;};
  const away=(q,extra=3)=>{
   const left=q.x-q.hw-extra,right=q.x+q.hw+extra,top=q.y-q.hh-extra,bottom=q.y+q.hh+extra;
-  if(railReserved(q,railSpace,extra))return false;
   for(const road of s.roads)for(const seg of road.segments){
    if(right<seg.l||left>seg.r||bottom<seg.t||top>seg.bottom)continue;
    const pad=road.width/2+extra;
@@ -2105,6 +2112,7 @@ function getScene(a,b,development){
    const start=point(p.ends[0],v),end=point(p.ends[1],v);
    s.decor.push({kind:'runway',x:(start.x+end.x)/2,y:(start.y+end.y)/2,hw:s.vertical?p.width/2:Math.abs(end.x-start.x)/2,hh:s.vertical?Math.abs(end.y-start.y)/2:p.width/2,vertical:s.vertical});
   }
+  if(s.roadsOnly){s.segments=s.roads.flatMap(r=>r.segments);return s;}
   s.decor.push({kind:'apron',...box(...p.apron)});
   for(const u of p.hangars){const roof=building(box(u,p.hangarV,p.hangarW,p.hangarH),'HANGAR','harbor');dressBuilding(roof,{architecture:'barrel',role:'hangar'});}
   if(kind==='regional'){
@@ -2125,9 +2133,9 @@ function getScene(a,b,development){
    const u=p.stands[n],pos=point(u,p.planeV),model=p.planes[n],spec=AIRCRAFT[model],angle=s.vertical?Math.PI:-Math.PI/2;
    const plane={kind:'plane',...pos,angle,model,airline:['#6f9297','#bc8066','#829c72','#b4a16d'][n%4]};s.decor.push(plane);
    // Matching fuselage, wing and tail bodies keep every aircraft size solid.
-   const part=(offset,hw,hh)=>{const center={x:pos.x+Math.cos(angle)*offset,y:pos.y+Math.sin(angle)*offset};obstacle({...center,hw:s.vertical?hw:hh,hh:s.vertical?hh:hw},'aircraft');};
+   const part=(offset,hw,hh)=>{const center={x:pos.x+Math.cos(angle)*offset,y:pos.y+Math.sin(angle)*offset};obstacle({...center,hw:s.vertical?hw:hh,hh:s.vertical?hh:hw},'aircraft').plane=plane;};
    part(0,spec.length/2,spec.body/2);part(-spec.length*(model==='prop'?.08:.09),spec.length*(model==='prop'?.06:.15),spec.span/2);part(-spec.length*.425,spec.length*.065,spec.tail/2);
-   s.decor.push({kind:'stand',...pos,angle,span:spec.span,length:spec.length});
+   s.decor.push({kind:'stand',...pos,angle,span:spec.span,length:spec.length,plane});
   }
   if(industrialKind(a,b)&&!s.buildings.some(b=>b.role==='hangar')){
    const spareSites=[.24,.32,.18,.73,.55,.87].flatMap(v=>[.24,.46,.68,.35,.57,.78].map(u=>box(u-.045,v-.03,.09,.06)));
@@ -2138,11 +2146,9 @@ function getScene(a,b,development){
  }else if(type==='docks'||type==='oilfield')generateIndustrialScene(s,point,box,road,building,obstacle,away,rng);
  else if(type==='oldtown')generateOldTown(s,road,building,away,occupied,point,rng);
  else generateNature(s,road,building,obstacle,away,occupied,rng);
- // The elevated railway stays visible above the continuous Dense Forest canopy.
- if(s.biome!=='dense')s.trees=s.trees.filter(t=>!railReserved({...t,hw:t.r,hh:t.r},railSpace));
- if(s.plants)s.plants=s.plants.filter(t=>!railReserved({...t,hw:12,hh:12},railSpace));
- s.obstacles=s.obstacles.filter(o=>o.kind==='water'||o.kind==='canyon'||o.kind==='aircraft'||!railReserved(o,railSpace));
  s.segments=s.roads.flatMap(r=>r.segments);
+ if(roadsOnly)return s;
+ if(!development&&mod(a,2)===1&&mod(b,2)===0)clearScenicStationLot(s,railStationLot((a-1)/2,b/2,s));
  sceneCache.set(key,s);if(sceneCache.size>40)sceneCache.delete(sceneCache.keys().next().value);return s;
 }
 function sceneTile(s,i,j){
@@ -2212,7 +2218,7 @@ function rebuildStreetlamps(){
    const nx=horizontal?0:side,ny=horizontal?side:0;
    const x=mx+nx*curb,y=my+ny*curb;
    const sidewalk=chunks.get(roadIndex(x,0)+','+roadIndex(y,1));
-   if(!sidewalk||sidewalk.scene||sidewalk.trees.some(t=>(x-t.x)**2+(y-t.y)**2<(t.r+5)**2))continue;
+   if(!sidewalk||sidewalk.scene||sidewalk.stationLot||sidewalk.trees.some(t=>(x-t.x)**2+(y-t.y)**2<(t.r+5)**2))continue;
    streetlamps.push({x,y,bx:x-nx*10,by:y-ny*10,angle:Math.atan2(-ny,-nx),radius:seg.width>=150?100:82});
    break;
   }
@@ -2222,6 +2228,8 @@ function nearestDriveRoad(x,y){let best=null;for(const seg of navigation.segment
 function surfaceAt(x,y){
  const i=roadIndex(x,0),j=roadIndex(y,1),b=chunks.get(i+','+j),s=b?.scene;
  if(s){
+  const lot=s.stationLot;
+  if(lot&&x>=lot.left&&x<=lot.left+lot.w&&y>=lot.top&&y<=lot.top+lot.h)return lot.type==='oldtown'?'cobbles':lot.type==='offroad'||lot.type==='oilfield'?'dirt':'road';
   // Perimeter roads remain paved even where the landscape meets a highway.
   const l=s.a*3,r=l+3,t=s.b*3,bottom=t+3;
   const land=s.land;
@@ -2695,6 +2703,10 @@ function projectRoute(c){
 // Railway geometry is coordinate-owned, just like districts. Planning never
 // reads rendered chunks, so exploring in a different order cannot move a rail.
 const RAIL_CELL=6,RAIL_BEND=145,RAIL_GAP=82,RAIL_CARS=3;
+const RAIL_STATION_PARTS={
+ north:{x:-220,y:-82,w:440,h:53},south:{x:-220,y:30,w:440,h:24},
+ shelter:{x:-104,y:-109,w:208,h:51},roof:{x:-110,y:-115,w:220,h:47}
+};
 const RAIL_STOP_HALF_LENGTH=54,RAIL_STOP_HALF_WIDTH=28;
 const RAIL_NPC_CRUISE=.21,RAIL_NPC_TURN_SPEED=.13;
 const RAIL_JOB_BANDS=[
@@ -2706,7 +2718,7 @@ const RAIL_JOB_BANDS=[
 ];
 const RAIL_JOB_CYCLE=[0,1,2,3,4,2,1,3],RAIL_JOB_MAX_KM=RAIL_JOB_BANDS.at(-1).max;
 const RAIL_GRID_KM=SPACING*RAIL_CELL*.0008,RAIL_LOCAL_PATH_RANGE=5,RAIL_PATH_LIMIT=512;
-const railway={pieces:new Map(),metrics:new Map(),paths:new Map(),stations:new Map(),nodes:new Map(),local:[],localStations:[],bridges:[],npcs:[],player:null,spawnIn:12000,roadSpawnIn:2400,serial:0,version:-1,nav:null,navKey:'',destination:null,manualTurn:null,jobRouteKey:null,jobBlocks:new Set(),reservations:new Map()};
+const railway={pieces:new Map(),metrics:new Map(),paths:new Map(),stations:new Map(),stationLots:new Map(),nodes:new Map(),local:[],localStations:[],bridges:[],npcs:[],player:null,spawnIn:12000,roadSpawnIn:2400,serial:0,version:-1,nav:null,navKey:'',destination:null,manualTurn:null,jobRouteKey:null,jobBlocks:new Set(),reservations:new Map()};
 const railPorts={E:[1,0],S:[0,1],W:[-1,0],N:[0,-1]},railOpposite={E:'W',W:'E',N:'S',S:'N'};
 function railNode(i,j){
  const key=i+','+j;if(railway.nodes.has(key))return railway.nodes.get(key);
@@ -2731,6 +2743,86 @@ function railUsesOuterBlock(a,b,type){
  if(type==='offroad'||(a===0&&b===1))return true;
  return type==='city'&&(a!==1||b!==1)&&worldHash(a,b,181)<.45;
 }
+function stationParcelAt(col,row){
+ const a=Math.floor(col/3),b=Math.floor(row/3);
+ if(mod(a,2)!==1||mod(b,2)!==0)return;
+ const lot=railStationLot((a-1)/2,b/2);
+ if(lot.col===col&&lot.row===row)return lot;
+}
+function streetStationBounds(a,b,type,preferredX,preferredY,maxX){
+ const zone=type==='residential'?RESIDENTIAL_ZONES[residentialKind(a,b)]:type==='commercial'?COMMERCIAL_ZONES[commercialKind(a,b)]:null;
+ const mirrorX=worldHash(a,b,682)<.5,mirrorY=worldHash(a,b,683)<.5;
+ let best,score=Infinity;
+ for(let dy=0;dy<3;dy++)for(let dx=0;dx<3;dx++){
+  const col=a*3+dx,row=b*3+dy;
+  if(row===4&&(col===4||col===5))continue;
+  const blockType=zone?.blocks[(mirrorY?2-dy:dy)*3+(mirrorX?2-dx:dx)];
+  if(type==='residential'&&blockType!=='housing'&&blockType!=='terraces')continue;
+  const left=roadCoord(col,0)+roadHalf(col,0),right=roadCoord(col+1,0)-roadHalf(col+1,0);
+  const top=roadCoord(row,1)+roadHalf(row,1),bottom=roadCoord(row+1,1)-roadHalf(row+1,1);
+  const x=(left+right)/2,y=(top+bottom)/2;
+  const cost=Math.hypot(x-preferredX,y-preferredY)+(x>maxX?1200:0)+(blockType==='government'||blockType==='bank'?500:0);
+  if(cost<score){best={col,row,left,top,w:right-left,h:bottom-top};score=cost;}
+ }
+ return best;
+}
+function scenicStationBounds(scene,preferredX,preferredY,maxX){
+ const {a,b,x,y,w,h}=scene;
+ const land=scene.land||{
+  left:x+roadHalf(a*3,0),right:x+w-roadHalf(a*3+3,0),
+  top:y+roadHalf(b*3,1),bottom:y+h-roadHalf(b*3+3,1)
+ };
+ const water=scene.water||scene.canyon;
+ const overlaps=(cx,cy,hw,hh)=>{
+  if(scene.basin&&Math.abs(cx-scene.basin.x)<hw+scene.basin.hw+10&&Math.abs(cy-scene.basin.y)<hh+scene.basin.hh+10)return true;
+  if(water&&cx+hw>=water.left&&cx-hw<=water.right&&cy+hh>=water.top&&cy-hh<=water.bottom){
+   if(naturePolygonNear(water,cx,cy))return true;
+   const {points}=water;
+   for(let i=0,j=points.length-1;i<points.length;j=i++){
+    if(boxOnSegment(cx-hw,cy-hh,cx+hw,cy+hh,points[j].x,points[j].y,points[i].x,points[i].y))return true;
+   }
+  }
+  for(const seg of scene.segments){
+   if(cx+hw<seg.l-9||cx-hw>seg.r+9||cy+hh<seg.t-9||cy-hh>seg.bottom+9)continue;
+   const margin=seg.width/2+9;
+   if(boxOnSegment(cx-hw-margin,cy-hh-margin,cx+hw+margin,cy+hh+margin,seg.a.x,seg.a.y,seg.b.x,seg.b.y))return true;
+  }
+  return false;
+ };
+ // Scenic districts have their own street layouts. Fit a local parcel between those roads.
+ const sizes=[[365,335],[335,300],[300,270],[270,235],[245,205],[205,175],[170,150],[125,120],[96,96]];
+ for(const [w,h] of sizes){
+  const hw=w/2,hh=h/2,left=land.left+hw+16,right=Math.min(land.right-hw-16,maxX);
+  const top=land.top+hh+16,bottom=land.bottom-hh-16;
+  if(right<left||bottom<top)continue;
+  const cols=Math.max(1,Math.ceil((right-left)/34)),rows=Math.max(1,Math.ceil((bottom-top)/34));
+  let best,score=Infinity;
+  for(let iy=0;iy<=rows;iy++)for(let ix=0;ix<=cols;ix++){
+   const cx=lerp(left,right,ix/cols),cy=lerp(top,bottom,iy/rows);
+   const distance=(cx-preferredX)**2+(cy-preferredY)**2;
+   if(distance>=score||overlaps(cx,cy,hw,hh))continue;
+   best={left:cx-hw,top:cy-hh,w,h};score=distance;
+  }
+  if(best)return best;
+ }
+ throw new Error('No open station parcel in '+scene.key);
+}
+function railStationLot(i,j,scene){
+ const key=i+','+j,cached=railway.stationLots.get(key);if(cached)return cached;
+ const a=i*2+1,b=j*2,type=regionType(a,b),district=districtAt(a*3,b*3);
+ const preferredX=(roadCoord(i*6+4,0)+roadCoord(i*6+5,0))/2;
+ const old=baseRegionType(a,b),top=roadCoord(j*6,1);
+ const preferredY=old==='airport'?top:old==='oldtown'?top+roadHalf(j*6,1)+150:railUsesOuterBlock(a,b,old)?roadCoord(j*6+2,1)+160:(roadCoord(j*6+1,1)+roadCoord(j*6+2,1))/2;
+ const maxX=railPortPoint(railNode(i+1,j),'W').x-190;
+ const box=isStreetRegion(type)?streetStationBounds(a,b,type,preferredX,preferredY,maxX):
+  scenicStationBounds(scene||getScene(a,b,undefined,true),preferredX,preferredY,maxX);
+ const {left,top:lotTop,w,h}=box,x=left+w/2,y=lotTop+h/2,trackY=y+Math.min(28,h*.15);
+ const biome=type==='offroad'?natureBiome(a,b,natureReserve(a,b)):null;
+ const lot={...box,i,j,a,b,x,y,trackY,type,style:district.style,biome};
+ railway.stationLots.set(key,lot);
+ if(railway.stationLots.size>4200)railway.stationLots.delete(railway.stationLots.keys().next().value);
+ return lot;
+}
 function buildRailPiece(id,detailed){
  const [kind,si,sj,last,port2]=id.split(':'),i=Number(si),j=Number(sj),n=railNode(i,j);
  const points=detailed?[]:null,segments=detailed?[]:null;
@@ -2752,11 +2844,10 @@ function buildRailPiece(id,detailed){
   axis=Number(last);from=n;to=railNode(i+(axis===0),j+(axis===1));
   const p=railPortPoint(from,axis?'S':'E'),q=railPortPoint(to,axis?'N':'W');
   if(axis===0){
-   const area=baseRegionType(i*2+1,j*2),top=roadCoord(j*6,1);
-   const sy=area==='airport'?top:area==='oldtown'?top+roadHalf(j*6,1)+150:railUsesOuterBlock(i*2+1,j*2,area)?roadCoord(j*6+2,1)+160:(roadCoord(j*6+1,1)+roadCoord(j*6+2,1))/2;
-   const stationX=clamp((roadCoord(i*6+4,0)+roadCoord(i*6+5,0))/2,p.x+430,q.x-430);
-   const mid={x:stationX,y:sy},a={x:mid.x-205,y:sy},b={x:mid.x+205,y:sy};
-   const gate=baseRegionType(i*2,j*2)==='airport'?{x:Math.min(a.x-80,roadCoord(i*6+3,0)+140),y:top}:p;
+   const lot=railStationLot(i,j),mid={x:lot.x,y:lot.trackY};
+   const half=Math.min(205,Math.max(100,lot.w/2),q.x-mid.x-48);
+   const a={x:mid.x-half,y:mid.y},b={x:mid.x+half,y:mid.y};
+   const gate=baseRegionType(i*2,j*2)==='airport'?{x:Math.min(a.x-80,roadCoord(i*6+3,0)+140),y:roadCoord(j*6,1)}:p;
    if(gate!==p){point(p);point(gate);}
    const dx=(a.x-gate.x)*.55;
    curve(gate,{x:gate.x+dx,y:gate.y},{x:a.x-dx,y:a.y},a);
@@ -2791,13 +2882,19 @@ function railGeometry(id){
 }
 function railMetrics(id){return railway.metrics.get(id)||buildRailPiece(id,false);}
 function railTurn(n,from,to){const ports=['E','S','W','N'],reverse=ports.indexOf(from)>ports.indexOf(to);return {id:'j:'+n.i+':'+n.j+':'+(reverse?to:from)+':'+(reverse?from:to),reverse};}
+function isFreightStation(lot){
+ return lot.type==='docks'||lot.type==='oilfield'||isStreetRegion(lot.type)&&['industrial','harbor'].includes(lot.style);
+}
+function railStationName(lot){
+ const {i,j,a,b,type,biome}=lot,root=districtRoots[Math.floor(worldHash(i,j,914)*districtRoots.length)];
+ return type==='airport'?root+' Airport':type==='oldtown'?oldTownName(a,b)+' Station':type==='offroad'?root+' '+(biome==='pine'?'Forest Halt':'Reserve Halt'):root+(isFreightStation(lot)?' Freight Yard':' Central');
+}
 function railStation(i,j){
  const id='station:'+i+':'+j;if(railway.stations.has(id))return railway.stations.get(id);
- const piece=railGeometry(railEdgeId(i,j,0)),p=routeAt(piece.route,piece.stationD),a=i*2+1,b=j*2,type=regionType(a,b),district=districtAt(a*3,b*3),freight=type==='docks'||type==='oilfield'||isStreetRegion(type)&&['industrial','harbor'].includes(district.style);
+ const lot=railStationLot(i,j),{a,b,type}=lot,freight=isFreightStation(lot);
+ const piece=railGeometry(railEdgeId(i,j,0)),p=routeAt(piece.route,piece.stationD);
  const style=type==='oldtown'?oldTownStyle(a,b):null;
- const root=districtRoots[Math.floor(worldHash(i,j,914)*districtRoots.length)];
- const name=type==='airport'?root+' Airport':type==='oldtown'?oldTownName(a,b)+' Station':type==='offroad'?root+' '+(natureBiome(a,b,natureReserve(a,b))==='pine'?'Forest Halt':'Reserve Halt'):root+(freight?' Freight Yard':' Central');
- const s={id,edge:piece.id,d:piece.stationD,i,j,x:p.x,y:p.y,angle:p.angle,name,type,freight,elevated:true,roof:style?.roofs[0]||(freight?'#889b97':type==='offroad'?'#6e8a6e':'#739e91'),site:id,action:'rail-stop'};
+ const s={id,edge:piece.id,d:piece.stationD,i,j,x:p.x,y:p.y,angle:p.angle,lot,name:railStationName(lot),type,freight,elevated:true,roof:style?.roofs[0]||(freight?'#889b97':type==='offroad'?'#6e8a6e':'#739e91'),site:id,action:'rail-stop'};
  railway.stations.set(id,s);if(railway.stations.size>400)railway.stations.delete(railway.stations.keys().next().value);return s;
 }
 function railPiecesIn(l,t,r,b,junctions=true){
@@ -2808,13 +2905,14 @@ function railPiecesIn(l,t,r,b,junctions=true){
   if(junctions)for(const [a,z]of [['E','S'],['E','W'],['E','N'],['S','W'],['S','N'],['W','N']])add('j:'+i+':'+j+':'+a+':'+z);
  }return out;
 }
+// Diagnostics can compare the layers without feeding rail geometry into ground generation.
 function railReservationsForArea(l,t,r,b){return {pieces:railPiecesIn(l-70,t-70,r+70,b+70),stations:railStationsIn(l-240,t-110,r+240,b+110)};}
 function railStationsIn(l,t,r,b){
  const out=[],i0=Math.floor(roadIndex(l,0)/6)-1,i1=Math.floor(roadIndex(r,0)/6)+1,j0=Math.floor(roadIndex(t,1)/6)-1,j1=Math.floor(roadIndex(b,1)/6)+1;
  for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const s=railStation(i,j);if(s.x>=l&&s.x<=r&&s.y>=t&&s.y<=b)out.push(s);}return out;
 }
 function railReserved(box,reservation,pad=10){
- if(reservation.stations.some(s=>Math.abs(box.x-s.x)<box.hw+220&&Math.abs(box.y-(s.y-48))<box.hh+76))return true;
+ if(reservation.stations.some(s=>stationLotOverlap(box,s.lot)))return true;
  const left=box.x-box.hw,right=box.x+box.hw,top=box.y-box.hh,bottom=box.y+box.hh,margin=25+pad;
  for(const p of reservation.pieces){
   if(right<p.l||left>p.r||bottom<p.t||top>p.b)continue;
@@ -3018,12 +3116,29 @@ function railEnter(){
  const spot=railNearest(player.x,player.y);if(!spot)return null;
  railway.player=railMakeTrain(spot);railway.navKey='';railway.destination=null;railway.manualTurn=null;return {x:spot.x,y:spot.y,angle:spot.angle};
 }
-function railRestore(raw){
+function railRestore(raw,oldPosition){
  if(!raw||!Array.isArray(raw.pieces)||raw.pieces.length<1||raw.pieces.length>110||!Number.isFinite(raw.d))return false;
  const valid=id=>typeof id==='string'&&/^e:-?\d{1,8}:-?\d{1,8}:[01]$|^j:-?\d{1,8}:-?\d{1,8}:[ESWN]:[ESWN]$/.test(id)&&(!id.startsWith('j:')||id.split(':')[3]!==id.split(':')[4]);
  if(!raw.pieces.every(r=>r&&valid(r.id)&&typeof r.reverse==='boolean'))return false;
  const train={pieces:raw.pieces.map(r=>({id:r.id,reverse:r.reverse})),d:raw.d,speed:0,seed:1,wait:0,signal:false};
- if(train.d<180||train.d>railLength(train))return false;
+ const length=railLength(train);
+ if(oldPosition){
+  // Reproject trains saved before station approaches moved onto their parcels.
+  let start=0,best=Infinity;
+  for(const ref of train.pieces){
+   const piece=railGeometry(ref.id);
+   for(const s of piece.route.segments){
+    const t=clamp(((oldPosition.x-s.x)*s.dx+(oldPosition.y-s.y)*s.dy)/(s.len*s.len),0,1);
+    const distance=(s.x+s.dx*t-oldPosition.x)**2+(s.y+s.dy*t-oldPosition.y)**2;
+    if(distance>=best)continue;
+    const d=s.start+t*s.len;
+    train.d=start+(ref.reverse?piece.length-d:d);best=distance;
+   }
+   start+=piece.length;
+  }
+  train.d=clamp(train.d,180,length);
+ }
+ if(train.d<180||train.d>length)return false;
  for(let n=1;n<train.pieces.length;n++){const a=railPoint(train.pieces[n-1],railGeometry(train.pieces[n-1].id).length),b=railPoint(train.pieces[n],0);if(Math.hypot(a.x-b.x,a.y-b.y)>.1||Math.abs(angleDiff(a.angle,b.angle))>.12)return false;}
  railway.player=train;railSyncPlayer();return true;
 }
@@ -3460,9 +3575,14 @@ function railDrawStation(g,s,map=false){
  if(map){g.fillStyle='#f4d48c';g.strokeStyle='#304b42';g.lineWidth=5;g.beginPath();g.arc(s.x,s.y,27,0,TAU);g.fill();g.stroke();return;}
  if(!visible(s.x,s.y,260,140))return;
  g.save();g.translate(s.x,s.y);g.rotate(s.angle);
- g.fillStyle='#243d3860';g.fillRect(-225,-85,450,58);g.fillStyle='#cfcaac';g.fillRect(-220,-82,440,53);g.fillStyle='#e9db9e';g.fillRect(-220,-34,440,5);
- g.fillStyle='#b9bca5';g.fillRect(-220,30,440,24);g.fillStyle='#e9db9e';g.fillRect(-220,30,440,4);
- g.fillStyle='#304e46';g.fillRect(-104,-109,208,51);g.fillStyle=s.roof;g.fillRect(-110,-115,220,47);g.fillStyle='#bed9c0';g.fillRect(-95,-104,190,4);
+ const {w,h,top,trackY}=s.lot;
+ g.scale(Math.min(.96,(w-14)/450),Math.min(1,(trackY-top-7)/115,(top+h-trackY-7)/54));
+ const {north,south,shelter,roof}=RAIL_STATION_PARTS;
+ const part=(p,color)=>{g.fillStyle=color;g.fillRect(p.x,p.y,p.w,p.h);};
+ g.fillStyle='#243d3860';g.fillRect(-225,-85,450,58);
+ part(north,'#cfcaac');g.fillStyle='#e9db9e';g.fillRect(north.x,north.y+north.h-5,north.w,5);
+ part(south,'#b9bca5');g.fillStyle='#e9db9e';g.fillRect(south.x,south.y,south.w,4);
+ part(shelter,'#304e46');part(roof,s.roof);g.fillStyle='#bed9c0';g.fillRect(-95,-104,190,4);
  g.fillStyle='#d3dcc3';for(let x=-88;x<90;x+=25)g.fillRect(x,-89,16,13);
  g.fillStyle='#374d40';g.fillRect(-18,-80,36,22);g.fillStyle='#e3d58d';g.fillRect(-13,-78,26,4);
  for(const x of [-172,150]){g.fillStyle='#738573';g.fillRect(x,-66,27,7);g.fillRect(x,-60,3,7);g.fillRect(x+24,-60,3,7);}
@@ -3634,7 +3754,7 @@ function railSetDestination(x,y){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
-const WORLD_LAYOUT_VERSION=20;
+const WORLD_LAYOUT_VERSION=23;
 const TROPHIES=[
  {id:'gold-bar',name:'Gold bar',price:2500},
  {id:'gold-stack',name:'Gold bar stack',price:8000},
@@ -3883,7 +4003,7 @@ function jobDistanceBonus(mode,job){
 }
 function jobJourneyName(job){const longest=Math.max(...job.stops.slice(1).map((p,n)=>jobLegKm(job.stops[n],p)));return longest>=60?'Cross-country':longest>=20?'Long haul':'Regional';}
 function savedDistrictStopFits(scene,stop,vehicle,mode){
- if(!onGridRoad(stop.x,stop.y)&&!scene.segments.some(seg=>projectSegment(stop.x,stop.y,seg.a,seg.b).distance<seg.width/2-vehicle.hh+1))return false;
+ if(!onGridRoad(stop.x,stop.y)&&!scene.segments?.some(seg=>projectSegment(stop.x,stop.y,seg.a,seg.b).distance<seg.width/2-vehicle.hh+1))return false;
  const {halfLength,halfWidth}=jobBaySize(mode);
  const body={...stop,hw:Math.max(vehicle.hw,halfLength),hh:Math.max(vehicle.hh,halfWidth)};
  return ![...scene.buildings,...scene.obstacles,...scene.parked].some(o=>contact(body,o));
@@ -3896,13 +4016,9 @@ function relocateWorldStops(stops,index,mode,bands,savedLayout){
    area.type!=='oldtown'&&stop.site.startsWith('scenic:oldtown:');
   const newTown=savedLayout<9&&area.type==='oldtown';
   const i0=roadIndex(stop.x,0),j0=roadIndex(stop.y,1);
-  const developmentVersion=area.type==='industrial'?13:area.residential?18:area.commercial?20:10;
-  const development=savedLayout<developmentVersion?streetDevelopment(i0,j0,area.type):null;
-  const siteChanged=development||savedLayout<10&&(area.type==='docks'||area.type==='oilfield');
-  const newReserve=savedLayout<WORLD_LAYOUT_VERSION&&area.type==='offroad'&&!reserveBiomeAt(area.a,area.b,savedLayout);
-  const changedScene=siteChanged||newReserve?getScene(area.a,area.b,development):null;
-  const blocked=changedScene?!savedDistrictStopFits(changedScene,stop,vehicle,mode):
-   area.residential&&savedLayout<12&&!onGridRoad(stop.x,stop.y);
+  const changedBlock=savedLayout<WORLD_LAYOUT_VERSION?previewBlock(i0,j0):null;
+  const changedScene=changedBlock?.scene;
+  const blocked=changedBlock&&!savedDistrictStopFits(changedScene||changedBlock,stop,vehicle,mode);
   const newSector=(savedLayout<6&&area.industrial||savedLayout<7&&area.residential||savedLayout<8&&area.commercial||newTown)&&!onGridRoad(stop.x,stop.y);
   if(!removed&&!newSector&&!blocked&&(savedLayout>=4||area.type!=='offroad'))continue;
   const fits=point=>[stops[i-1],stops[i+1]].every(neighbor=>{
@@ -3912,8 +4028,8 @@ function relocateWorldStops(stops,index,mode,bands,savedLayout){
   });
   if(removed||newSector||blocked){
    const origin=stops[i-1]||stops[i+1];
-   let nearby=changedScene&&(blocked||newReserve)?scenicSceneStop(changedScene,vehicle,stop.action,fits,stop):null;
-   if(blocked&&!nearby&&(development||area.residential))nearby=districtJobStop(i0,j0,area.type,origin,stop.action,fits);
+   let nearby=changedScene&&(blocked||removed)?scenicSceneStop(changedScene,vehicle,stop.action,fits,stop):null;
+   if(blocked&&!nearby&&isStreetRegion(area.type))nearby=districtJobStop(i0,j0,area.type,origin,stop.action,fits);
    if(newSector&&!nearby){
     if(newTown){
      const a0=Math.floor(area.a/4)*4,b0=Math.floor(area.b/4)*4;
@@ -4033,6 +4149,7 @@ function loadProgress(){
   }
   if((Number.isInteger(p.worldVersion)&&p.worldVersion>=1&&p.worldVersion<=WORLD_LAYOUT_VERSION)&&p.position&&['x','y','angle'].every(k=>Number.isFinite(p.position[k])&&Math.abs(p.position[k])<1e12))clean.position={x:p.position.x,y:p.position.y,angle:p.position.angle};
   clean.railPosition=p.railPosition||null;
+  if(savedLayout<WORLD_LAYOUT_VERSION)clean.previousRailPosition=clean.position;
   if(p.garageVersion===1&&p.garages&&typeof p.garages==='object')for(const kind of Object.keys(GARAGE_VEHICLES))clean.garages[kind]=cleanGarage(p.garages[kind],kind);
   else clean.garages.car=cleanGarage(p,'car',true);
   return clean;
@@ -6539,6 +6656,40 @@ function drawParkGround(s,g,map){
   g.fill();
  }
 }
+const STATION_PAVING={
+ city:['#b0b6a3','#c5c8b2','#8b978d',40],
+ residential:['#b5b9a1','#ced0b8','#96a38d',38],
+ commercial:['#c4c6b7','#d5d6c6','#a1a89d',33],
+ industrial:['#969992','#acaa9b','#6f766e',64],
+ docks:['#929a92','#b2b4a6','#69766c',58],
+ oilfield:['#b7a482','#c5b38f','#998465',0],
+ airport:['#a7b0a6','#c0c7b9','#829087',62],
+ oldtown:['#bdb39c','#d0c5ab','#a29880',22],
+ offroad:['#a6ad8a','#bcc09d','#899274',0],
+ farmland:['#b9a787','#cbb996','#988a69',0]
+};
+function drawStationLot(lot,g=ctx,map=false){
+ const {left,top,w,h,type,biome}=lot;
+ const [ground,curb,joint,spacing]=STATION_PAVING[type==='offroad'&&(FARM_BIOMES[biome]||biome==='dry')?'farmland':type];
+ g.fillStyle=curb;g.fillRect(left,top,w,h);
+ const inset=6,x=left+inset,y=top+inset,right=left+w-inset,bottom=top+h-inset;
+ g.fillStyle=ground;g.fillRect(x,y,right-x,bottom-y);
+ if(map||!spacing)return;
+ g.strokeStyle=joint+'55';g.lineWidth=1;g.beginPath();
+ if(type==='oldtown'){
+  let row=0;
+  for(let py=y;py<bottom;py+=12,row++){
+   if(row){g.moveTo(x,py);g.lineTo(right,py);}
+   for(let px=x+spacing*(row%2?.5:1);px<right;px+=spacing){
+    g.moveTo(px,py);g.lineTo(px,Math.min(py+12,bottom));
+   }
+  }
+ }else{
+  for(let px=x+spacing;px<right;px+=spacing){g.moveTo(px,y);g.lineTo(px,bottom);}
+  for(let py=y+spacing;py<bottom;py+=spacing){g.moveTo(x,py);g.lineTo(right,py);}
+ }
+ g.stroke();
+}
 function sceneGround(s,g=ctx,map=false){
  if(s.type==='park'){drawParkGround(s,g,map);return;}
  if(s.type==='offroad')drawNatureGround(s,g,map);
@@ -6612,6 +6763,7 @@ function sceneGround(s,g=ctx,map=false){
   if(d.kind==='stand'&&!map){g.save();g.translate(d.x,d.y);g.rotate(d.angle);g.strokeStyle='#d1bd7c';g.lineWidth=1.2;g.beginPath();g.moveTo(-d.length*.65,0);g.lineTo(d.length*.59,0);g.moveTo(d.length*.59,-12);g.lineTo(d.length*.59,12);g.stroke();g.restore();}
   if(d.kind==='oldplaza'||d.kind==='clearing'){g.fillStyle=d.kind==='oldplaza'?'#c4b796':s.biome==='dry'?'#c6b48d':'#a9aa7a';g.beginPath();g.arc(d.x,d.y,d.r,0,TAU);g.fill();}
  }
+ if(s.stationLot)drawStationLot(s.stationLot,g,map);
 }
 function drawGridPavement(road,color,extra=0){
  const {a,b}=road.segments[0],half=road.width/2+extra;
@@ -6687,7 +6839,7 @@ function drawIndustrialRoadWear(seg,start=12,end=Math.hypot(seg.b.x-seg.a.x,seg.
  ctx.restore();
 }
 function drawTrafficSign(x,y,label,direction=1){
- if(!visible(x,y,21))return;
+ if(!visible(x,y,21)||chunks.get(roadIndex(x,0)+','+roadIndex(y,1))?.stationLot)return;
  ctx.save();ctx.translate(x,y);
  rounded(2,-6,15,18,3,'#30453b66');rect(-1,-1,2,13,'#617062');rect(-1,6,1,5,'#c2c2a7');
  if(label==='stop'){
@@ -7123,6 +7275,7 @@ function drawFactoryPaving(d){
 }
 function drawBlock(b){
  if(b.scene)return;
+ if(b.stationLot){drawStationLot(b.stationLot);return;}
  const {x,y,w,h}=b;
  rect(x+2,y+2,w-4,h-4,'#b7baa4');rect(x+13,y+13,w-26,h-26,(b.finish&&(b.type==='housing'||b.type==='terraces'||b.type==='offices'||b.type==='factory'||b.type==='mechanic'||b.type==='shopping')?b.finish[3]:INDUSTRIAL_GROUND[b.type])||(b.park?'#83a176':b.type==='housing'?'#9eaf8b':b.type==='warehouses'?'#8a9586':'#a4a995'));
  ctx.strokeStyle='#89998155';ctx.lineWidth=.7;for(let n=25;n<w;n+=28){ctx.beginPath();ctx.moveTo(x+n,y+2);ctx.lineTo(x+n,y+12);ctx.stroke();}for(let n=25;n<h;n+=28){ctx.beginPath();ctx.moveTo(x+2,y+n);ctx.lineTo(x+12,y+n);ctx.stroke();}
@@ -8538,6 +8691,7 @@ function mapRegion(g,cx,cy,span,w,h,labels=false){
  const minI=roadIndex(left,0),maxI=roadIndex(left+span,0),minJ=roadIndex(top,1),maxJ=roadIndex(bottom,1),scenes=new Map();
  for(let j=minJ;j<=maxJ;j++)for(let i=minI;i<=maxI;i++){
   const b=previewBlock(i,j);if(b.scene){scenes.set(b.scene.key,b.scene);continue;}
+  if(b.stationLot){drawStationLot(b.stationLot,g,true);continue;}
   g.fillStyle=mapColors[b.type]||'#8ca081';g.fillRect(b.x+3,b.y+3,b.w-6,b.h-6);
   if(scale>.07){g.fillStyle=b.style==='old'?'#c4b08c':'#b2bfa0';for(const roof of b.buildings){g.fillStyle=roof.role==='pharmacy'?'#558969':roof.role==='hospital'?'#dde0c8':roof.roofTone||roof.color;g.fillRect(roof.x-roof.hw,roof.y-roof.hh,roof.hw*2,roof.hh*2);}for(const solid of b.obstacles){g.fillStyle=solid.kind==='water'?'#5e948b':'#76766d';g.fillRect(solid.x-solid.hw,solid.y-solid.hh,solid.hw*2,solid.hh*2);}}
  }
@@ -8769,7 +8923,7 @@ function loop(now){
  requestAnimationFrame(loop);
 }
 if(progress.position)Object.assign(player,progress.position);snapshotBody(player);safePosition={x:player.x,y:player.y,angle:player.angle};camera.x=player.x;camera.y=player.y;interpolatePlayer();
-applyBuild();if(progress.mode==='train'){if(!railRestore(progress.railPosition)){const p=railEnter();if(p)Object.assign(player,p);}snapshotBody(player);camera.x=player.x;camera.y=player.y;interpolatePlayer();}streamWorld(true);resize();if(progress.mode!=='train'&&!clearSpot(player))recover();rebuildDynamic();updateHUD();updatePoliceHUD();drawMini();requestAnimationFrame(loop);
+applyBuild();if(progress.mode==='train'){if(!railRestore(progress.railPosition,progress.previousRailPosition)){const p=railEnter();if(p)Object.assign(player,p);}snapshotBody(player);camera.x=player.x;camera.y=player.y;interpolatePlayer();}streamWorld(true);resize();if(progress.mode!=='train'&&!clearSpot(player))recover();rebuildDynamic();updateHUD();updatePoliceHUD();drawMini();requestAnimationFrame(loop);
 // Opt-in local diagnostics; not enabled during normal play.
 if(new URLSearchParams(location.search).has('test'))window.cityTest={railway,sceneryCache,railTrackOpacity,railPaintVehicle,railDrawTrainLights,railNode,railGeometry,railStation,railPiecesIn,railSample,railPlan,railPath,railEnsure,railMakeTrain,railNearest,railEnter,railCreateOffer,railCleanJob,railUpdateJob,railUpdateNavigation,railSpawnNPC,railCarriages,railAtStop,railRestore,railRefreshWorld,railFindStation,railSetDestination,railReservationsForArea,railReserved,railIntervals,railClearance,railReserveTrains,railUpdatePlayer,railUpdateNPC,railJobDistance,railPoint,railNext,railLength,railOnBridge,railSetManualTurn,railApplyManualTurn,railUpcomingJunction,railTravelDirection,railChoicePort,railJunctionHint,railDrawUpperLayer,trafficJunctions,updateTrafficJunctions,refreshTrafficJunctions,trafficRearLimit,GAME_MODES,MODE_ORDER,JOB_MODES,service,jobNavigation:routeNavigation,modeVehicle,setGameMode,cycleGameMode,currentJob,currentOffer,jobTarget,createJobOffer,ensureJobOffer,acceptJob,changeJobOffer,JOB_BANDS,JOB_ROUTE_COLOR,jobLengthKm,jobLegKm,updateJob,finishJobStop,cityJobType,findJobSite,streetSite,nearbyRoadStops,cleanJob,updateModeHUD,renderModeMenu,showJobMap,OLD_TOWNS,AIRPORTS,AIRCRAFT,oldTownStyle,airportKind,dressBuilding,drawBuilding,drawAircraft,SPEED_KMH,speedKmh,VEHICLE_TYPES,TRAFFIC_MIX,highwayRoute,refillTraffic,routeAt,projectRoute,updateTraffic,senseTraffic,MAX_POLICE,POLICE_ROLES,POWER_TYPES,powers,pickups,pickupState,powerActive,ghosting,activatePower,tickPowers,finishGhostExit,spawnPickup,updatePickups,ignoresCollision,maintainPursuit,spawnPoliceUnit,policeTarget,nearDrivingView,protectVisibleVehicle,regionType,featureAt,getScene,sceneCache,activeScenes,navigation,gridEdge,nearestDriveRoad,navigationPath,surfaceAt,findLandscape,exploration,roadAnchors,CATEGORIES,GARAGE_CATEGORIES,GARAGE_VEHICLES,garageKindForMode,garageState,UPGRADES,appearance,tryOn,paintVehicle,generateBlock,worldHash,worldWindow,chunks,previewChunks,roadCoord,roadHalf,roadIndex,streamWorld,insideLoaded,obstacles,staticHash,dynamicHash,mapView,police,policeState,setPoliceEnabled,deployPolice,planPolice,segmentClear,updatePolice,updatePlayer,progress,turbo,stats,earnDistance,purchase,balanceMm,saveProgress,renderGarage,applyBuild,SAVE_KEY,player,traffic,parked,buildings,boundaries,blocks,keys,xs,ys,contact,physics,recover,clearSpot,closestRoad,onGrass,start,openModal,closeModal,rebuildDynamic,updateHUD,draw,drawAtlas,clearKeys,get state(){return {started,activeModal,simTime,distance,camera:{...camera},world:{infinite:true,loaded:chunks.size,preview:previewChunks.size,generated:worldWindow.generated,center:{i:worldWindow.i,j:worldWindow.j},radius:worldWindow.radius},counts:{blocks:blocks.length,buildings:buildings.length,traffic:traffic.length,parked:parked.length}};}};
 })();
