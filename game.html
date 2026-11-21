@@ -343,7 +343,7 @@ function dressBuilding(b,options={}){
  const families={old:['clay','gable','merchant'],garden:['hip','garden','solar'],suburb:['gable','hip','solar'],down:['tower','atrium','terrace'],arts:['deco','garden','atrium'],harbor:['sawtooth','barrel','solar'],industrial:['sawtooth','barrel','flat'],campus:['atrium','dome','garden']};
  const choices=families[b.style]||['flat','hip','garden'];
  const architecture=options.architecture||(town?town.mix[n%town.mix.length]:choices[n%choices.length]);
- const businessTower=options.businessDistrict&&options.role==='office'&&worldHash(Math.round(b.x),Math.round(b.y),907)<.78;
+ const businessTower=options.businessDistrict&&options.role==='office'&&worldHash(Math.round(b.x),Math.round(b.y),907)<.94;
  b.architecture=businessTower?'lantern':architecture;
  b.role=options.role||(b.label.includes('CINEMA')?'cinema':b.label.includes('LIBRARY')||b.label.includes('MUSEUM')?'civic':b.label==='HANGAR'?'hangar':'');
  if(!b.role&&b.hw<65&&b.hh<80&&n%23===0){b.role='pharmacy';b.label='PHARMACY';}
@@ -546,25 +546,16 @@ function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
   const plan=parcelPattern(b.i,b.j,5);
   b.name=root+' '+['Exchange Court','Lantern Square','Meridian Offices','Garden Terrace','Arcade Towers'][plan];
   pave('plaza',.06,.06,.88,.88);
-  // Coordinates describe the actual solid footprints, including the freestanding glass halls.
-  const groups=[
-   [[.10,.10,.52,.47,'spire'],[.68,.15,.19,.32,'slab'],[.12,.68,.47,.14]],
-   [[.12,.14,.29,.67,'lantern'],[.54,.10,.31,.27,'slab'],[.55,.51,.28,.24]],
-   [[.09,.12,.80,.29,'slab'],[.12,.55,.25,.27,'lantern'],[.52,.61,.34,.18]],
-   [[.11,.12,.40,.39,'skygarden'],[.57,.38,.31,.41,'spire'],[.14,.62,.30,.16]],
-   [[.10,.12,.27,.47,'spire'],[.50,.23,.36,.59,'lantern'],[.13,.70,.23,.14]]
-  ];
-  const names=['EXCHANGE HALL','LANTERN HALL','GALLERIA','WINTER GARDEN','ARCADE'];
-  for(const [u,v,uw,vh,kind] of groups[plan]){
-   if(kind)roof(u,v,uw,vh,'','office',kind,kind==='lantern'?53:kind==='slab'?27:42);
-   else roof(u,v,uw,vh,names[plan],'atrium','atrium',10);
+  // Six solid high-rises share narrow pedestrian lanes instead of low glass halls.
+  // Keep the existing rail filter and vary heights without changing the street grid.
+  for(let row=0;row<2;row++)for(let col=0;col<3;col++){
+   const n=row*3+col,variation=worldHash(b.i*3+col,b.j*2+row,908);
+   const u=.045+col*.31,v=.055+row*.46;
+   const kind=['lantern','spire','lantern','skygarden','lantern'][mod(n+plan,5)];
+   roof(u,v,.28,.40,'','office',kind,46+Math.floor(variation*25));
   }
-  for(const u of [.12,.48,.78])for(const v of [.18,.62]){
-   if(!b.buildings.some(o=>o.role==='office')&&!b.buildings.some(o=>Math.abs(o.x-(x+w*(u+.07)))<o.hw+w*.07&&Math.abs(o.y-(y+h*(v+.12)))<o.hh+h*.12))
-    roof(u,v,.14,.24,'','office','spire',29);
-  }
-  for(const u of [.20,.49,.80])addSiteFixture(b,railSpace,'flowerBed',u,.885,.17,.045,b.finish[2]);
-  for(const v of [.32,.61,.82])addSiteFixture(b,railSpace,'flowerBed',.923,v,.037,.13,b.finish[2]);
+  for(const u of [.18,.49,.80])addSiteFixture(b,railSpace,'flowerBed',u,.963,.17,.025,b.finish[2]);
+  for(const v of [.25,.71])addSiteFixture(b,railSpace,'flowerBed',.973,v,.022,.13,b.finish[2]);
  }else if(type==='luxury'){
   b.name=root+' Boutique Row';
   pave('plaza',.075,.43,.85,.45);
@@ -1132,6 +1123,11 @@ function buildStreetSectorPlan(i0,j0,theme){
     if(score>rank){branch=index;rank=score;}
    }
    if(branch>=0)plan[branch].type='bank';
+  }
+  // Choose banks using the original plan first, preserving every existing branch.
+  // Most remaining shops, civic buildings and plazas become high-rise parcels.
+  for(const [n,site] of plan.entries()){
+   if(!site.development&&['luxury','government','plaza'].includes(site.type)&&worldHash(i0+n%12,j0+Math.floor(n/12),909)<.88)site.type='offices';
   }
  }else{
   planMergedDevelopments(plan,i0,j0,railSpace,'terraces',types=>types.every(type=>type==='housing'||type==='terraces'));
@@ -1984,21 +1980,18 @@ function generateDevelopment(s,road,building,obstacle,away,rng){
  const finish=districtFinish('commercial',i,j);
  const name=['Exchange Campus','Glassworks Centre','Meridian Forum'][variant];
  s.name=commercialName(s.a,s.b)+' · '+name;
- const arch=['spire','skygarden','slab'][variant];
- // A continuous building crosses the old road and faces a shared court.
- const hall=variant===1?[.22,.57,.56,.27]:[.18,.13,.64,.31];
- if(!roof(...hall,name.toUpperCase(),'office',arch,49)){
-  for(const v of [.14,.62])if(roof(.35,v,.30,.23,name.toUpperCase(),'office',arch,39))break;
+ // Ten closely spaced towers fill the two-parcel campus, with a central walk.
+ // The existing roof helper keeps their solid footprints clear of rails and each other.
+ for(let row=0;row<2;row++)for(let col=0;col<5;col++){
+  const variation=worldHash(i*5+col,j*2+row,910);
+  const kind=['lantern','spire','skygarden'][mod(col+row+variant,3)];
+  roof(.045+col*.184,.055+row*.505,.16,.385,'','office',kind,49+Math.floor(variation*25));
  }
- for(const u of [.07,.76]){
-  roof(u,variant===1?.15:.61,.16,.22,'','office',u<.5?'lantern':'skygarden',37);
- }
- roof(.41,variant===1?.13:.65,.18,.16,'GALLERIA','atrium','atrium',11);
  s.decor.push({kind:'campusCourt',...box(.04,.05,.92,.90),color:finish[2]});
  for(const u of [.13,.31,.69,.87]){
   const q=box(u-.04,.476,.08,.055);
   s.decor.push({...q,kind:'flowerBed',color:finish[2]});
-  for(const v of [.09,.91])tree(u,v,12);
+  for(const v of [.025,.975])tree(u,v,8);
  }
  for(const u of [.20,.80]){
   const fountain=box(u-.037,.497,.074,.092);
@@ -3612,7 +3605,7 @@ function railSetDestination(x,y){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
-const WORLD_LAYOUT_VERSION=18;
+const WORLD_LAYOUT_VERSION=19;
 const TROPHIES=[
  {id:'gold-bar',name:'Gold bar',price:2500},
  {id:'gold-stack',name:'Gold bar stack',price:8000},
@@ -3874,7 +3867,7 @@ function relocateWorldStops(stops,index,mode,bands,savedLayout){
    area.type!=='oldtown'&&stop.site.startsWith('scenic:oldtown:');
   const newTown=savedLayout<9&&area.type==='oldtown';
   const i0=roadIndex(stop.x,0),j0=roadIndex(stop.y,1);
-  const developmentVersion=area.type==='industrial'?13:area.residential?18:area.commercial?11:10;
+  const developmentVersion=area.type==='industrial'?13:area.residential?18:area.commercial?19:10;
   const development=savedLayout<developmentVersion?streetDevelopment(i0,j0,area.type):null;
   const siteChanged=development||savedLayout<10&&(area.type==='docks'||area.type==='oilfield');
   const newReserve=savedLayout<WORLD_LAYOUT_VERSION&&area.type==='offroad'&&!reserveBiomeAt(area.a,area.b,savedLayout);
