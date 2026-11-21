@@ -342,7 +342,9 @@ function dressBuilding(b,options={}){
  const n=Math.floor(worldHash(Math.round(b.x),Math.round(b.y),233)*100000),town=options.town;
  const families={old:['clay','gable','merchant'],garden:['hip','garden','solar'],suburb:['gable','hip','solar'],down:['tower','atrium','terrace'],arts:['deco','garden','atrium'],harbor:['sawtooth','barrel','solar'],industrial:['sawtooth','barrel','flat'],campus:['atrium','dome','garden']};
  const choices=families[b.style]||['flat','hip','garden'];
- b.architecture=options.architecture||(town?town.mix[n%town.mix.length]:choices[n%choices.length]);
+ const architecture=options.architecture||(town?town.mix[n%town.mix.length]:choices[n%choices.length]);
+ const businessTower=options.businessDistrict&&options.role==='office'&&worldHash(Math.round(b.x),Math.round(b.y),907)<.78;
+ b.architecture=businessTower?'lantern':architecture;
  b.role=options.role||(b.label.includes('CINEMA')?'cinema':b.label.includes('LIBRARY')||b.label.includes('MUSEUM')?'civic':b.label==='HANGAR'?'hangar':'');
  if(!b.role&&b.hw<65&&b.hh<80&&n%23===0){b.role='pharmacy';b.label='PHARMACY';}
  if(b.role==='cinema')b.architecture='deco';if(b.role==='civic')b.architecture='dome';if(b.role==='hangar')b.architecture='barrel';
@@ -524,6 +526,12 @@ function addCommercialBillboard(buildings,i,j){
   x:roof.x,y:roof.y-roof.hh*.27,w:Math.min(134,roof.hw*1.76),h:Math.min(56,roof.hh*1.39),
   chart:roof.role==='office'&&roll<.48,ad:Math.floor(roll*6)%3,phase:worldHash(i,j,753)*19000
  };
+ if(roof.architecture==='lantern'){
+  // Keep the billboard on the flat roof, clear of the projecting window bands.
+  const surface=lanternOfficeRoof(roof);
+  Object.assign(roof.billboard,{x:surface.x+surface.w*.5,y:surface.y+surface.h*.72,
+   w:Math.min(roof.billboard.w,surface.w*.83),h:Math.min(roof.billboard.h,surface.h*.39)});
+ }
 }
 function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
  const {x,y,w,h,type}=b;
@@ -533,7 +541,7 @@ function layoutCommercialBlock(b,build,tree,railSpace,rng,root){
   b.decor.push({kind,x,y,w,h});
  };
  const roof=(u,v,uw,vh,label,role,architecture,height)=>
-  build(...area(u,v,uw,vh),label,role==='government'||role==='bank'?'campus':'down',{role,architecture,height});
+  build(...area(u,v,uw,vh),label,role==='government'||role==='bank'?'campus':'down',{role,architecture,height,businessDistrict:true});
  if(type==='offices'){
   const plan=parcelPattern(b.i,b.j,5);
   b.name=root+' '+['Exchange Court','Lantern Square','Meridian Offices','Garden Terrace','Arcade Towers'][plan];
@@ -1964,7 +1972,7 @@ function generateDevelopment(s,road,building,obstacle,away,rng){
  const roof=(u,v,uw,vh,label,role,architecture,height)=>{
   const q=box(u,v,uw,vh);
   if(!away(q,10)||s.buildings.some(b=>Math.abs(b.x-q.x)<b.hw+q.hw+5&&Math.abs(b.y-q.y)<b.hh+q.hh+5))return false;
-  const b=building(q,label,'down',{role,architecture,height});
+  const b=building(q,label,'down',{role,architecture,height,businessDistrict:true});
   const finish=districtFinish('commercial',i,j);
   b.roofTone=role==='atrium'?'#769b99':finish[0];
   b.facade=finish[1];b.accent=finish[2];return true;
@@ -7184,29 +7192,79 @@ function drawBlock(b){
 
 function roofPolygon(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],n)=>n?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
 function medicalCross(x,y,size,color){rect(x-size*.18,y-size*.5,size*.36,size,color);rect(x-size*.5,y-size*.18,size,size*.36,color);}
+function lanternOfficeRoof(b){
+ const x=b.x-b.hw+5,y=b.y-b.hh+5,w=b.hw*2-10,h=b.hh*2-10;
+ const rise=Math.min(h*.51,4+(b.height||40)*1.56),run=Math.min(w*.21,rise*.58,35);
+ return {x:x+2,y:y+2,w:w-run-4,h:h-rise-Math.min(8,h*.12)-2,run,rise};
+}
+function drawLanternOffice(b,x,y,w,h){
+ const roof=lanternOfficeRoof(b),left=roof.x,top=roof.y,right=left+roof.w,bottom=top+roof.h;
+ const {run,rise}=roof,depth=Math.hypot(run,rise),floors=clamp(Math.round(rise/7),4,11);
+ const fascia=b.facade,glass=b.roofTone;
+ rect(x,y,w,h,'#839596');
+ rect(x+2,y+2,w-4,h-4,'#9aacab');
+ rect(x+2,y+h-9,w-4,7,'#7e9494');
+ rect(x+w-5,y+2,3,h-5,'#617d7e');
+ const facade=(ax,ay,bx,by,shaded)=>{
+  const length=Math.hypot(bx-ax,by-ay),bays=clamp(Math.round(length/15),2,13);
+  const floor=depth/floors,bay=length/bays;
+  ctx.save();
+  ctx.transform((bx-ax)/length,(by-ay)/length,run/depth,rise/depth,ax,ay);
+  rect(0,0,length,depth,shaded?'#435e66':'#557278');
+  for(let level=0;level<floors;level++){
+   const py=level*floor;
+   rect(0,py,length,floor*.23,shaded?'#748d8e':fascia);
+   rect(0,py+floor*.23,length,floor*.70,shaded?'#364f59':'#405c69');
+   for(let unit=0;unit<bays;unit++){
+    const px=unit*bay,mood=worldHash(b.detail,level*bays+unit,906+Number(shaded));
+    const base=shaded?'#4d6972':glass;
+    const tint=mood>.91?(shaded?'#798e84':'#adb598'):mood<.26?'#3b535f':base;
+    rect(px+bay*.11,py+floor*.29,bay*.78,floor*.59,tint);
+    if(mood<=.91)rect(px+bay*.11,py+floor*.29,bay*.78,floor*.59,'#1b35433b');
+    if(floor>6&&bay>7)rect(px+bay*.13,py+floor*.31,bay*.70,1,'#d4e1d03a');
+   }
+  }
+  rect(0,0,1.5,depth,shaded?'#536f74':'#c2d1c8');
+  rect(0,depth-2.5,length,2.5,'#354d56');
+  ctx.restore();
+ };
+ // The two glazed faces project from the raised roof down to the street-level base.
+ facade(right,top,right,bottom,true);
+ facade(left,bottom,right,bottom,false);
+
+ rect(left,top,roof.w,roof.h,fascia);
+ const trim=Math.min(4,roof.w*.09,roof.h*.12);
+ rect(left+trim,top+trim,roof.w-trim*2,roof.h-trim*2,'#a3b4b5');
+ rect(left+trim,top+trim,roof.w-trim*2,1.6,'#f0f0d4');
+ rect(right-trim-1,top+trim,1.4,roof.h-trim*2,'#6e858c');
+ rect(left+trim,bottom-trim-1,roof.w-trim*2,1.8,'#6e858c');
+ const px=left+roof.w*.18,py=top+roof.h*.14,pw=roof.w*.64,ph=roof.h*.30;
+ const step=Math.min(6,roof.w*.07,roof.h*.10);
+ rect(px+step,py+step,pw,ph,'#354d5266');
+ rect(px+step*.6,py+step*.8,pw,ph,'#5e7880');
+ rect(px,py,pw,ph,'#cbd6d1');rect(px,py,pw,1.4,'#eff1df');
+ rect(px+pw-1.6,py,1.6,ph,'#9cacab');
+ const hvw=pw*.22,hvh=ph*.44;
+ for(const u of [.18,.54]){
+  const hx=px+pw*u,hy=py+ph*.25;
+  rect(hx+1,hy+2,hvw,hvh,'#4c6669');
+  rect(hx,hy,hvw,hvh,'#92a9aa');
+  for(let k=1;k<=3;k++)rect(hx+1,hy+k*hvh/4,Math.max(0,hvw-2),.65,'#5e787c');
+ }
+ const accessX=left+roof.w*.14,accessY=top+roof.h*.69;
+ if(!b.billboard){
+  rect(accessX+2,accessY+3,roof.w*.20,roof.h*.13,'#6a8387');
+  rect(accessX,accessY,roof.w*.20,roof.h*.13,'#d1d8ca');
+  rect(accessX,accessY,roof.w*.20,1,'#efedd4');
+ }
+}
 function drawOfficeRoof(b,x,y,w,h){
+ if(b.architecture==='lantern'){drawLanternOffice(b,x,y,w,h);return;}
  const cx=x+w/2,cy=y+h/2,accent=b.accent,metal=b.facade,glass=b.roofTone;
  const glazing=ctx.createLinearGradient(x,y,x+w,y+h);
  glazing.addColorStop(0,metal);glazing.addColorStop(.27,glass);glazing.addColorStop(.72,glass);glazing.addColorStop(1,'#405761');
  rect(x,y,w,h,glazing);
- if(b.architecture==='lantern'){
-  // An octagonal glazed crown sits on a rectangular plinth.
-  const points=Array.from({length:8},(_,i)=>{
-   const a=(i+.5)*TAU/8;return [cx+Math.cos(a)*w*.48,cy+Math.sin(a)*h*.48];
-  });
-  for(let i=0;i<8;i++){
-   const p=points[i],n=points[(i+1)%8];
-   roofPolygon([p,n,[cx,cy]],i%3===0?metal:i%3===1?glass:accent);
-   ctx.strokeStyle='#e3e3ce';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(cx,cy);ctx.stroke();
-  }
-  // Glazing bars follow the sloping lantern faces down to an octagonal parapet.
-  for(let ring=1;ring<=4;ring++){
-   const f=.19+ring*.19;
-   ctx.strokeStyle=ring===4?metal:'#e2ece08a';ctx.lineWidth=ring===4?2:1;
-   ctx.beginPath();points.forEach(([px,py],i)=>i?ctx.lineTo(lerp(cx,px,f),lerp(cy,py,f)):ctx.moveTo(lerp(cx,px,f),lerp(cy,py,f)));ctx.closePath();ctx.stroke();
-  }
-  circle(cx,cy,Math.min(w,h)*.09,'#324c55');circle(cx,cy,Math.min(w,h)*.05,'#ecdbac');
- }else if(b.architecture==='slab'){
+ if(b.architecture==='slab'){
   rect(x+3,y+3,w-6,h-6,'#bdd0cb');
   for(let i=0;i<7;i++){
    const bx=x+5+i*(w-10)/7,bw=(w-10)/7-2;
