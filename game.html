@@ -2900,16 +2900,31 @@ function railStation(i,j){
 function railPiecesIn(l,t,r,b,junctions=true){
  const i0=Math.floor(roadIndex(l,0)/6)-1,i1=Math.floor(roadIndex(r,0)/6)+1,j0=Math.floor(roadIndex(t,1)/6)-1,j1=Math.floor(roadIndex(b,1)/6)+1,out=[];
  const add=id=>{const p=railGeometry(id);if(p.r>=l&&p.l<=r&&p.b>=t&&p.t<=b)out.push(p);};
+ const pad=55;
  for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){
-  add(railEdgeId(i,j,0));add(railEdgeId(i,j,1));
-  if(junctions)for(const [a,z]of [['E','S'],['E','W'],['E','N'],['S','W'],['S','N'],['W','N']])add('j:'+i+':'+j+':'+a+':'+z);
+  const x=roadCoord(i*6,0),y=roadCoord(j*6,1);
+  if(x-pad<=r&&y-pad<=b){
+   // An edge stays in the first half of its cell across the direction of travel.
+   // Skip distant geometry before laying out stations or sampling curves.
+   if(roadCoord(i*6+8,0)+pad>=l&&roadCoord(j*6+3,1)+pad>=t)add(railEdgeId(i,j,0));
+   if(roadCoord(i*6+3,0)+pad>=l&&roadCoord(j*6+8,1)+pad>=t)add(railEdgeId(i,j,1));
+  }
+  if(junctions){
+   const n=railNode(i,j),reach=RAIL_BEND+pad;
+   if(n.x+reach<l||n.x-reach>r||n.y+reach<t||n.y-reach>b)continue;
+   for(const [a,z]of [['E','S'],['E','W'],['E','N'],['S','W'],['S','N'],['W','N']])add('j:'+i+':'+j+':'+a+':'+z);
+  }
  }return out;
 }
 // Diagnostics can compare the layers without feeding rail geometry into ground generation.
 function railReservationsForArea(l,t,r,b){return {pieces:railPiecesIn(l-70,t-70,r+70,b+70),stations:railStationsIn(l-240,t-110,r+240,b+110)};}
 function railStationsIn(l,t,r,b){
  const out=[],i0=Math.floor(roadIndex(l,0)/6)-1,i1=Math.floor(roadIndex(r,0)/6)+1,j0=Math.floor(roadIndex(t,1)/6)-1,j1=Math.floor(roadIndex(b,1)/6)+1;
- for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){const s=railStation(i,j);if(s.x>=l&&s.x<=r&&s.y>=t&&s.y<=b)out.push(s);}return out;
+ for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){
+  if(roadCoord(i*6+3,0)>r||roadCoord(i*6+6,0)<l||roadCoord(j*6,1)>b||roadCoord(j*6+3,1)<t)continue;
+  const s=railStation(i,j);if(s.x>=l&&s.x<=r&&s.y>=t&&s.y<=b)out.push(s);
+ }
+ return out;
 }
 function railReserved(box,reservation,pad=10){
  if(reservation.stations.some(s=>stationLotOverlap(box,s.lot)))return true;
@@ -3594,6 +3609,33 @@ function railDrawStation(g,s,map=false){
  return true;
 }
 function railTrackOpacity(){return progress.mode==='train'?1:.28;}
+function railSceneryTiles(pieces,stations){
+ const {width,height}=ctx.canvas,{scale,l,t}=sceneryCache,step=128;
+ const cols=Math.ceil(width/step),rows=Math.ceil(height/step),occupied=new Uint8Array(cols*rows);
+ const mark=(left,top,right,bottom)=>{
+  const x0=Math.max(0,Math.floor((left-l)*scale/step)),x1=Math.min(cols-1,Math.floor((right-l)*scale/step));
+  const y0=Math.max(0,Math.floor((top-t)*scale/step)),y1=Math.min(rows-1,Math.floor((bottom-t)*scale/step));
+  if(x0>x1)return;
+  for(let y=y0;y<=y1;y++)occupied.fill(1,y*cols+x0,y*cols+x1+1);
+ };
+ for(const p of pieces)for(const s of p.route.segments){
+  const ex=s.x+s.dx,ey=s.y+s.dy,pad=55;
+  mark(Math.min(s.x,ex)-pad,Math.min(s.y,ey)-pad,Math.max(s.x,ex)+pad,Math.max(s.y,ey)+pad);
+ }
+ for(const s of stations)mark(s.x-230,s.y-120,s.x+230,s.y+60);
+ // Merge adjacent occupied cells into strips so empty pixels aren't blended every frame.
+ const tiles=[];
+ for(let row=0;row<rows;row++){
+  const y=row*step;
+  for(let col=0;col<cols;){
+   if(!occupied[row*cols+col]){col++;continue;}
+   const x=col*step;
+   do{col++;}while(col<cols&&occupied[row*cols+col]);
+   tiles.push({x,y,r:Math.min(width,col*step),b:Math.min(height,y+step)});
+  }
+ }
+ return tiles;
+}
 function railDrawElevated(){
  const pieces=railway.local.filter(p=>p.r+25>=bounds.l&&p.l-25<=bounds.r&&p.b+25>=bounds.t&&p.t-25<=bounds.b);
  ctx.lineJoin='round';ctx.lineCap='butt';
@@ -3609,9 +3651,9 @@ function railDrawElevated(){
   const q=routeAt(p.route,d);if(!visible(q.x,q.y,55))continue;
   ctx.save();ctx.translate(q.x,q.y);ctx.rotate(q.angle);ctx.fillStyle='#4f6259';ctx.fillRect(-5,-33,10,7);ctx.fillRect(-5,26,10,7);ctx.fillStyle='#d5d3bb';ctx.fillRect(-4,-33,8,3);ctx.fillRect(-4,26,8,3);ctx.restore();
  }
- let hasRails=pieces.length>0;
- for(const s of railway.localStations)if(railDrawStation(ctx,s))hasRails=true;
- return hasRails;
+ const stations=railway.localStations.filter(s=>railDrawStation(ctx,s));
+ sceneryCache.railTiles=railSceneryTiles(pieces,stations);
+ return sceneryCache.railTiles.length>0;
 }
 function railDrawJunctionChoice(){
  const pending=railway.manualTurn;if(progress.mode!=='train'||jobTarget()||!pending?.connector)return;
@@ -3626,7 +3668,24 @@ function shadeRailLayer(g,w,h,night){
  g.globalCompositeOperation='source-atop';g.globalAlpha=night*.46;
  g.fillStyle='#000';g.fillRect(0,0,w,h);g.restore();
 }
-function paintRailScenery(night){
+function paintRailTiles(source,exclude){
+ const {railTiles,scale,l,t}=sceneryCache,transform=ctx.getTransform();
+ const dx=Math.round(l*scale+transform.e),dy=Math.round(t*scale+transform.f);
+ ctx.save();ctx.setTransform(1,0,0,1,dx,dy);
+ const paint=(x,y,w,h)=>{
+  if(w>0&&h>0)ctx.drawImage(source,x,y,w,h,x,y,w,h);
+ };
+ const left=exclude?exclude.x-dx:Infinity,top=exclude?exclude.y-dy:Infinity;
+ const right=exclude?left+exclude.w:-Infinity,bottom=exclude?top+exclude.h:-Infinity;
+ for(const {x,y,r,b} of railTiles){
+  if(r<=left||x>=right||b<=top||y>=bottom){paint(x,y,r-x,b-y);continue;}
+  const x0=Math.max(x,left),x1=Math.min(r,right),y0=Math.max(y,top),y1=Math.min(b,bottom);
+  paint(x,y,x0-x,b-y);paint(x1,y,r-x1,b-y);
+  paint(x0,y,x1-x0,y0-y);paint(x0,y1,x1-x0,b-y1);
+ }
+ ctx.restore();
+}
+function paintRailScenery(night,exclude){
  if(!sceneryCache.hasRails)return;
  const source=sceneryCache.railElevated;
  if(night===1){
@@ -3634,14 +3693,18 @@ function paintRailScenery(night){
   if(cache.build!==sceneryCache.builds){
    if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
    const g=layer.getContext('2d');
-   g.clearRect(0,0,w,h);g.drawImage(source,0,0);shadeRailLayer(g,w,h,night);
+   g.clearRect(0,0,w,h);
+   for(const {x,y,r,b} of sceneryCache.railTiles)g.drawImage(source,x,y,r-x,b-y,x,y,r-x,b-y);
+   g.globalCompositeOperation='source-atop';g.globalAlpha=night*.46;g.fillStyle='#000';
+   for(const {x,y,r,b} of sceneryCache.railTiles)g.fillRect(x,y,r-x,b-y);
+   g.globalCompositeOperation='source-over';g.globalAlpha=1;
    cache.build=sceneryCache.builds;
   }
-  paintScenery(layer);
+  paintRailTiles(layer,exclude);
  }else{
   ctx.save();
   if(night)ctx.filter='brightness('+(1-night*.46)+')';
-  paintScenery(source);ctx.restore();
+  paintRailTiles(source,exclude);ctx.restore();
  }
 }
 function railTrainPatch(trains,night,transform){
@@ -3658,8 +3721,8 @@ function railTrainPatch(trains,night,transform){
  const x=Math.max(0,Math.floor(left)),y=Math.max(0,Math.floor(top));
  return {x,y,w:Math.min(canvas.width,Math.ceil(right))-x,h:Math.min(canvas.height,Math.ceil(bottom))-y};
 }
-function railDrawComposite(trains,night){
- const screen=ctx,transform=screen.getTransform(),{x,y,w,h}=railTrainPatch(trains,night,transform);
+function railDrawComposite(trains,night,faded){
+ const screen=ctx,transform=screen.getTransform(),patch=railTrainPatch(trains,night,transform),{x,y,w,h}=patch;
  if(w<=0||h<=0){paintRailScenery(night);return;}
  const layer=railFadeCanvas;
  // Grow in steps so small changes in the train's screen bounds reuse the surface.
@@ -3671,14 +3734,12 @@ function railDrawComposite(trains,night){
  g.setTransform(transform.a,0,0,transform.d,transform.e-x,transform.f-y);
  ctx=g;
  try{
-  paintRailScenery(0);railDrawTrains(trains);
+  if(faded)paintRailScenery(0);
+  railDrawTrains(trains);
   if(night){shadeRailLayer(g,w,h,night);railDrawHeadlights(trains,night);}
  }finally{g.restore();ctx=screen;}
- // Outside the local patch, the static track can go straight to the screen.
- // Inside it, overlapping track and train artwork share the same opacity.
- screen.save();screen.setTransform(1,0,0,1,0,0);
- screen.beginPath();screen.rect(0,0,canvas.width,canvas.height);screen.rect(x,y,w,h);screen.clip('evenodd');
- screen.setTransform(transform);paintRailScenery(night);screen.restore();
+ // Only faded tracks need to share the patch with the trains.
+ paintRailScenery(night,faded?patch:null);
  screen.save();screen.setTransform(1,0,0,1,0,0);screen.drawImage(layer,0,0,w,h,x,y,w,h);screen.restore();
 }
 function railDrawUpperLayer(night){
@@ -3689,7 +3750,7 @@ function railDrawUpperLayer(night){
   if(visible(p.x,p.y,RAIL_GAP*(RAIL_CARS-1)+170))trains.push({train,bodies:railCarriages(train,d)});
  }
  ctx.save();ctx.globalAlpha*=opacity;
- if(trains.length&&(opacity<1||night))railDrawComposite(trains,night);
+ if(trains.length&&(opacity<1||night))railDrawComposite(trains,night,opacity<1);
  else{paintRailScenery(night);railDrawTrains(trains);}
  ctx.restore();
  if(progress.mode==='train'){
@@ -7373,43 +7434,62 @@ function lanternOfficeRoof(b){
  const run=Math.min(w*.21,rise*.58,35);
  return {x:x+2,y:y+2,w:w-run-4,h:h-rise-Math.min(8,h*.12)-2,run,rise};
 }
+function drawLanternOfficeFacades(g,b,roof,glow){
+ const {x:left,y:top,w,h,run,rise}=roof,right=left+w,bottom=top+h,depth=Math.hypot(run,rise);
+ const floors=b.commercialTower?clamp(Math.round((b.height||40)/8),3,14):clamp(Math.round(rise/7),4,11);
+ const fill=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(x,y,w,h);};
+ const facade=(x,y,dx,dy,length,shaded)=>{
+  const bays=clamp(Math.round(length/15),2,13),floor=depth/floors,bay=length/bays;
+  g.save();
+  g.transform(dx,dy,run/depth,rise/depth,x,y);
+  if(glow){
+   // Keep the light spill on the nearby glass and mullions.
+   g.beginPath();g.rect(0,0,length,Math.max(0,depth-2.5));g.clip();
+  }else fill(0,0,length,depth,shaded?'#435e66':'#557278');
+  for(let level=0;level<floors;level++){
+   const py=level*floor;
+   if(!glow){
+    fill(0,py,length,floor*.23,shaded?'#748d8e':b.facade);
+    fill(0,py+floor*.23,length,floor*.70,shaded?'#364f59':'#405c69');
+   }
+   for(let unit=0;unit<bays;unit++){
+    const px=unit*bay,mood=worldHash(b.detail,level*bays+unit,906+Number(shaded));
+    const lit=mood>.91;
+    const wx=px+bay*.11,wy=py+floor*.29,ww=bay*.78,wh=floor*.59;
+    if(glow){
+     if(!lit)continue;
+     g.drawImage(glow,wx-ww*.38,wy-wh*.75,ww*1.76,wh*2.5);
+     const warm=mood<.967;
+     fill(wx,wy,ww,wh,warm?'#f5c582':'#f4e4ba');
+     fill(wx+ww*.07,wy+wh*.1,ww*.86,wh*.38,warm?'#ffedbf':'#fff5db');
+    }else{
+     const base=shaded?'#4d6972':b.roofTone;
+     const tint=lit?(shaded?'#798e84':'#adb598'):mood<.26?'#3b535f':base;
+     fill(wx,wy,ww,wh,tint);
+     if(!lit)fill(wx,wy,ww,wh,'#1b35433b');
+     if(floor>6&&bay>7)fill(px+bay*.13,py+floor*.31,bay*.70,1,'#d4e1d03a');
+    }
+   }
+  }
+  if(!glow){
+   fill(0,0,1.5,depth,shaded?'#536f74':'#c2d1c8');
+   fill(0,depth-2.5,length,2.5,'#354d56');
+  }
+  g.restore();
+ };
+ // The two glazed faces project from the raised roof down to the street-level base.
+ facade(right,top,0,1,h,true);
+ facade(left,bottom,1,0,w,false);
+}
 function drawLanternOffice(b,x,y,w,h){
  const roof=lanternOfficeRoof(b),left=roof.x,top=roof.y,right=left+roof.w,bottom=top+roof.h;
- const {run,rise}=roof,depth=Math.hypot(run,rise);
- const floors=b.commercialTower?clamp(Math.round((b.height||40)/8),3,14):clamp(Math.round(rise/7),4,11);
- const fascia=b.facade,glass=b.roofTone;
  rect(x,y,w,h,'#839596');
  rect(x+2,y+2,w-4,h-4,'#9aacab');
  rect(x+2,y+h-9,w-4,7,'#7e9494');
  rect(x+w-5,y+2,3,h-5,'#617d7e');
- const facade=(ax,ay,bx,by,shaded)=>{
-  const length=Math.hypot(bx-ax,by-ay),bays=clamp(Math.round(length/15),2,13);
-  const floor=depth/floors,bay=length/bays;
-  ctx.save();
-  ctx.transform((bx-ax)/length,(by-ay)/length,run/depth,rise/depth,ax,ay);
-  rect(0,0,length,depth,shaded?'#435e66':'#557278');
-  for(let level=0;level<floors;level++){
-   const py=level*floor;
-   rect(0,py,length,floor*.23,shaded?'#748d8e':fascia);
-   rect(0,py+floor*.23,length,floor*.70,shaded?'#364f59':'#405c69');
-   for(let unit=0;unit<bays;unit++){
-    const px=unit*bay,mood=worldHash(b.detail,level*bays+unit,906+Number(shaded));
-    const base=shaded?'#4d6972':glass;
-    const tint=mood>.91?(shaded?'#798e84':'#adb598'):mood<.26?'#3b535f':base;
-    rect(px+bay*.11,py+floor*.29,bay*.78,floor*.59,tint);
-    if(mood<=.91)rect(px+bay*.11,py+floor*.29,bay*.78,floor*.59,'#1b35433b');
-    if(floor>6&&bay>7)rect(px+bay*.13,py+floor*.31,bay*.70,1,'#d4e1d03a');
-   }
-  }
-  rect(0,0,1.5,depth,shaded?'#536f74':'#c2d1c8');
-  rect(0,depth-2.5,length,2.5,'#354d56');
-  ctx.restore();
- };
- // The two glazed faces project from the raised roof down to the street-level base.
- facade(right,top,right,bottom,true);
- facade(left,bottom,right,bottom,false);
+ drawLanternOfficeFacades(ctx,b,roof);
 
- rect(left,top,roof.w,roof.h,fascia);
+ rect(left,top,roof.w,roof.h,b.facade);
  const trim=Math.min(4,roof.w*.09,roof.h*.12);
  rect(left+trim,top+trim,roof.w-trim*2,roof.h-trim*2,'#a3b4b5');
  rect(left+trim,top+trim,roof.w-trim*2,1.6,'#f0f0d4');
@@ -8045,7 +8125,7 @@ const nightMap={canvas:document.createElement('canvas'),build:-1};
 function prepareNightMap(pool){
  const {l,t,r,b,builds}=sceneryCache;
  if(nightMap.build===builds)return;
- const layer=nightMap.canvas,width=Math.ceil((r-l)*.5),height=Math.ceil((b-t)*.5);
+ const layer=nightMap.canvas,{width,height}=sceneryCache.ground;
  if(layer.width!==width||layer.height!==height){layer.width=width;layer.height=height;}
  const g=layer.getContext('2d'),sx=width/(r-l),sy=height/(b-t);
  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,width,height);
@@ -8057,6 +8137,10 @@ function prepareNightMap(pool){
  g.globalCompositeOperation='source-over';g.globalAlpha=.40;lamps.forEach(stamp);
  g.globalAlpha=1;g.fillStyle='#fff0ba';
  for(const {bx,by} of lamps){g.beginPath();g.arc(bx,by,1.7,0,TAU);g.fill();}
+ for(const office of buildings){
+  if(office.architecture!=='lantern'||office.x+office.hw<l||office.x-office.hw>r||office.y+office.hh<t||office.y-office.hh>b)continue;
+  drawLanternOfficeFacades(g,office,lanternOfficeRoof(office),pool);
+ }
  nightMap.build=builds;
 }
 function drawVehicleLights(c,beam){
@@ -8445,22 +8529,50 @@ function drawExplosions(){
 }
 // Reuse two bounded scenery layers as the camera moves. Tyre marks remain below
 // roofs, while cars, pickups, trees and explosions retain their original order.
-const sceneryCache={ground:document.createElement('canvas'),roofs:document.createElement('canvas'),railElevated:document.createElement('canvas'),valid:false,builds:0,uses:0};
+const sceneryCache={ground:document.createElement('canvas'),roofs:document.createElement('canvas'),railElevated:document.createElement('canvas'),railTiles:[],valid:false,builds:0,uses:0};
+function drawGroundScenery(){
+ drawRoads();
+ for(const b of blocks)if(visible(b.x+b.w/2,b.y+b.h/2,b.w/2+15,b.h/2+15))drawBlock(b);
+ for(const s of activeScenes.values())if(visible(s.x+s.w/2,s.y+s.h/2,s.w/2,s.h/2))drawSceneDetails(s);
+ for(const r of navigation.roads)if(r.theme==='residential')drawResidentialStreet(r,true);
+ drawStreetlampPosts();
+}
 function prepareScenery(){
- const cache=sceneryCache;
- if(cache.valid&&(cache.complete||cache.generation===worldWindow.generation)&&cache.scale===pixelRatio*zoom&&bounds.l>=cache.l&&bounds.r<=cache.r&&bounds.t>=cache.t&&bounds.b<=cache.b){cache.uses++;return;}
+ const cache=sceneryCache,scaleMatches=cache.scale===pixelRatio*zoom;
+ const reusable=cache.valid&&scaleMatches&&(cache.complete||cache.generation===worldWindow.generation);
+ if(reusable&&bounds.l>=cache.l&&bounds.r<=cache.r&&bounds.t>=cache.t&&bounds.b<=cache.b){cache.uses++;return;}
  const scale=pixelRatio*zoom,pad=160,w=Math.ceil((viewW/zoom+pad*2)*scale),h=Math.ceil((viewH/zoom+pad*2)*scale);
  // Put more of the existing buffer ahead on a sustained drive. Reserve enough
  // behind the camera to cover the visible bounds and a sudden change of direction.
  const leadX=clamp(player.vx*260,-pad*.55,pad*.55),leadY=clamp(player.vy*260,-pad*.55,pad*.55);
+ const oldL=cache.l,oldT=cache.t;
  cache.l=Math.floor((camera.x+leadX-viewW/(2*zoom)-pad)*scale)/scale;cache.t=Math.floor((camera.y+leadY-viewH/(2*zoom)-pad)*scale)/scale;
  cache.r=cache.l+w/scale;cache.b=cache.t+h/scale;cache.scale=scale;
- const screenContext=ctx,screenBounds=bounds;bounds={l:cache.l,t:cache.t,r:cache.r,b:cache.b};
+ const shiftX=Math.round((oldL-cache.l)*scale),shiftY=Math.round((oldT-cache.t)*scale);
+ const reuseGround=reusable&&cache.ground.width===w&&cache.ground.height===h&&Math.abs(shiftX)<w/2&&Math.abs(shiftY)<h/2;
+ const screenContext=ctx,screenBounds=bounds,fullBounds={l:cache.l,t:cache.t,r:cache.r,b:cache.b};
+ bounds=fullBounds;
  try{
   for(const kind of ['ground','roofs','railElevated']){
    const layer=cache[kind],transparent=kind!=='ground';
    if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
-   ctx=layer.getContext('2d',{alpha:transparent});ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;if(transparent)ctx.clearRect(0,0,w,h);
+   ctx=layer.getContext('2d',{alpha:transparent});ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;
+   if(kind==='ground'&&reuseGround){
+    const x=Math.max(0,shiftX),y=Math.max(0,shiftY),cw=w-Math.abs(shiftX),ch=h-Math.abs(shiftY);
+    ctx.drawImage(layer,x-shiftX,y-shiftY,cw,ch,x,y,cw,ch);
+    const strip=(x0,y0,x1,y1)=>{
+     if(x0===x1||y0===y1)return;
+     ctx.save();ctx.beginPath();ctx.rect(x0,y0,x1-x0,y1-y0);ctx.clip();
+     ctx.setTransform(scale,0,0,scale,-cache.l*scale,-cache.t*scale);
+     bounds={l:cache.l+x0/scale,t:cache.t+y0/scale,r:cache.l+x1/scale,b:cache.t+y1/scale};
+     drawGroundScenery();
+     ctx.restore();
+    };
+    strip(shiftX>0?0:x+cw,0,shiftX>0?x:w,h);
+    strip(x,shiftY>0?0:y+ch,x+cw,shiftY>0?y:h);
+    bounds=fullBounds;continue;
+   }
+   if(transparent)ctx.clearRect(0,0,w,h);
    ctx.setTransform(scale,0,0,scale,-cache.l*scale,-cache.t*scale);
    if(kind==='roofs'){
     cache.hasRoofs=false;
@@ -8470,20 +8582,25 @@ function prepareScenery(){
     }
    }
    else if(kind==='railElevated')cache.hasRails=railDrawElevated();
-   else{
-    drawRoads();
-    for(const b of blocks)if(visible(b.x+b.w/2,b.y+b.h/2,b.w/2+15,b.h/2+15))drawBlock(b);
-    for(const s of activeScenes.values())if(visible(s.x+s.w/2,s.y+s.h/2,s.w/2,s.h/2))drawSceneDetails(s);
-    for(const r of navigation.roads)if(r.theme==='residential')drawResidentialStreet(r,true);
-    drawStreetlampPosts();
-   }
+   else drawGroundScenery();
   }
  }finally{ctx=screenContext;bounds=screenBounds;}
  // A fully loaded patch can be reused after a chunk boundary moves behind it.
  cache.complete=insideLoaded(cache.l,cache.t,180)&&insideLoaded(cache.r,cache.b,180);
  cache.generation=worldWindow.generation;cache.valid=true;cache.builds++;
 }
-function paintScenery(layer){const c=sceneryCache;ctx.drawImage(layer,c.l,c.t,c.r-c.l,c.b-c.t);}
+function paintScenery(layer){
+ const c=sceneryCache;
+ if(layer.width!==c.ground.width||layer.height!==c.ground.height){
+  ctx.drawImage(layer,c.l,c.t,c.r-c.l,c.b-c.t);return;
+ }
+ // The cache is already rasterized at screen resolution. Blit whole pixels
+ // so a moving camera doesn't resample each large layer every frame.
+ const transform=ctx.getTransform();
+ const x=Math.round(c.l*c.scale+transform.e),y=Math.round(c.t*c.scale+transform.f);
+ ctx.save();ctx.setTransform(1,0,0,1,x,y);
+ ctx.drawImage(layer,0,0);ctx.restore();
+}
 function drawIndustrialEffects(){
  const sites=blocks.filter(b=>!b.scene&&b.type==='factory');
  for(const s of activeScenes.values())if(s.type==='oilfield'||s.type==='factory')sites.push(s);
@@ -8527,9 +8644,9 @@ function drawBankParticle(p){
  ctx.restore();
 }
 function draw(){
- ctx.setTransform(pixelRatio,0,0,pixelRatio,0,0);
- const shift=shake>.1?Math.sin(performance.now()*.1)*shake:0;
- ctx.translate(viewW/2+shift,viewH/2+shift*.4);ctx.scale(zoom,zoom);ctx.translate(-camera.x,-camera.y);
+ const shift=shake>.1?Math.sin(performance.now()*.1)*shake:0,scale=pixelRatio*zoom;
+ const x=Math.round((viewW/2+shift)*pixelRatio-camera.x*scale),y=Math.round((viewH/2+shift*.4)*pixelRatio-camera.y*scale);
+ ctx.setTransform(scale,0,0,scale,x,y);
  bounds={l:camera.x-viewW/(2*zoom)-45,r:camera.x+viewW/(2*zoom)+45,t:camera.y-viewH/(2*zoom)-45,b:camera.y+viewH/(2*zoom)+45};
  const night=nightLevel();
  prepareScenery();paintScenery(sceneryCache.ground);
