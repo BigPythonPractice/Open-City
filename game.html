@@ -960,6 +960,82 @@ function plannedSectorBlock(i,j,theme){
  }
  return plan[index];
 }
+function planResidentialParks(plan,areas,i0,j0,isClear){
+ areas.sort((a,b)=>a.score-b.score);
+ for(const [size,area] of areas.entries()){
+  // The two Community Park zones supply one four-sided district park and one linear park.
+  const large=size===0,shapes=large?[[3,2],[2,3]]:[[2,1],[1,2]];
+  let best=null,rank=-Infinity;
+  for(const [cols,rows] of shapes)for(let dy=0;dy<=3-rows;dy++)for(let dx=0;dx<=3-cols;dx++){
+   const x=area.x+dx,y=area.y+dy,i=i0+x,j=j0+y,lots=[];
+   for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)lots.push((y+row)*12+x+col);
+   const existing=lots.filter(n=>plan[n].type==='park').length;
+   const clear=lots.filter(isClear).length;
+   const score=4*existing+clear+worldHash(i,j,870+cols*3+rows);
+   if(score>rank){best={i,j,cols,rows,lots};rank=score;}
+  }
+  const {i,j,cols,rows,lots}=best;
+  const development={i,j,cols,rows,type:'park',variant:Math.floor(worldHash(i,j,875)*3)};
+  for(const n of lots)plan[n]={type:'park',development};
+ }
+}
+function consolidateResidentialParks(plan,i0,j0,isClear){
+ const neighbors=n=>{
+  const x=n%12,y=Math.floor(n/12);
+  return [x>0?n-1:-1,x<11?n+1:-1,y>0?n-12:-1,y<11?n+12:-1].filter(m=>m>=0);
+ };
+ const isSingle=n=>plan[n].type==='park'&&!plan[n].development;
+ const singles=()=>plan.map((_,n)=>n).filter(isSingle);
+ const canMerge=n=>!plan[n].development&&['park','housing','terraces'].includes(plan[n].type);
+ const assign=(x,y,cols,rows,lots)=>{
+  const i=i0+x,j=j0+y,development={i,j,cols,rows,type:'park',variant:Math.floor(worldHash(i,j,875)*3)};
+  for(const n of lots)plan[n]={type:'park',development};
+ };
+ const expand=shapes=>{
+  const available=singles();
+  let best=null,rank=-Infinity;
+  for(const [cols,rows] of shapes){
+   if(available.length<=cols*rows)continue;
+   for(let y=0;y<=12-rows;y++)for(let x=0;x<=12-cols;x++){
+    const lots=[];
+    for(let dy=0;dy<rows;dy++)for(let dx=0;dx<cols;dx++)lots.push((y+dy)*12+x+dx);
+    if(!lots.every(canMerge))continue;
+    const existing=lots.filter(isSingle).length;
+    if(!existing)continue;
+    const adjoining=lots.flatMap(neighbors).filter(n=>plan[n].development?.type==='park').length;
+    const score=existing*16+lots.filter(isClear).length-adjoining*2+worldHash(i0+x,j0+y,877+cols*3+rows);
+    if(score>rank){best={x,y,cols,rows,lots};rank=score;}
+   }
+  }
+  if(!best)return false;
+  const {x,y,cols,rows,lots}=best;
+  const replacements=lots.filter(n=>!isSingle(n));
+  // Exchange parcels to consolidate the existing park acreage.
+  const donors=available.filter(n=>!lots.includes(n)).sort((a,b)=>{
+   const distance=n=>Math.abs(n%12-x-(cols-1)/2)+Math.abs(Math.floor(n/12)-y-(rows-1)/2);
+   return neighbors(a).filter(isSingle).length-neighbors(b).filter(isSingle).length||
+    distance(a)-distance(b)||a-b;
+  });
+  for(const [i,n] of replacements.entries())plan[donors[i]]=plan[n];
+  assign(x,y,cols,rows,lots);
+  return true;
+ };
+ for(let n=0;n<2;n++)if(!expand([[3,2],[2,3]]))break;
+ for(let n=0;n<5;n++)if(!expand([[2,1],[1,2]]))break;
+ // Join any remaining neighboring pocket parks while keeping a small park.
+ for(const n of singles()){
+  if(!isSingle(n))continue;
+  const m=neighbors(n).find(isSingle);
+  if(m===undefined)continue;
+  if(singles().length===2){
+   const spare=plan.findIndex((_,k)=>canMerge(k)&&!isSingle(k)&&neighbors(k).every(p=>!isSingle(p)));
+   if(spare>=0)[plan[spare],plan[m]]=[plan[m],plan[spare]];
+   break;
+  }
+  const start=Math.min(n,m),vertical=Math.abs(n-m)===12;
+  assign(start%12,Math.floor(start/12),vertical?1:2,vertical?2:1,[n,m]);
+ }
+}
 function buildStreetSectorPlan(i0,j0,theme){
  const railSpace=railReservationsForArea(roadCoord(i0,0),roadCoord(j0,1),roadCoord(i0+12,0),roadCoord(j0+12,1));
  if(theme==='industrial'){
@@ -975,9 +1051,10 @@ function buildStreetSectorPlan(i0,j0,theme){
  const commercial=theme==='commercial',zoneAt=commercial?commercialKind:residentialKind;
  const zones=commercial?COMMERCIAL_ZONES:RESIDENTIAL_ZONES;
  const landmarks=commercial?COMMERCIAL_LANDMARKS:RESIDENTIAL_AMENITIES;
- const plan=Array(144);
+ const plan=Array(144),parkAreas=[];
  for(let y=0;y<4;y++)for(let x=0;x<4;x++){
   const a=i0/3+x,b=j0/3+y,kind=zoneAt(a,b),blocks=zones[kind].blocks;
+  if(!commercial&&kind==='greens')parkAreas.push({x:x*3,y:y*3,score:worldHash(a,b,869)});
   const mirrorX=worldHash(a,b,682)<.5,mirrorY=worldHash(a,b,683)<.5;
   for(let dy=0;dy<3;dy++)for(let dx=0;dx<3;dx++){
    const type=blocks[(mirrorY?2-dy:dy)*3+(mirrorX?2-dx:dx)];
@@ -994,12 +1071,13 @@ function buildStreetSectorPlan(i0,j0,theme){
   clear[n]=!railReserved({x:(l+r)/2,y:(t+bottom)/2,hw:(r-l)/2,hh:(bottom-t)/2},railSpace,0);
   return clear[n];
  };
+ if(!commercial)planResidentialParks(plan,parkAreas,i0,j0,isClear);
  // Move sites that need clear ground to a nearby parcel in the same sector.
  for(const [n,site] of plan.entries()){
   if(!landmarks.has(site.type)||isClear(n))continue;
   let nearest=-1,bestDistance=Infinity;
   for(const [m,spare] of plan.entries()){
-   if(landmarks.has(spare.type))continue;
+   if(landmarks.has(spare.type)||spare.development)continue;
    const distance=Math.abs(n%12-m%12)+Math.abs(Math.floor(n/12)-Math.floor(m/12));
    if(distance<bestDistance&&isClear(m)){nearest=m;bestDistance=distance;}
   }
@@ -1039,7 +1117,10 @@ function buildStreetSectorPlan(i0,j0,theme){
    }
    if(branch>=0)plan[branch].type='bank';
   }
- }else planMergedDevelopments(plan,i0,j0,railSpace,'terraces',types=>types.every(type=>type==='housing'||type==='terraces'));
+ }else{
+  planMergedDevelopments(plan,i0,j0,railSpace,'terraces',types=>types.every(type=>type==='housing'||type==='terraces'));
+  consolidateResidentialParks(plan,i0,j0,isClear);
+ }
  return plan;
 }
 
@@ -1732,11 +1813,55 @@ function generateFactoryDevelopment(s,road,building,obstacle,away,rng){
   for(const d of lot.decor)s.decor.push({...d,y:orientY(d.y,d.h)});
  }
 }
+function generateParkDevelopment(s,obstacle,away,rng){
+ const {left,right,top,bottom}=s.land,w=right-left,h=bottom-top;
+ const large=s.development.cols*s.development.rows===6,vertical=h>w;
+ const point=(u,v)=>vertical?{x:left+w*v,y:top+h*u}:{x:left+w*u,y:top+h*v};
+ const root=residentialName(s.a,s.b),names=large?['Cedar Park','Alder Park','Willow Park']:['Garden Walk','Juniper Commons','Linden Gardens'];
+ s.name=root+' · '+names[s.development.variant];
+ s.entry=point(.5,1);s.showcase=point(.5,.5);
+ const boundary=[[.17,.12],[.83,.12],[.91,.25],[.91,.75],[.83,.88],[.17,.88],[.09,.75],[.09,.25],[.17,.12]];
+ const walks=[boundary,[[.49,0],[.49,1]],[[0,.5],[.09,.5]],[[.91,.5],[1,.5]]];
+ s.parkPaths=walks.map((points,i)=>roadObject(points.map(([u,v])=>point(u,v)),i?13:16,'path'));
+ const walksSegments=s.parkPaths.flatMap(path=>path.segments);
+ if(large){
+  const rx=w*(vertical?.17:.131),ry=h*(vertical?.131:.17);
+  for(const p of [point(.70,.52),point(.72,.64),point(.70,.37),point(.27,.52)]){
+   if(!away({...p,hw:rx,hh:ry},9))continue;
+   const phase=rng()*TAU;
+   const shore=Array.from({length:36},(_,n)=>{
+    const angle=n/36*TAU,k=1+.065*Math.sin(3*angle+phase);
+    return {x:p.x+rx*Math.cos(angle)*k,y:p.y+ry*Math.sin(angle)*k};
+   });
+   s.water=naturePolygon(shore);
+   addChannelObstacles(s.water,s.land,[],obstacle,'water');
+   break;
+  }
+ }
+ for(const u of [.17,.37,.63,.83])for(const v of [.155,.845]){
+  const p=point(u,v),hw=vertical?3:13,hh=vertical?13:3;
+  if(away({...p,hw,hh},4))s.decor.push({...p,kind:'parkBench',hw,hh});
+ }
+ for(const v of [.25,.40,.60,.75]){
+  const p=point(.535,v),hw=vertical?Math.min(24,w*.041):9,hh=vertical?9:Math.min(24,h*.041);
+  if(away({...p,hw,hh},4))s.decor.push({...p,kind:'flowerBed',hw,hh,color:v<.5?'#c88c7a':'#ddbc71'});
+ }
+ for(let n=0;n<Math.round(w*h/2850);n++){
+  const u=.035+rng()*.93,v=.045+rng()*.91,r=9+rng()*9,p=point(u,v);
+  const openLawn=u>.19&&u<.41&&v>.28&&v<.72;
+  if(openLawn||naturePolygonNear(s.water,p.x,p.y,r+10)||!away({...p,hw:r,hh:r},3))continue;
+  if(walksSegments.some(seg=>projectSegment(p.x,p.y,seg.a,seg.b).distance<seg.width/2+r+4))continue;
+  if(s.decor.some(d=>Math.abs(d.x-p.x)<d.hw+r+4&&Math.abs(d.y-p.y)<d.hh+r+4))continue;
+  if(s.trees.some(t=>Math.hypot(t.x-p.x,t.y-p.y)<(t.r+r)*.78))continue;
+  s.trees.push({...p,r,tone:rng()});
+ }
+}
 function generateDevelopment(s,road,building,obstacle,away,rng){
  const {i,j,cols,rows,vertical,type,variant}=s.development;
  const lastI=i+cols,lastJ=j+rows;
  const land=s.land={left:s.x+roadHalf(i,0),right:s.x+s.w-roadHalf(lastI,0),
   top:s.y+roadHalf(j,1),bottom:s.y+s.h-roadHalf(lastJ,1)};
+ if(type==='park'){generateParkDevelopment(s,obstacle,away,rng);return;}
  if(type==='terraces'){generateTerraceDevelopment(s,building,rng);return;}
  if(type==='factory'){generateFactoryDevelopment(s,road,building,obstacle,away,rng);return;}
  const {left,right,top,bottom}=land;
@@ -3385,7 +3510,7 @@ function railSetDestination(x,y){
 
 const player={...makeCar(roadCoord(5,0)+160,roadCoord(4,1)+LANE,0,'#e8e8cd','player'),invMass:1.2};
 const SAVE_KEY='open-city.garage.v1';
-const WORLD_LAYOUT_VERSION=16;
+const WORLD_LAYOUT_VERSION=18;
 const TROPHIES=[
  {id:'gold-bar',name:'Gold bar',price:2500},
  {id:'gold-stack',name:'Gold bar stack',price:8000},
@@ -3647,7 +3772,7 @@ function relocateWorldStops(stops,index,mode,bands,savedLayout){
    area.type!=='oldtown'&&stop.site.startsWith('scenic:oldtown:');
   const newTown=savedLayout<9&&area.type==='oldtown';
   const i0=roadIndex(stop.x,0),j0=roadIndex(stop.y,1);
-  const developmentVersion=area.type==='industrial'?13:area.residential?12:area.commercial?11:10;
+  const developmentVersion=area.type==='industrial'?13:area.residential?18:area.commercial?11:10;
   const development=savedLayout<developmentVersion?streetDevelopment(i0,j0,area.type):null;
   const siteChanged=development||savedLayout<10&&(area.type==='docks'||area.type==='oilfield');
   const newReserve=savedLayout<WORLD_LAYOUT_VERSION&&area.type==='offroad'&&!reserveBiomeAt(area.a,area.b,savedLayout);
@@ -6266,7 +6391,32 @@ function drawNatureGround(s,g,map){
  if(!map)for(const p of s.plants)if(visible(p.x,p.y,p.r+3))drawNaturePlant(p);
  g.restore();
 }
+function drawParkGround(s,g,map){
+ const {left,right,top,bottom}=s.land,w=right-left,h=bottom-top;
+ g.fillStyle='#b9c0a8';g.fillRect(left,top,w,h);
+ g.fillStyle='#8fa679';g.fillRect(left+11,top+11,w-22,h-22);
+ if(!map){
+  g.save();g.beginPath();g.rect(left+11,top+11,w-22,h-22);g.clip();
+  for(let j=Math.floor(top/100);j*100<bottom+100;j++)for(let i=Math.floor(left/100);i*100<right+100;i++){
+   const n=worldHash(i,j,876);
+   g.fillStyle=n<.48?'#69886523':'#b2bc8330';g.beginPath();
+   g.ellipse(i*100+n*60,j*100+n*28,38+n*39,24+n*18,n*TAU,0,TAU);g.fill();
+  }
+  g.restore();
+ }
+ if(s.water)drawNatureWater(g,s.water,map);
+ for(const path of s.parkPaths){
+  if(!map)strokeRoad(g,path,'#a29b76',path.width+4);
+  strokeRoad(g,path,'#d5c7a4');
+ }
+ if(map){
+  g.fillStyle='#67875f';g.beginPath();
+  for(const t of s.trees)g.rect(t.x-4,t.y-4,8,8);
+  g.fill();
+ }
+}
 function sceneGround(s,g=ctx,map=false){
+ if(s.type==='park'){drawParkGround(s,g,map);return;}
  if(s.type==='offroad')drawNatureGround(s,g,map);
  else{
   const overlap=map?1:.6,land=s.land;
@@ -6630,7 +6780,7 @@ function drawSceneDetails(s){
  if(s.development){
   for(const d of s.decor){
    if(!visible(d.x,d.y,d.hw+8,d.hh+8))continue;
-   if(d.kind==='flowerBed'||d.kind==='courtFountain')drawSiteFixture(d);
+   if(d.kind==='flowerBed'||d.kind==='courtFountain'||d.kind==='parkBench')drawSiteFixture(d);
   }
   return;
  }
@@ -6742,7 +6892,11 @@ function drawOilEquipment(d){
 }
 function drawSiteFixture(d){
  const {x,y,hw,hh}=d,w=hw*2,h=hh*2,left=x-hw,top=y-hh,r=Math.min(hw,hh);
- if(d.kind==='parasol'){
+ if(d.kind==='parkBench'){
+  rounded(left+2,top+3,w,h,2,'#4a604d66');rounded(left,top,w,h,2,'#806c51');
+  if(hw>hh)rect(left+2,top+1,w-4,1.5,'#c4a880');
+  else rect(left+1,top+2,1.5,h-4,'#c4a880');
+ }else if(d.kind==='parasol'){
   const radius=r*.80;
   for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
    const px=x+dx*hw*.74,py=y+dy*hh*.74;rounded(px-3,py-3,6,6,1.3,'#785e47');
@@ -8241,7 +8395,7 @@ function updateHUD(){
  const brakeButton=document.querySelector('.touch .hand');brakeButton.textContent=progress.mode==='train'?'STOP':'DRIFT';brakeButton.setAttribute('aria-label',progress.mode==='train'?'Train brake':'Handbrake');
  const nearGrid=Math.min(r.dx,r.dy)<(r.dy<r.dx?roadHalf(r.iy,1):roadHalf(r.ix,0))+16;
  const namedGrid=nearGrid&&gridEdge(r.dy<r.dx?1:0,r.dy<r.dx?r.iy:r.ix,r.dy<r.dx?i:j);
- $('street').textContent=namedGrid?(r.dy<r.dx?streetName(r.iy,1):streetName(r.ix,0)):feature.type==='airport'?'Runways, taxiways & open aprons':feature.type==='oldtown'?'Cobbled lanes · One-way streets':scene?.farm?(surface==='dirt'?'Dirt farm lane · Loose grip':scene.farm.pastures?'Livestock pastures':'Crop fields'):feature.type==='offroad'?(surface==='dirt'?'Dirt trail · Loose grip':'Rough ground · Explore freely'):feature.type==='docks'?'Container terminal · Service roads':feature.type==='oilfield'?'Oil field · Gravel service roads':scene?.development?(scene.type==='offices'?'Office campus':scene.type==='factory'?'Factory complex':'Terraced housing'):'Exploring the neighbourhood';
+ $('street').textContent=namedGrid?(r.dy<r.dx?streetName(r.iy,1):streetName(r.ix,0)):feature.type==='airport'?'Runways, taxiways & open aprons':feature.type==='oldtown'?'Cobbled lanes · One-way streets':scene?.farm?(surface==='dirt'?'Dirt farm lane · Loose grip':scene.farm.pastures?'Livestock pastures':'Crop fields'):feature.type==='offroad'?(surface==='dirt'?'Dirt trail · Loose grip':'Rough ground · Explore freely'):feature.type==='docks'?'Container terminal · Service roads':feature.type==='oilfield'?'Oil field · Gravel service roads':scene?.development?(scene.type==='offices'?'Office campus':scene.type==='factory'?'Factory complex':scene.type==='park'?'Park paths':'Terraced housing'):'Exploring the neighbourhood';
  if(progress.mode==='train')$('street').textContent=railJunctionHint();
  const waypoint=freeRoamWaypoint(),target=waypoint||exploration.target,hint=$('destinationHint');
  hint.hidden=!target||JOB_MODES.includes(progress.mode);hint.classList.toggle('waypoint',!!waypoint);
