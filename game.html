@@ -138,23 +138,27 @@
 @media(max-width:460px){.trophy-dialog{padding:17px}.trophy-head{align-items:flex-start;flex-direction:column}.trophy-bank{text-align:left}.trophy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.trophy-item.trophy-awarded,.trophy-item.trophy-shake,.trophy-item.trophy-awarded::after{animation:none}}
 .train-mode:not(.rail-manual) .touch-left{display:none}.train-mode .touch .hand{color:#f3d68e}.mode-card[data-mode=train]{grid-column:span 6}@media(max-width:640px){.mode-card[data-mode=train],.mode-card[data-mode=free],.mode-card[data-mode=police]{grid-column:1}}
+body[data-input="gamepad"] .touch{display:none}
+body[data-input="gamepad"] .modal :is(button,select,#atlas):focus{outline:2px solid #e8f7ab;outline-offset:3px}
+.gamepad-menu-hint{position:fixed;z-index:11;bottom:5px;left:50%;transform:translateX(-50%);padding:5px 10px;border-radius:6px;background:#17342f;color:#e8f7ab;font-size:11px;white-space:nowrap;pointer-events:none}
 </style>
 </head>
 <body>
 <canvas id="game" tabindex="0" aria-label="Top-down free roam driving game. Use W A S D or arrow keys to drive, Space to drift, R to recover, M for the map, and Escape to pause."></canvas>
 <div class="vignette"></div>
-<header class="top"><div class="brand"><div class="brand-icon" aria-hidden="true">↗</div><div><div class="brand-name">OPEN CITY</div><span class="brand-sub">ENDLESS ROADS. YOUR WAY.</span></div></div><nav class="top-right" aria-label="Game controls"><button class="pill" id="modeMenuBtn" title="Choose game mode (V)" aria-haspopup="dialog"><span class="live-dot"></span><span id="modeName">FREE ROAM</span><span class="menu-caret" aria-hidden="true">⌄</span></button><button class="iconbtn" id="garageBtn" title="Garage (G)" aria-label="Open upgrade garage"><svg viewBox="0 0 20 20"><path d="M12 2a5 5 0 0 0-5 7l-5 5a2 2 0 0 0 4 4l5-5a5 5 0 0 0 7-5l-4 2-3-3z"/></svg></button><button type="button" class="iconbtn" id="trophyBtn" title="Trophy Room (B)" aria-label="Open Trophy Room (B)" aria-haspopup="dialog"><span aria-hidden="true">★</span></button><button class="iconbtn" id="mapBtn" title="City map (M)" aria-label="Open city map"><svg viewBox="0 0 20 20"><path d="m2 4 5-2 6 2 5-2v14l-5 2-6-2-5 2zM7 2v14M13 4v14"/></svg></button><button class="iconbtn" id="helpBtn" title="Driving controls" aria-label="Driving controls">?</button><button class="iconbtn" id="pauseBtn" title="Pause (Esc)" aria-label="Pause game">Ⅱ</button></nav></header>
+<header class="top"><div class="brand"><div class="brand-icon" aria-hidden="true">↗</div><div><div class="brand-name">OPEN CITY</div><span class="brand-sub">ENDLESS ROADS. YOUR WAY.</span></div></div><nav class="top-right" aria-label="Game controls"><button class="pill" id="modeMenuBtn" data-pad-title="Choose game mode (D-pad ↑)" title="Choose game mode (V)" aria-haspopup="dialog"><span class="live-dot"></span><span id="modeName">FREE ROAM</span><span class="menu-caret" aria-hidden="true">⌄</span></button><button class="iconbtn" id="garageBtn" data-pad-title="Garage ({garage})" title="Garage (G)" aria-label="Open upgrade garage"><svg viewBox="0 0 20 20"><path d="M12 2a5 5 0 0 0-5 7l-5 5a2 2 0 0 0 4 4l5-5a5 5 0 0 0 7-5l-4 2-3-3z"/></svg></button><button type="button" class="iconbtn" id="trophyBtn" data-pad-title="Trophy Room ({trophies})" title="Trophy Room (B)" aria-label="Open Trophy Room" aria-haspopup="dialog"><span aria-hidden="true">★</span></button><button class="iconbtn" id="mapBtn" data-pad-title="City map ({map})" title="City map (M)" aria-label="Open city map"><svg viewBox="0 0 20 20"><path d="m2 4 5-2 6 2 5-2v14l-5 2-6-2-5 2zM7 2v14M13 4v14"/></svg></button><button class="iconbtn" id="helpBtn" data-pad-title="Driving controls ({help})" title="Driving controls" aria-label="Driving controls">?</button><button class="iconbtn" id="pauseBtn" data-pad-title="Pause ({pause})" title="Pause (Esc)" aria-label="Pause game">Ⅱ</button></nav></header>
 <div class="location"><div class="eyebrow">YOU ARE EXPLORING</div><strong id="district">Garden Quarter</strong><small id="street">Juniper Avenue</small><small id="dayCycle" class="day-cycle" aria-label="Day and night countdown" hidden></small><small id="destinationHint" class="destination-hint" hidden></small><small id="pickupHint" class="pickup-hint" hidden></small></div>
-<div class="police-control"><button class="police-toggle cycle-mode" id="cycleModeBtn" title="Cycle through game modes (C)"><span class="police-key">C</span> NEXT: <b id="nextModeName">Police chase</b><span aria-hidden="true">↗</span></button><span class="pursuit-status" id="pursuitStatus" role="status" hidden></span></div>
-<section class="intro" id="intro"><div class="eyebrow">THE CITY KEEPS GOING</div><h1>Every turn<br>is <em>yours.</em></h1><p>Roam endless streets, outrun the police, carry passengers, deliver freight, or take the railway through the countryside. Every kilometre and completed job helps build your ride.</p><button class="start" id="startBtn">Let's drive <span aria-hidden="true">↗</span></button><button class="intro-modes" id="introModesBtn">Choose a game mode · V</button><div class="intro-footer"><span>WASD / ARROWS TO DRIVE</span><i>JUST EXPLORE.</i></div></section>
-<section class="map-card" aria-label="Minimap"><button class="map-button" id="miniBtn" title="Open city map (M)" aria-label="Open city map"><canvas id="mini" width="420" height="348"></canvas><span class="north">↑ N</span></button><div class="map-label"><span>ENDLESS CITY</span><span>M ↗</span></div></section>
-<section class="drive-hud" aria-label="Driving dashboard"><div class="car-title"><span id="activeVehicleName">THE RUNABOUT</span><span>●</span></div><div class="speed-line"><span class="speed" id="speed">0</span><span class="unit">KM/H</span><span class="gear" id="gear">N</span></div><div class="speed-track"><div class="speed-fill" id="speedFill"></div></div><div class="turbo-meter" id="turboMeter" hidden><div class="turbo-label"><span id="turboStatus">TURBO READY</span><span>SHIFT</span></div><div class="turbo-track"><i id="turboFill"></i></div></div><div class="distance"><span>LIFETIME</span><b id="distance">0.00 km</b></div><button class="garage-wallet" id="walletBtn" title="Spend kilometres in the garage (G)"><span>GARAGE ↗</span><b id="wallet">0.00 km</b></button></section>
+<div class="police-control"><button class="police-toggle cycle-mode" id="cycleModeBtn" data-pad-title="Cycle through game modes (D-pad ↓)" title="Cycle through game modes (C)"><span class="police-key" data-pad-hint="D-pad ↓">C</span> NEXT: <b id="nextModeName">Police chase</b><span aria-hidden="true">↗</span></button><span class="pursuit-status" id="pursuitStatus" role="status" hidden></span></div>
+<section class="intro" id="intro"><div class="eyebrow">THE CITY KEEPS GOING</div><h1>Every turn<br>is <em>yours.</em></h1><p>Roam endless streets, outrun the police, carry passengers, deliver freight, or take the railway through the countryside. Every kilometre and completed job helps build your ride.</p><button class="start" id="startBtn">Let's drive <span aria-hidden="true" data-pad-hint="{confirm}">↗</span></button><button class="intro-modes" id="introModesBtn">Choose a game mode · <span data-pad-hint="D-pad ↑">V</span></button><div class="intro-footer"><span data-pad-hint="{accelerate} / {reverse} · LEFT STICK">WASD / ARROWS TO DRIVE</span><i>JUST EXPLORE.</i></div></section>
+<section class="map-card" aria-label="Minimap"><button class="map-button" id="miniBtn" data-pad-title="Open city map ({map})" title="Open city map (M)" aria-label="Open city map"><canvas id="mini" width="420" height="348"></canvas><span class="north">↑ N</span></button><div class="map-label"><span>ENDLESS CITY</span><span data-pad-hint="{map} ↗">M ↗</span></div></section>
+<section class="drive-hud" aria-label="Driving dashboard"><div class="car-title"><span id="activeVehicleName">THE RUNABOUT</span><span>●</span></div><div class="speed-line"><span class="speed" id="speed">0</span><span class="unit">KM/H</span><span class="gear" id="gear">N</span></div><div class="speed-track"><div class="speed-fill" id="speedFill"></div></div><div class="turbo-meter" id="turboMeter" hidden><div class="turbo-label"><span id="turboStatus">TURBO READY</span><span data-pad-hint="{boost}">SHIFT</span></div><div class="turbo-track"><i id="turboFill"></i></div></div><div class="distance"><span>LIFETIME</span><b id="distance">0.00 km</b></div><button class="garage-wallet" id="walletBtn" data-pad-title="Spend kilometres in the garage ({garage})" title="Spend kilometres in the garage (G)"><span>GARAGE ↗</span><b id="wallet">0.00 km</b></button></section>
 <div id="powerHud" class="power-hud" aria-label="Active pickup powers" hidden><div class="power-card" id="power-speed" style="--power:#efd276" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">ϟ</span>SPEED +40%</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-phase" style="--power:#8bdedc" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">◇</span>GHOST DRIVE</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-nitro" style="--power:#c7a5f2" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">∞</span>INFINITE NITRO</div><span class="power-time"></span><div class="power-track"><i></i></div></div></div>
 <div class="toast" id="toast" role="status"></div>
+<div class="gamepad-menu-hint" id="gamepadMenuHint" aria-hidden="true" hidden></div>
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
 <div class="modal" id="pauseModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><button class="iconbtn close" data-close aria-label="Resume driving">×</button><div class="eyebrow">TAKE YOUR TIME</div><h2 id="pauseTitle">Parked for a moment.</h2><p>The city will be right here.</p><button class="start" id="resumeBtn">Keep driving <span>↗</span></button></section></div>
-<div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b>W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b>S / ↓</b></div><div class="help-row"><span>Steer (road vehicles)</span><b>A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b>SPACE</b></div><div class="help-row"><span>Recover to a clear road or railway</span><b>R</b></div><div class="help-row"><span>Garage / city map</span><b>G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b>SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b>C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b>E</b></div><div class="help-row"><span>Trophy Room</span><b>B</b></div><div class="help-row"><span>Pause</span><b>ESC</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances, fire trucks and motorbikes. Traffic drives at different speeds. Ambulances, fire trucks and police cars in regular traffic get priority at crossings. Fast motorcycle groups sometimes ride the expressways at night. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open M and use Find nearby to pin a residential, commercial or industrial sector, airport, giant Old Town, highway or giant reserve. Drive to earn spendable kilometres. Press G to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting (Shift + accelerate), hitting another car makes it explode and clears it from your path—including parked cars and police. Every pursuing police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; Shift + accelerate, even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Press E or Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage. Train mode places your three-car train on the nearest clear railway, with matching outward-facing cabs at each end and a carriage in the middle. Use W / Up to go forward, S / Down to brake then reverse, and Space for stronger braking. Speed, acceleration and Shift boost are equal in both directions. Between jobs, tap A / Left or D / Right to move one step through Left, Straight and Right for the next junction. For example, after choosing Right, tap Left once for Straight and again for Left. Choices follow your direction of travel, including while reversing. Without a selection the train continues straight, or follows your chosen map destination. You can change the queued turn until your leading cab enters the junction. During an accepted station job, junctions follow the job automatically. Stop with the center of any of the three cars inside the purple station marker for two seconds to load or unload. Railway jobs alternate passenger services and freight deliveries, with no time limit. G opens your separate Train garage. M shows the connected railway and stations; when you have no active job, click a station to choose a rail destination. Occasional NPC trains stop at stations and obey shared signals. The entire railway, including junctions and stations, is elevated on continuous bridges. Road vehicles pass beneath it; trains and ground traffic never collide with or yield to each other. Tracks and bridge decks fade while driving a road vehicle and become fully opaque in Train mode. Switching back places your road vehicle on a nearby clear road. Your rail jobs, train position and upgrades are saved.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
-<div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><select id="oldTownDiscovery" aria-label="Find giant Old Town"><option value="" selected disabled>Giant Old Town</option><option value="any">Nearest Old Town</option><option value="terracotta">Terracotta</option><option value="alpine">Alpine</option><option value="merchant">Merchant</option><option value="sandstone">Sandstone</option></select><button data-landscape="industrial">Industrial sector</button><button data-landscape="residential">Residential sector</button><button data-landscape="commercial">Commercial sector</button><button data-landscape="highway">Highway</button><button data-landscape="giant-reserve">Giant reserve</button><button data-landscape="giant-badlands">Giant badlands</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-describedby="mapControlsHint" aria-label="Map of the surrounding city. Drag to explore and scroll to zoom."></canvas><div class="map-foot"><span>↗ YOU · <span style="color:#e0c48b">━ RAIL · ● STATION</span></span><span id="mapControlsHint">Drag to explore · Scroll to zoom</span><span>M / ESC TO CLOSE</span></div></section></div>
+<div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle" data-pad-hint="Controller controls">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b data-pad-hint="{accelerate}">W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b data-pad-hint="{reverse}">S / ↓</b></div><div class="help-row"><span>Steer (road vehicles)</span><b data-pad-hint="Left stick / D-pad ← →">A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b data-pad-hint="{brake}">SPACE</b></div><div class="help-row"><span>Recover to a clear road or railway</span><b data-pad-hint="{recover}">R</b></div><div class="help-row"><span>Garage / city map</span><b data-pad-hint="{garage} / {map}">G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b data-pad-hint="{boost} + {accelerate}">SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b data-pad-hint="D-pad ↓ / ↑">C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b data-pad-hint="{confirm}">E</b></div><div class="help-row"><span>Trophy Room</span><b data-pad-hint="{trophies}">B</b></div><div class="help-row"><span>Pause</span><b data-pad-hint="{pause}">ESC</b></div><div class="help-row"><span>Open controls</span><b data-pad-hint="{help}">? button</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances, fire trucks and motorbikes. Traffic drives at different speeds. Ambulances, fire trucks and police cars in regular traffic get priority at crossings. Fast motorcycle groups sometimes ride the expressways at night. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open the map and use Find nearby to pin a residential, commercial or industrial sector, airport, giant Old Town, highway or giant reserve. Drive to earn spendable kilometres. Open the garage to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting, hitting another car makes it explode and clears it from your path—including parked cars and police. Every pursuing police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; boost even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Choose Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage. Train mode places your three-car train on the nearest clear railway, with matching outward-facing cabs at each end and a carriage in the middle. Use <span data-pad-hint="{accelerate}">W / Up</span> to go forward, <span data-pad-hint="{reverse}">S / Down</span> to brake then reverse, and <span data-pad-hint="{brake}">Space</span> for stronger braking. Speed, acceleration and boost are equal in both directions. Between jobs, tap <span data-pad-hint="D-pad ← / →">A / Left or D / Right</span> to move one step through Left, Straight and Right for the next junction. For example, after choosing Right, tap Left once for Straight and again for Left. Choices follow your direction of travel, including while reversing. Without a selection the train continues straight, or follows your chosen map destination. You can change the queued turn until your leading cab enters the junction. During an accepted station job, junctions follow the job automatically. Stop with the center of any of the three cars inside the purple station marker for two seconds to load or unload. Railway jobs alternate passenger services and freight deliveries, with no time limit. The Train garage has its own upgrades. Open the map to set a rail destination between jobs. Occasional NPC trains stop at stations and obey shared signals. The entire railway, including junctions and stations, is elevated on continuous bridges. Road vehicles pass beneath it; trains and ground traffic never collide with or yield to each other. Tracks and bridge decks fade while driving a road vehicle and become fully opaque in Train mode. Switching back places your road vehicle on a nearby clear road. Your rail jobs, train position and upgrades are saved.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
+<div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><select id="oldTownDiscovery" aria-label="Find giant Old Town"><option value="" selected disabled>Giant Old Town</option><option value="any">Nearest Old Town</option><option value="terracotta">Terracotta</option><option value="alpine">Alpine</option><option value="merchant">Merchant</option><option value="sandstone">Sandstone</option></select><button data-landscape="industrial">Industrial sector</button><button data-landscape="residential">Residential sector</button><button data-landscape="commercial">Commercial sector</button><button data-landscape="highway">Highway</button><button data-landscape="giant-reserve">Giant reserve</button><button data-landscape="giant-badlands">Giant badlands</button><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-describedby="mapControlsHint" aria-label="Map of the surrounding city."></canvas><div class="map-foot"><span>↗ YOU · <span style="color:#e0c48b">━ RAIL · ● STATION</span></span><span id="mapControlsHint">Drag to explore · Scroll to zoom</span><span data-pad-hint="{back} TO CLOSE">M / ESC TO CLOSE</span></div></section></div>
 <div class="modal" id="garageModal" hidden><section class="dialog garage-dialog" role="dialog" aria-modal="true" aria-labelledby="garageTitle"><button class="iconbtn close" data-close aria-label="Close garage">×</button><div class="garage-head"><div><div class="eyebrow" id="garageEyebrow">NORTHSIDE CUSTOMS / CAR GARAGE</div><h2 id="garageTitle">Make it yours.</h2></div><div class="bank"><small>AVAILABLE TO SPEND</small><strong id="garageBank">0.00 <span>km</span></strong></div></div><p class="garage-intro" id="garageIntro">This garage belongs to the active vehicle. Its performance and style progress are saved independently.</p><div class="garage-layout"><section class="vehicle-card" id="garageVehicleCard" aria-label="Your car"><div class="vehicle-heading"><span id="garageVehicleHeading">THE RUNABOUT</span><span id="buildStatus">YOUR BUILD</span></div><canvas id="garageCar" width="640" height="400" aria-label="Preview of your equipped paint and cosmetics"></canvas><div class="vehicle-name" id="vehicleName"></div><div class="preview-actions" id="previewActions" hidden></div><div class="vehicle-stats" id="vehicleStats"></div><p class="garage-save" id="garageSave">Progress saved in this browser.</p></section><div class="garage-shop"><div class="garage-tabs" aria-label="Upgrade category"><button class="garage-tab" data-shop-tab="paint" aria-pressed="true" aria-controls="styleShop">Paint</button><button class="garage-tab" data-shop-tab="livery" aria-pressed="false" aria-controls="styleShop">Liveries</button><button class="garage-tab" data-shop-tab="wheels" aria-pressed="false" aria-controls="styleShop">Wheels</button><button class="garage-tab" data-shop-tab="lighting" aria-pressed="false" aria-controls="styleShop">Lights</button><button class="garage-tab" data-shop-tab="detail" aria-pressed="false" aria-controls="styleShop">Body</button><button class="garage-tab" data-shop-tab="performance" aria-pressed="false" aria-controls="performanceShop">Performance</button></div><div id="performanceShop"></div><div id="styleShop" hidden></div><p class="garage-feedback" id="garageFeedback" role="status" aria-live="polite">A little more road. A little more you.</p></div></div><div class="garage-bottom"><span>The city is paused. Cosmetic previews are free. Bought items stay with this vehicle and can be equipped any time.</span><button class="start" data-close>Back to the city <span>↗</span></button></div></section></div>
 <section class="job-card" id="jobCard" aria-label="Current driving job" hidden>
  <div class="job-heading"><span class="eyebrow" id="jobEyebrow">CITY TRANSIT</span><span id="jobStage"></span></div>
@@ -166,15 +170,15 @@
  <div class="job-bonus-row job-takedown" id="jobTakedown" role="status" hidden><span>Takedown bonus</span><strong id="jobTakedownValue">0% · +0 KM</strong></div>
  <div class="job-bonus-row job-distance-bonus" id="jobDistanceBonus" hidden><span>Distance bonus</span><strong id="jobDistanceBonusValue"></strong></div>
  <p id="jobInstruction"></p><div class="job-progress" id="jobProgress" role="progressbar" aria-label="Boarding or loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="jobProgressFill"></i></div>
- <button class="job-accept" id="acceptJobBtn" hidden><span id="acceptJobLabel">Accept job</span><kbd>E</kbd></button>
- <div class="job-actions"><button id="jobMapBtn">Show on map ↗</button><button id="newJobBtn" class="next-job" aria-keyshortcuts="N" title="Find a new job with a pickup near your current location"><span id="newJobLabel">Next job</span><kbd id="newJobKey" aria-hidden="true">N</kbd></button></div>
+ <button class="job-accept" id="acceptJobBtn" hidden><span id="acceptJobLabel">Accept job</span><kbd data-pad-hint="{confirm}">E</kbd></button>
+ <div class="job-actions"><button id="jobMapBtn">Show on map ↗</button><button id="newJobBtn" class="next-job" aria-keyshortcuts="N" title="Find a new job with a pickup near your current location"><span id="newJobLabel">Next job</span><kbd id="newJobKey" aria-hidden="true" data-pad-hint="{back}">N</kbd></button></div>
 </section>
 <div class="modal" id="modeModal" hidden><section class="dialog mode-dialog" role="dialog" aria-modal="true" aria-labelledby="modeTitle">
  <button class="iconbtn close" data-close aria-label="Close game modes">×</button>
  <h2 id="modeTitle">Choose a mode</h2>
  <p class="mode-intro">Free Roam, Police Chase and Uber share your Runabout build.</p>
  <div class="mode-grid" id="modeCards"></div>
- <div class="mode-foot"><span><kbd>C</kbd> Cycle modes</span><span><kbd>V</kbd> Mode picker</span><span><kbd>E</kbd> Accept a job</span></div>
+ <div class="mode-foot"><span><kbd data-pad-hint="D-pad">C</kbd> <span data-pad-hint="Navigate">Cycle modes</span></span><span><kbd data-pad-hint="{confirm}">V</kbd> <span data-pad-hint="Select mode">Mode picker</span></span><span><kbd data-pad-hint="{back}">E</kbd> <span data-pad-hint="Close menu">Accept a job</span></span></div>
  <p class="mode-note">Jobs have no time limits and resume when you return to their mode.</p>
 </section></div>
 
@@ -1281,7 +1285,7 @@ function generateOldTown(s,road,building,away,occupied,point,rng){
  const ward=Math.floor(worldHash(a,b,732)*3);
  const landmark=oldTownLandmark(a,b),plaza=nodes[1+Math.floor(rng()*2)][1+Math.floor(rng()*2)];
  s.plazaName=landmark.square||s.town.plaza;
- s.decor.push({kind:'oldplaza',...plaza,r:84,theme:s.town.id,label:s.plazaName,landmark:landmark.name});
+ s.decor.push({kind:'oldplaza',...plaza,r:84,theme:s.town.id,landmark:landmark.name});
  for(let py=land.top+64;py<land.bottom-63;py+=s.town.dy)for(let px=land.left+59;px<land.right-58;px+=s.town.dx){
   const q={x:px+(rng()-.5)*10,y:py+(rng()-.5)*10,hw:s.town.id==='merchant'?25+rng()*6:s.town.id==='sandstone'?34+rng()*8:29+rng()*8,hh:s.town.id==='merchant'?37+rng()*8:33+rng()*9};
   if(ward===1){q.hw*=.83;q.hh*=1.03;}
@@ -1401,7 +1405,6 @@ function generateIndustrialScene(s,point,box,road,building,obstacle,away,rng){
    if(pattern!==2||!away(q,11)||s.obstacles.some(o=>Math.abs(o.x-q.x)<o.hw+q.hw+5&&Math.abs(o.y-q.y)<o.hh+q.hh+5))continue;
    building(q,'PUMP CONTROL','industrial',{role:'warehouse',architecture:'barrel'});break;
   }
-  pad('oilYardLabel',.41,.415,.18,.033);
  }
 }
 
@@ -1439,7 +1442,7 @@ function generateDevelopment(s,road,building,obstacle,away,rng){
    roof(u,variant===1?.15:.61,.16,.22,'','office',u<.5?'lantern':'skygarden',37);
   }
   roof(.41,variant===1?.13:.65,.18,.16,'GALLERIA','atrium','atrium',11);
-  s.decor.push({kind:'campusCourt',...box(.04,.05,.92,.90),label:name.toUpperCase(),color:finish[2]});
+  s.decor.push({kind:'campusCourt',...box(.04,.05,.92,.90),color:finish[2]});
   for(const u of [.13,.31,.69,.87]){
    const q=box(u-.04,.476,.08,.055);
    s.decor.push({...q,kind:'flowerBed',color:finish[2]});
@@ -1472,7 +1475,7 @@ function generateDevelopment(s,road,building,obstacle,away,rng){
   const r=road(lane,58,'service');r.theme='residential';
   r.trafficCalming=[lane[4],lane[5]];
   s.entry=s.showcase=mid;
-  s.decor.push({kind:'mewsGardens',...box(.035,.05,.93,.90),label:name.toUpperCase(),color:finish[2]});
+  s.decor.push({kind:'mewsGardens',...box(.035,.05,.93,.90),color:finish[2]});
   for(const u of [.05,.23,.68,.85])for(const v of [.13,.62]){
    const terraced=(variant+Math.round(u*10)+Math.round(v*10))%2===0;
    const w=terraced?.115:.10,h=terraced?.24:.19;
@@ -1555,10 +1558,10 @@ function getScene(a,b,development){
   const runwayUs=unique([p.u0,p.u1,...links]);
   uvroad(runwayUs.map(u=>[u,p.taxi]),42,'taxiway');
   for(const u of links)uvroad([p.taxi,...p.runways].map(v=>[u,v]),40,'taxiway');
-  for(let n=0;n<p.runways.length;n++){
-   const v=p.runways[n];uvroad(runwayUs.map(u=>[u,v]),p.width,'runway');
+  for(const v of p.runways){
+   uvroad(runwayUs.map(u=>[u,v]),p.width,'runway');
    const start=point(p.ends[0],v),end=point(p.ends[1],v);
-   s.decor.push({kind:'runway',x:(start.x+end.x)/2,y:(start.y+end.y)/2,hw:s.vertical?p.width/2:Math.abs(end.x-start.x)/2,hh:s.vertical?Math.abs(end.y-start.y)/2:p.width/2,vertical:s.vertical,number:n?['09R','27L']:p.runways.length>1?['09L','27R']:['09','27']});
+   s.decor.push({kind:'runway',x:(start.x+end.x)/2,y:(start.y+end.y)/2,hw:s.vertical?p.width/2:Math.abs(end.x-start.x)/2,hh:s.vertical?Math.abs(end.y-start.y)/2:p.width/2,vertical:s.vertical});
   }
   s.decor.push({kind:'apron',...box(...p.apron)});
   for(const u of p.hangars){const roof=building(box(u,p.hangarV,p.hangarW,p.hangarH),'HANGAR','harbor');dressBuilding(roof,{architecture:'barrel',role:'hangar'});}
@@ -1582,7 +1585,7 @@ function getScene(a,b,development){
    // Matching fuselage, wing and tail bodies keep every aircraft size solid.
    const part=(offset,hw,hh)=>{const center={x:pos.x+Math.cos(angle)*offset,y:pos.y+Math.sin(angle)*offset};obstacle({...center,hw:s.vertical?hw:hh,hh:s.vertical?hh:hw},'aircraft');};
    part(0,spec.length/2,spec.body/2);part(-spec.length*(model==='prop'?.08:.09),spec.length*(model==='prop'?.06:.15),spec.span/2);part(-spec.length*.425,spec.length*.065,spec.tail/2);
-   s.decor.push({kind:'stand',...pos,angle,span:spec.span,length:spec.length,label:String(n+1).padStart(2,'0')});
+   s.decor.push({kind:'stand',...pos,angle,span:spec.span,length:spec.length});
   }
   if(industrialKind(a,b)&&!s.buildings.some(b=>b.role==='hangar')){
    const spareSites=[.24,.32,.18,.73,.55,.87].flatMap(v=>[.24,.46,.68,.35,.57,.78].map(u=>box(u-.045,v-.03,.09,.06)));
@@ -2280,8 +2283,8 @@ function railResetFuture(){
 }
 function railTravelDirection(t=railway.player){
  if(Math.abs(t.speed)>.005)return Math.sign(t.speed);
- if((keys.s||keys.arrowdown)&&!(keys.w||keys.arrowup))return -1;
- if((keys.w||keys.arrowup)&&!(keys.s||keys.arrowdown))return 1;
+ if(reverseInput()&&!throttleInput())return -1;
+ if(throttleInput()&&!reverseInput())return 1;
  return t.lastDirection||1;
 }
 function railUpcomingJunction(t,dir){
@@ -2333,7 +2336,7 @@ function railApplyManualTurn(){
 function railJunctionHint(){
  if(jobTarget())return 'Junctions follow your job';
  const turn=railway.manualTurn;
- return turn?(turn.choice<0?'← LEFT':turn.choice>0?'RIGHT →':'↑ STRAIGHT')+' at next junction':'A / ← · D / → step through junction choices';
+ return turn?(turn.choice<0?'← LEFT':turn.choice>0?'RIGHT →':'↑ STRAIGHT')+' at next junction':inputHint('A / ← · D / → step through junction choices','D-pad ← / → step through junction choices');
 }
 function railNext(train,dir){
  const endRef=dir>0?train.pieces.at(-1):train.pieces[0],end=railEnd(endRef,dir);
@@ -2399,7 +2402,7 @@ function railOccupied(t){
 function railProtectJobRoute(t,target){
  const blocks=railway.jobBlocks;
  if(!t||!target){blocks.clear();railway.jobRouteKey=null;return;}
- const up=keys.w||keys.arrowup,down=keys.s||keys.arrowdown;
+ const up=throttleInput(),down=reverseInput();
  const dir=Math.abs(t.speed)>.005||!!up!==!!down?railTravelDirection(t):0;
  const occupied=railOccupied(t),front=dir>=0?railSample(t):null;
  const rear=dir<=0?railSample(t,t.d-RAIL_GAP*(RAIL_CARS-1)):null;
@@ -2457,10 +2460,10 @@ function railClearance(t,dir,braking,reserve=true){
  return Infinity;
 }
 function railUpdatePlayer(dt){
- const t=railway.player;if(!t)return;const st=stats('train'),up=keys.w||keys.arrowup,down=keys.s||keys.arrowdown,emergency=keys[' '],previous=t.speed;
+ const t=railway.player;if(!t)return;const st=stats('train'),up=throttleInput(),down=reverseInput(),emergency=brakeInput(),previous=t.speed;
  const accelerating=up&&!down&&t.speed>.06||down&&!up&&t.speed<-.06;
  const infiniteNitro=powerActive('nitro');
- const wantsBoost=keys.shift&&accelerating&&!emergency&&(garageState().performance.turbo>0||infiniteNitro);
+ const wantsBoost=boostInput()&&accelerating&&!emergency&&(garageState().performance.turbo>0||infiniteNitro);
  updateTurbo(dt,st,wantsBoost,infiniteNitro);
  const brake=.00048*st.brakeMultiplier,accel=st.acceleration*(turbo.active?1.65:1),limit=st.maxSpeed*(turbo.active?st.boostMultiplier:1)*(powerActive('speed')?1.3:1);
  const assistBraking=!up&&!down&&!emergency&&previous!==0&&railAtStop(jobTarget());
@@ -2468,8 +2471,8 @@ function railUpdatePlayer(dt){
  if(emergency)t.speed=Math.sign(t.speed)*Math.max(0,Math.abs(t.speed)-brake*dt*1.9);
  // Above the current limit, holding the throttle still lets the train coast.
  else if(speedCap>limit&&accelerating)t.speed=Math.sign(previous)*Math.max(limit,Math.abs(previous)-throttleCoastResistance*dt);
- else if(up&&!down)t.speed+=t.speed<0?Math.min(-t.speed,brake*dt):accel*dt;
- else if(down&&!up)t.speed-=t.speed>0?Math.min(t.speed,brake*dt):accel*dt;
+ else if(up&&!down)t.speed+=t.speed<0?Math.min(-t.speed,brake*up*dt):accel*up*dt;
+ else if(down&&!up)t.speed-=t.speed>0?Math.min(t.speed,brake*down*dt):accel*down*dt;
  else t.speed=Math.sign(t.speed)*Math.max(0,Math.abs(t.speed)-dt*(rollingResistance+(assistBraking?JOB_BAY_BRAKE:0)));
  t.speed=clamp(t.speed,-speedCap,speedCap);
  const sign=Math.sign(t.speed)||Math.sign(previous)||1;railEnsure(t,Math.max(650,t.speed*t.speed/(2*brake)+300));
@@ -2724,7 +2727,7 @@ function railFinishStop(){
 function railUpdateJob(dt){
  const target=jobTarget();if(!target){service.ms=0;service.retryIn-=dt;if(service.retryIn<=0){ensureJobOffer();service.retryIn=2500;}return;}
  if(service.jobId!==currentJob().id){service.jobId=currentJob().id;service.ms=0;}
- if(railAtStop(target)&&Math.abs(railway.player.speed)<.012&&!keys.w&&!keys.arrowup&&!keys.s&&!keys.arrowdown){railway.player.speed=0;railSyncPlayer();service.ms+=dt;if(service.ms>=2200)railFinishStop();}else service.ms=0;
+ if(railAtStop(target)&&Math.abs(railway.player.speed)<.012&&!throttleInput()&&!reverseInput()){railway.player.speed=0;railSyncPlayer();service.ms+=dt;if(service.ms>=2200)railFinishStop();}else service.ms=0;
 }
 function railUpdateNavigation(){
  const target=jobTarget()||railway.destination,t=railway.player;if(!t)return;
@@ -2773,7 +2776,7 @@ function railModeHUD(){
  put('jobDistance',target?(railAtStop(target)?'◎ STOP HERE':nav?(nav.direction<0?'↶ REVERSE · ':'→ ')+(nav.distance*.0008).toFixed(1)+' km':'Follow the railway'):shown?shown.routeKm.toFixed(1)+' km by rail':'');
  put('jobCargo',target?(job.service==='freight'?(job.index?'Freight aboard':'Collect freight'):(job.index?'Passengers aboard':'Passengers waiting')):offer?'Pickup: '+offer.stops[0].name:'');
  put('jobReward',shown?'Completion +'+railJobReward(shown)+' KM':'Earn KM on the railway');
- put('jobInstruction',railway.player?.signal?'Signal ahead · Automatic safety braking.':service.ms>0?(job.service==='freight'?'Loading / unloading freight…':'Passengers boarding / leaving…'):target?'Stop with the center of any car inside the purple zone for 2 seconds. Switches follow your route.':railJunctionHint()+'. W / S drive · Space brakes · E accepts a job.');
+ put('jobInstruction',railway.player?.signal?'Signal ahead · Automatic safety braking.':service.ms>0?(job.service==='freight'?'Loading / unloading freight…':'Passengers boarding / leaving…'):target?'Stop with the center of any car inside the purple zone for 2 seconds. Switches follow your route.':railJunctionHint()+'. '+inputHint('W / S drive · Space brakes · E accepts a job.','{accelerate} / {reverse} drive · {brake} brakes · {confirm} accepts a job.'));
  $('jobProgressFill').style.width=Math.min(100,service.ms/2200*100)+'%';$('jobProgress').setAttribute('aria-valuenow',String(Math.min(100,Math.round(service.ms/2200*100))));
 }
 function railCenterPath(piece){
@@ -2822,8 +2825,8 @@ function railDrawStation(g,s,map=false){
  g.fillStyle='#d3dcc3';for(let x=-88;x<90;x+=25)g.fillRect(x,-89,16,13);
  g.fillStyle='#374d40';g.fillRect(-18,-80,36,22);g.fillStyle='#e3d58d';g.fillRect(-13,-78,26,4);
  for(const x of [-172,150]){g.fillStyle='#738573';g.fillRect(x,-66,27,7);g.fillRect(x,-60,3,7);g.fillRect(x+24,-60,3,7);}
- g.fillStyle='#28493f';g.fillRect(-112,-135,224,19);g.fillStyle='#f0ecc9';g.font='bold 8px Arial';g.textAlign='center';g.fillText(s.name.toUpperCase(),0,-122);
- g.fillStyle='#28493f';g.fillRect(175,-72,29,20);g.fillStyle='#e8d489';g.font='bold 9px Arial';g.fillText(s.freight?'F':'1',189,-58);
+ g.fillStyle='#28493f';g.fillRect(-99,-99,198,10);
+ g.fillStyle='#f0ecc9';g.font='bold 8px Arial';g.textAlign='center';g.fillText(s.name.toUpperCase(),0,-91,188);
  if(s.freight){for(let x=-204;x<-130;x+=23){g.fillStyle='#ad8e62';g.fillRect(x,-71,18,20);g.strokeStyle='#d2b47b';g.lineWidth=2;g.strokeRect(x+2,-69,14,16);}}
  else for(let n=0;n<5;n++){g.fillStyle=['#b17b67','#9dab79','#c9b57c'][n%3];g.beginPath();g.arc(-180+n*70,-44,3.2,0,TAU);g.fill();}
  g.restore();
@@ -3817,6 +3820,181 @@ function interpolatePlayer(){
 }
 let started=false,activeModal=null,previousFocus=null,simTime=0,distance=progress.earnedMm/1000,last=performance.now(),accumulator=0,hudClock=0,toastTimer=0,shake=0,impactCooldown=0;
 const keys=Object.create(null);
+
+const PAD={confirm:0,back:1,brake:2,recover:3,garage:4,boost:5,reverse:6,accelerate:7,map:8,pause:9,help:10,trophies:11,up:12,down:13,left:14,right:15};
+const PAD_LABELS={
+ xbox:['A','B','X','Y','LB','RB','LT','RT','View','Menu','LS Click','RS Click'],
+ playstation:['✕','○','□','△','L1','R1','L2','R2','Create / Share','Options','L3','R3'],
+ nintendo:['B','A','Y','X','L','R','ZL','ZR','−','+','Left Stick Click','Right Stick Click']
+};
+const gamepad={index:null,layout:null,samples:new Map(),steer:0,throttle:0,reverse:0,brake:false,boost:false,blocked:false,suspended:false,menuDirection:'',repeatAt:0};
+const inputHints=[...document.querySelectorAll('[data-pad-hint],[data-pad-title]')].map(el=>({el,text:el.textContent,title:el.title}));
+const keyboardCanvasLabel=canvas.getAttribute('aria-label');
+let inputDevice='keyboard';
+function inputHint(keyboard,controller){
+ return inputDevice==='gamepad'?controller.replace(/\{(\w+)\}/g,(_,button)=>PAD_LABELS[gamepad.layout][PAD[button]]):keyboard;
+}
+function updateGamepadMenuHint(){
+ const hint=$('gamepadMenuHint');
+ hint.hidden=inputDevice!=='gamepad'||!activeModal;
+ if(hint.hidden)return;
+ const text=inputHint('',document.activeElement===$('oldTownDiscovery')?
+  'D-pad ← / → Choose style · {confirm} Find · {back} Back':'D-pad Navigate · {confirm} Select · {back} Back');
+ if(hint.textContent!==text)hint.textContent=text;
+}
+function setInputDevice(device,layout=gamepad.layout){
+ if(device===inputDevice&&layout===gamepad.layout)return;
+ inputDevice=device;gamepad.layout=layout;document.body.dataset.input=device;
+ for(const {el,text,title} of inputHints){
+  if(el.dataset.padHint!==undefined)el.textContent=inputHint(text,el.dataset.padHint);
+  if(el.dataset.padTitle!==undefined)el.title=inputHint(title,el.dataset.padTitle);
+ }
+ canvas.setAttribute('aria-label',inputHint(keyboardCanvasLabel,'Top-down driving game. Use {accelerate} and {reverse} to drive, and the left stick to steer.'));
+ updateGamepadMenuHint();
+ if(activeModal==='mapModal')updateMapControlsHint();
+ if(started)updateHUD();
+}
+function gamepadLayout(id){
+ return /054c|dualsense|dualshock|playstation/i.test(id)?'playstation':
+  /057e|nintendo|switch pro|joy-con/i.test(id)?'nintendo':'xbox';
+}
+function resetGamepadDrive(){
+ gamepad.steer=gamepad.throttle=gamepad.reverse=0;gamepad.brake=gamepad.boost=false;gamepad.blocked=true;
+}
+function throttleInput(){return keys.w||keys.arrowup?1:gamepad.throttle;}
+function reverseInput(){return keys.s||keys.arrowdown?1:gamepad.reverse;}
+function brakeInput(){return keys[' ']||gamepad.brake;}
+function boostInput(){return keys.shift||gamepad.boost;}
+function steeringInput(){
+ const left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright;
+ return left||right?Number(!!right)-Number(!!left):gamepad.steer;
+}
+function gamepadAxis(value,deadZone){
+ const magnitude=Math.abs(value);
+ return magnitude>deadZone?Math.sign(value)*clamp((magnitude-deadZone)/(1-deadZone),0,1):0;
+}
+function modalControls(){
+ const scope=activeModal==='trophyModal'&&trophyPending?'trophyConfirmation':activeModal;
+ return [...$(scope).querySelectorAll('button, select, #atlas[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);
+}
+function moveGamepadFocus(direction){
+ const controls=modalControls(),focused=document.activeElement;
+ if(!controls.includes(focused)){controls[0]?.focus();return;}
+ const x=Number(direction==='right')-Number(direction==='left'),y=Number(direction==='down')-Number(direction==='up');
+ if(focused.tagName==='SELECT'&&x){
+  const options=[...focused.options].filter(option=>!option.disabled);
+  const index=options.indexOf(focused.selectedOptions[0]);
+  options[mod(index<0?(x>0?0:options.length-1):index+x,options.length)].selected=true;return;
+ }
+ const box=focused.getBoundingClientRect(),cx=box.left+box.width/2,cy=box.top+box.height/2;
+ let chosen=null,best=Infinity;
+ for(const el of controls){
+  if(el===focused)continue;
+  const rect=el.getBoundingClientRect(),dx=rect.left+rect.width/2-cx,dy=rect.top+rect.height/2-cy;
+  const ahead=dx*x+dy*y,across=Math.abs(dx*y-dy*x);
+  if(ahead<=3)continue;
+  const score=ahead+across*2.5;
+  if(score<best){best=score;chosen=el;}
+ }
+ chosen?.focus();
+}
+function useGamepadMenu(sample,pressed,now,elapsed){
+ if(pressed('back')||pressed('pause')||activeModal==='mapModal'&&pressed('map')){
+  if(activeModal==='trophyModal'&&trophyPending)dismissTrophyConfirmation(true);
+  else closeModal();
+  return;
+ }
+ const {x,y,buttons}=sample;
+ const has=name=>!!(buttons&(1<<PAD[name]));
+ if(activeModal==='mapModal'){
+  if(pressed('garage'))zoomMap(1/.75);
+  if(pressed('boost'))zoomMap(.75);
+  if(x||y){
+   if(atlas.tabIndex===0&&document.activeElement!==atlas)atlas.focus({preventScroll:true});
+   const step=mapView.span*elapsed*.00065;mapView.x+=x*step;mapView.y+=y*step;mapView.dirty=true;
+  }
+ }
+ const digital=['up','down','left','right'].find(has);
+ const stick=Math.max(Math.abs(x),Math.abs(y))>.46?(Math.abs(x)>Math.abs(y)?x<0?'left':'right':y<0?'up':'down'):'';
+ const direction=digital||(activeModal==='mapModal'?'':stick);
+ if(!direction)gamepad.menuDirection='';
+ else if(direction!==gamepad.menuDirection||now>=gamepad.repeatAt){
+  gamepad.repeatAt=now+(direction===gamepad.menuDirection?120:340);
+  gamepad.menuDirection=direction;
+  moveGamepadFocus(direction);
+ }
+ if(pressed('confirm')){
+  const controls=modalControls(),focused=document.activeElement;
+  if(!controls.includes(focused))controls[0]?.focus();
+  else if(focused===atlas)setMapWaypoint(mapView.x,mapView.y);
+  else if(focused.tagName==='SELECT'){
+   if(!focused.value)focused.selectedIndex=1;
+   focused.dispatchEvent(new Event('change',{bubbles:true}));
+  }else focused.click();
+ }
+ updateGamepadMenuHint();
+}
+function pollGamepads(now,elapsed){
+ if(document.hidden||!document.hasFocus())return;
+ let pads;
+ try{pads=navigator.getGamepads?.()||[];}catch{pads=[];}
+ const samples=new Map();
+ let chosen=null,activity=false;
+ for(const pad of pads){
+  if(!pad?.connected||pad.mapping!=='standard')continue;
+  const previous=gamepad.samples.get(pad.index);
+  const last=previous?.id===pad.id?previous:null;
+  let buttons=0;
+  for(let i=0;i<16;i++)if(pad.buttons[i]?.pressed)buttons|=1<<i;
+  const trigger=index=>gamepadAxis(pad.buttons[index]?.value??Number(!!(buttons&(1<<index))),.06);
+  const sample={id:pad.id,index:pad.index,buttons,edges:buttons&~(last?.buttons||0),
+   x:gamepadAxis(pad.axes[0],.18),y:gamepadAxis(pad.axes[1],.18),
+   throttle:trigger(PAD.accelerate),reverse:trigger(PAD.reverse),lastTurn:last?.turn||0};
+  const digital=Number(!!(buttons&(1<<PAD.right)))-Number(!!(buttons&(1<<PAD.left)));
+  sample.steer=digital||sample.x;sample.turn=Math.abs(sample.steer)>.46?Math.sign(sample.steer):0;
+  const axes=[sample.x,sample.y,sample.throttle,sample.reverse],anchor=last?.activityAxes||[0,0,0,0];
+  const moved=axes.some((value,i)=>Math.abs(value)>.07&&Math.abs(value-anchor[i])>.07);
+  sample.activityAxes=moved?axes:axes.map((value,i)=>Math.abs(value)>.07?anchor[i]:0);
+  samples.set(pad.index,sample);
+  if(sample.edges||moved){chosen=sample;activity=true;}
+ }
+ gamepad.samples=samples;
+ if(gamepad.suspended){
+  if([...samples.values()].some(p=>p.buttons||p.x||p.y||p.throttle||p.reverse))return;
+  gamepad.suspended=false;
+ }
+ chosen??=samples.get(gamepad.index);
+ if(!chosen){
+  if(gamepad.index!==null){resetGamepadDrive();gamepad.index=null;if(inputDevice==='gamepad')setInputDevice('keyboard');}
+  return;
+ }
+ if(chosen.index!==gamepad.index)gamepad.menuDirection='';
+ gamepad.index=chosen.index;
+ if(activity)setInputDevice('gamepad',gamepadLayout(chosen.id));
+ const pressed=name=>!!(chosen.edges&(1<<PAD[name]));
+ if(activeModal){useGamepadMenu(chosen,pressed,now,elapsed);return;}
+ gamepad.menuDirection='';
+ if(pressed('pause')&&started){openModal('pauseModal');return;}
+ if(pressed('map')){openModal('mapModal');return;}
+ if(pressed('garage')){openModal('garageModal');return;}
+ if(pressed('trophies')){openModal('trophyModal');return;}
+ if(pressed('help')){openModal('helpModal');return;}
+ if(pressed('up')){openModal('modeModal');return;}
+ if(pressed('down')){cycleGameMode();return;}
+ if(pressed('confirm')){if(started)acceptJob();else start();}
+ if(!started)return;
+ if(pressed('recover')){recover();resetGamepadDrive();return;}
+ if(pressed('back')&&!jobTarget())changeJobOffer();
+ const held=name=>!!(chosen.buttons&(1<<PAD[name]));
+ if(gamepad.blocked){
+  if(chosen.throttle||chosen.reverse||chosen.steer||held('brake')||held('boost'))return;
+  gamepad.blocked=false;
+ }
+ gamepad.throttle=chosen.throttle;gamepad.reverse=chosen.reverse;gamepad.steer=chosen.steer;
+ gamepad.brake=held('brake');gamepad.boost=held('boost');
+ if(chosen.turn&&chosen.turn!==chosen.lastTurn)railSetManualTurn(chosen.turn);
+}
+
 let safePosition={x:player.x,y:player.y,angle:player.angle};
 const rendering={density:1.5,frames:0,slow:0,time:0};
 function sizeGameCanvas(){pixelRatio=Math.min(devicePixelRatio||1,rendering.density,Math.sqrt(6000000/(viewW*viewH)));canvas.width=Math.round(viewW*pixelRatio);canvas.height=Math.round(viewH*pixelRatio);sceneryCache.valid=false;}
@@ -3877,7 +4055,7 @@ function setGameMode(mode,announce=true){
   choices.sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y));
   placement=choices.find(p=>insideLoaded(p.x,p.y,50)&&clearSpot({...candidate,...p}));
  }
- if(!placement){toast('No room to change vehicles here. Move to a clearer street and press C.');return false;}
+ if(!placement){toast('No room to change vehicles here. Move to a clearer street and try again.');return false;}
  if(mode==='police')for(let i=traffic.length-1;i>=0;i--)if(traffic[i].model==='police')traffic.splice(i,1);
  progress.mode=mode;progress.policeEnabled=mode==='police';previewSelection=null;applyBuild();clearKeys();
  if(leavingRail||mode==='train'){player.vx=player.vy=0;turbo.active=false;railway.navKey='';railway.destination=null;railway.manualTurn=null;}
@@ -3894,7 +4072,7 @@ function setGameMode(mode,announce=true){
  if(started)ensureJobOffer();
  progressDirty=true;saveProgress();updatePoliceHUD();updateHUD();
  if(activeModal==='modeModal')renderModeMenu();if(activeModal==='mapModal'){mapView.dirty=true;drawAtlas();}
- if(announce)toast(GAME_MODES[mode].name+(JOB_MODES.includes(mode)?' · '+(jobTarget()?'Your next stop is marked on the map.':'Press E to accept your next job.'):mode==='police'?' · Keep moving.':' · The city is yours.'));
+ if(announce)toast(GAME_MODES[mode].name+(JOB_MODES.includes(mode)?' · '+(jobTarget()?'Your next stop is marked on the map.':inputHint('Press E to accept your next job.','Press {confirm} to accept your next job.')):mode==='police'?' · Keep moving.':' · The city is yours.'));
  return true;
 }
 function cycleGameMode(){return setGameMode(MODE_ORDER[(MODE_ORDER.indexOf(progress.mode)+1)%MODE_ORDER.length]);}
@@ -4163,7 +4341,7 @@ function changeJobOffer(){
  const ended=!!jobTarget();if(ended){delete progress.jobs[progress.mode];if(progress.mode==='train'){railway.manualTurn=null;railResetFuture();}}
  delete progress.offers[progress.mode];Object.assign(service,{jobId:null,ms:0,retryIn:0});routeNavigation.key='';routeNavigation.points=[];
  const offer=ensureJobOffer();progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
- toast(offer?(ended?'Job ended. ':'')+'New pickup near you · Press E to accept.':'Finding a clear pickup. Drive towards another street.');
+ toast(offer?(ended?'Job ended. ':'')+'New pickup near you · '+inputHint('Press E to accept.','Press {confirm} to accept.'):'Finding a clear pickup. Drive towards another street.');
 }
 function finishJobStop(){
  if(progress.mode==='train'){railFinishStop();return;}
@@ -4182,7 +4360,7 @@ function finishJobStop(){
  job.index++;service.ms=0;routeNavigation.key='';if(last){progress.completedJobs[mode]++;ensureJobOffer();}
  if(rewardMetres)earnDistance(rewardMetres);
  progressDirty=true;saveProgress();updateHUD();mapView.dirty=true;
- toast(message+(bonus?' · +'+bonus+' KM':'')+(cleanBonus?' · +'+cleanBonus+' KM clean driving':'')+(takedownBonus?' · +'+takedownBonus+' KM takedowns':'')+(distanceBonus?' · +'+distanceBonus+' KM distance':'')+(last?(mode==='uber'?' · Press E for the next ride.':' · Press E when you want another job.'):''));
+ toast(message+(bonus?' · +'+bonus+' KM':'')+(cleanBonus?' · +'+cleanBonus+' KM clean driving':'')+(takedownBonus?' · +'+takedownBonus+' KM takedowns':'')+(distanceBonus?' · +'+distanceBonus+' KM distance':'')+(last?(mode==='uber'?inputHint(' · Press E for the next ride.',' · Press {confirm} for the next ride.'):inputHint(' · Press E when you want another job.',' · Press {confirm} when you want another job.')):''));
 }
 function insideJobBay(target){
  if(progress.mode==='train')return railAtStop(target);
@@ -4196,7 +4374,7 @@ function updateJob(dt){
  const job=currentJob(),target=jobTarget();
  if(!target){service.ms=0;service.retryIn-=dt;if(service.retryIn<=0){ensureJobOffer();service.retryIn=2000;}return;}
  if(service.jobId!==job.id){service.jobId=job.id;service.ms=0;}
- const distance=Math.hypot(player.x-target.x,player.y-target.y),slow=Math.hypot(player.vx,player.vy)<.014,accelerating=keys.w||keys.arrowup;
+ const distance=Math.hypot(player.x-target.x,player.y-target.y),slow=Math.hypot(player.vx,player.vy)<.014,accelerating=throttleInput();
  const inStopArea=distance<jobStopRadius(progress.mode)||insideJobBay(target);
  if(inStopArea&&slow&&!accelerating){player.vx=player.vy=0;service.ms+=dt;if(service.ms>=2200)finishJobStop();}else service.ms=0;
 }
@@ -4350,8 +4528,9 @@ function updateModeHUD(){
   let instruction='Keep exploring for a nearby pickup. Jobs start when you accept them.';
   if(offer){
    if(busMode)instruction=offer.stops.length+' stops total, including the first pickup and final drop-off. Next job finds a nearby pickup.';
-   else if(rideMode)instruction='Press E to accept. Next ride finds another pickup nearby.';
-   else instruction=jobLegKm(player,offer.stops[0])>4?'Pickup far away? Next job finds one near you. Press E when you want to accept.':'Press E to accept. Next job finds a pickup near you. Trip distances are approximate.';
+   else if(rideMode)instruction=inputHint('Press E to accept.','Press {confirm} to accept.')+' Next ride finds another pickup nearby.';
+   else instruction=jobLegKm(player,offer.stops[0])>4?'Pickup far away? Next job finds one near you. '+inputHint('Press E when you want to accept.','Press {confirm} when you want to accept.'):
+     inputHint('Press E to accept.','Press {confirm} to accept.')+' Next job finds a pickup near you. Trip distances are approximate.';
   }
   put('jobInstruction',instruction);
  }else{
@@ -4455,12 +4634,12 @@ function drawRouteDestination(){
 }
 
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2800);}
-function clearKeys(){turbo.active=false;for(const k of Object.keys(keys))delete keys[k];document.querySelectorAll('.held').forEach(b=>b.classList.remove('held'));}
-function start(){if(started)return;started=true;$('intro').hidden=true;document.body.classList.add('driving');canvas.focus({preventScroll:true});if(progress.policeEnabled){deployPolice();toast('Police pursuit on. Keep moving.');}else if(JOB_MODES.includes(progress.mode))toast(GAME_MODES[progress.mode].name+(jobTarget()?' · Your accepted job is ready to resume.':' · Press E to accept a job.')); else toast('Welcome to '+neighbourhood(player.x,player.y)+'. Take any turn.');ensureJobOffer();updateHUD();updatePoliceHUD();}
+function clearKeys(){resetGamepadDrive();turbo.active=false;for(const k of Object.keys(keys))delete keys[k];document.querySelectorAll('.held').forEach(b=>b.classList.remove('held'));}
+function start(){if(started)return;started=true;$('intro').hidden=true;document.body.classList.add('driving');canvas.focus({preventScroll:true});if(progress.policeEnabled){deployPolice();toast('Police pursuit on. Keep moving.');}else if(JOB_MODES.includes(progress.mode))toast(GAME_MODES[progress.mode].name+(jobTarget()?' · Your accepted job is ready to resume.':' · '+inputHint('Press E to accept a job.','Press {confirm} to accept a job.'))); else toast('Welcome to '+neighbourhood(player.x,player.y)+'. Take any turn.');ensureJobOffer();updateHUD();updatePoliceHUD();}
 function closeModal(){
  if(!activeModal)return;
  if(activeModal==='trophyModal')dismissTrophyConfirmation();
- $(activeModal).hidden=true;activeModal=null;clearKeys();
+ $(activeModal).hidden=true;activeModal=null;clearKeys();updateGamepadMenuHint();
  $('pauseBtn').textContent='Ⅱ';$('pauseBtn').setAttribute('aria-label','Pause game');
  if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});else canvas.focus({preventScroll:true});
  last=performance.now();accumulator=0;
@@ -4478,7 +4657,8 @@ function openModal(id){
   $('trophyFeedback').textContent='';
   renderTrophyRoom();$('trophyDialog').scrollTop=0;
  }
- $(id).querySelector('button').focus();
+ const focus=id==='mapModal'&&inputDevice==='gamepad'&&atlas.tabIndex===0?atlas:$(id).querySelector('button');
+ focus.focus();gamepad.menuDirection='';updateGamepadMenuHint();
 }
 $('cycleModeBtn').onclick=()=>{if(!activeModal){cycleGameMode();canvas.focus({preventScroll:true});}};
 $('modeMenuBtn').onclick=$('introModesBtn').onclick=()=>openModal('modeModal');
@@ -4505,18 +4685,22 @@ $('garageModal').addEventListener('click',e=>{
 $('startBtn').onclick=start;$('pauseBtn').onclick=()=>activeModal?closeModal():openModal('pauseModal');$('resumeBtn').onclick=closeModal;$('helpBtn').onclick=()=>openModal('helpModal');$('mapBtn').onclick=$('miniBtn').onclick=()=>openModal('mapModal');
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal();}));
+addEventListener('pointerdown',()=>setInputDevice('keyboard'),{capture:true});
+addEventListener('pointermove',e=>{if(e.movementX||e.movementY)setInputDevice('keyboard');},{passive:true});
+addEventListener('wheel',()=>setInputDevice('keyboard'),{passive:true});
 addEventListener('keydown',e=>{
+ if(!e.repeat)setInputDevice('keyboard');
  const key=e.key.toLowerCase();if(e.metaKey||e.ctrlKey||e.altKey)return;
  if(activeModal&&key==='tab'){
-  const focusScope=activeModal==='trophyModal'&&trophyPending?'trophyConfirmation':activeModal;
-  const controls=[...$(focusScope).querySelectorAll('button, #atlas[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);
+  const controls=modalControls();
   const first=controls[0],end=controls.at(-1);
   const focused=document.activeElement;
-  const fromTrophyCard=focusScope==='trophyModal'&&!controls.includes(focused);
+  const fromTrophyCard=activeModal==='trophyModal'&&!trophyPending&&!controls.includes(focused);
   if(e.shiftKey&&(focused===first||fromTrophyCard)){end?.focus();e.preventDefault();}
   else if(!e.shiftKey&&(focused===end||fromTrophyCard)){first?.focus();e.preventDefault();}
   return;
  }
+ if(activeModal==='mapModal'&&e.target===$('oldTownDiscovery')&&['arrowup','arrowdown','arrowleft','arrowright',' ','enter'].includes(key))return;
  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(key)){if(key!==' '||document.activeElement.tagName!=='BUTTON')e.preventDefault();}
  if(e.repeat&&['r','m','g','b','c','v','e','n','escape','p'].includes(key))return;
  if(activeModal==='mapModal'&&['arrowup','arrowdown','arrowleft','arrowright','+','=','-'].includes(key)){e.preventDefault();if(key==='+'||key==='=')zoomMap(.75);else if(key==='-')zoomMap(1/.75);else{mapView.x+=(key==='arrowright'?1:key==='arrowleft'?-1:0)*mapView.span*.12;mapView.y+=(key==='arrowdown'?1:key==='arrowup'?-1:0)*mapView.span*.12;mapView.dirty=true;}return;}
@@ -4539,8 +4723,8 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>delete keys[e.key.toLowerCase()]);
 addEventListener('pagehide',()=>{if(progressDirty)saveProgress();});
-addEventListener('blur',()=>{if(progressDirty)saveProgress();clearKeys();if(started&&!activeModal)openModal('pauseModal');});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(progressDirty)saveProgress();clearKeys();if(started&&!activeModal)openModal('pauseModal');}last=performance.now();accumulator=0;});
+addEventListener('blur',()=>{gamepad.suspended=true;if(progressDirty)saveProgress();clearKeys();if(started&&!activeModal)openModal('pauseModal');});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){gamepad.suspended=true;if(progressDirty)saveProgress();clearKeys();if(started&&!activeModal)openModal('pauseModal');}last=performance.now();accumulator=0;});
 document.querySelectorAll('[data-key]').forEach(button=>{
  button.addEventListener('pointerdown',e=>{e.preventDefault();if(activeModal)return;if(!started)start();button.setPointerCapture(e.pointerId);keys[button.dataset.key]=true;if(['a','d'].includes(button.dataset.key))railSetManualTurn(button.dataset.key==='a'?-1:1);button.classList.add('held');});
  for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>{delete keys[button.dataset.key];button.classList.remove('held');});
@@ -4935,20 +5119,20 @@ function recover(){
  Object.assign(player,p,{vx:0,vy:0,hit:0});snapshotBody(player);interpolatePlayer();turbo.active=false;safePosition={...p};camera.x=p.x;camera.y=p.y;shake=0;powers.exitBodies.clear();progressDirty=true;rebuildDynamic();toast('Back on the road. Keep exploring.');
 }
 function updatePlayer(dt){
- const accel=keys.w||keys.arrowup,brake=keys.s||keys.arrowdown,left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright,handbrake=keys[' '];
+ const accel=throttleInput(),brake=reverseInput(),handbrake=brakeInput();
  const cos=Math.cos(player.angle),sin=Math.sin(player.angle);
  let forwardSpeed=player.vx*cos+player.vy*sin,lateralSpeed=-player.vx*sin+player.vy*cos;
  const surface=surfaceAt(player.x,player.y),grass=surface==='grass'&&!powerActive('phase'),dirt=surface==='dirt';
  // Original game's acceleration, rolling drag, steering and lateral-grip settings.
  const st=stats(),speedPower=powerActive('speed')?1.4:1,infiniteNitro=powerActive('nitro');
- const wantsBoost=(garageState().performance.turbo>0||infiniteNitro)&&keys.shift&&accel&&!brake&&!handbrake&&!grass&&!dirt&&forwardSpeed>.04;
+ const wantsBoost=(garageState().performance.turbo>0||infiniteNitro)&&boostInput()&&accel&&!brake&&!handbrake&&!grass&&!dirt&&forwardSpeed>.04;
  updateTurbo(dt,st,wantsBoost,infiniteNitro);
  const enginePower=(grass?.00024:dirt?st.acceleration*.72:st.acceleration)*(turbo.active?1.9:1)*(powerActive('speed')?1.35:1),brakePower=.00062*(forwardSpeed>0?st.brakeMultiplier:1);
  const speedLimit=(grass?.16:dirt?st.maxSpeed*.72:st.maxSpeed*(turbo.active?st.boostMultiplier:1))*speedPower;
  const coastingBoost=!grass&&!dirt&&forwardSpeed>speedLimit;
  const holdingThrottle=accel&&!brake&&!handbrake;
  const dragStep=dt/16*(coastingBoost&&holdingThrottle?.6:1);
- if(accel&&!coastingBoost)forwardSpeed+=enginePower*dt;if(brake)forwardSpeed-=brakePower*dt;
+ if(accel&&!coastingBoost)forwardSpeed+=enginePower*accel*dt;if(brake)forwardSpeed-=brakePower*brake*dt;
  forwardSpeed*=Math.pow(grass?.955:dirt?.982:.988,dragStep);
  // Ease back to the current limit while the throttle is held.
  if(coastingBoost&&holdingThrottle)forwardSpeed=Math.max(speedLimit,forwardSpeed);
@@ -4956,7 +5140,7 @@ function updatePlayer(dt){
  const stop=!accel&&!brake&&!handbrake&&forwardSpeed!==0?jobTarget():null;
  const assistBraking=!!stop&&insideJobBay(stop);
  if(assistBraking)forwardSpeed=Math.sign(forwardSpeed)*Math.max(0,Math.abs(forwardSpeed)-JOB_BAY_BRAKE*dt);
- const steerInput=(right?1:0)-(left?1:0),speedFactor=Math.min(1,Math.abs(forwardSpeed)/.08),dir=forwardSpeed>=-.005?1:-1;
+ const steerInput=steeringInput(),speedFactor=Math.min(1,Math.abs(forwardSpeed)/.08),dir=forwardSpeed>=-.005?1:-1;
  player.angle+=steerInput*(handbrake?.0046:.0034)*GAME_MODES[progress.mode].steer*speedFactor*dir*dt;
  lateralSpeed*=Math.pow(handbrake?.88:grass?.90:dirt?.91:.78,dt/16);
  const nc=Math.cos(player.angle),ns=Math.sin(player.angle);
@@ -4972,15 +5156,14 @@ function sameMotorbikeGang(a,b){return !!a.gang&&a.gang===b.gang;}
 function recklessTraffic(c){return c.driver==='speeder'||!!c.gang;}
 function nightSpeeder(c){return dayCycleMs>=DAY_PHASE_MS&&c.driver==='speeder';}
 function fastTraffic(c){return c.driver==='emergency'||recklessTraffic(c);}
-function trafficPassLeader(c){
- const lead=c.blocker,reckless=recklessTraffic(c);
- if(!lead||(lead.kind!=='traffic'&&!(reckless&&lead===player))||lead.destroyed||
+function cityPassLeader(c){
+ const lead=c.blocker;
+ if(!lead||(lead.kind!=='traffic'&&!(recklessTraffic(c)&&lead===player))||lead.destroyed||
     lead.reverseFor>0||lead.cityPass||sameMotorbikeGang(c,lead))return null;
  const lane=routeAt(c.route,c.routeD),fx=Math.cos(lane.angle),fy=Math.sin(lane.angle);
  if(Math.cos(lead.angle-lane.angle)<.94)return null;
  const speed=Math.max(0,lead.vx*fx+lead.vy*fy),gain=c.cruise-speed;
- const urgent=c.driver==='emergency';
- if(gain<(reckless?.03:urgent?.041:.059)||c.blockedGap>36+gain*(reckless?1450:urgent?1150:900))return null;
+ if(gain<.03||c.blockedGap>36+gain*1450)return null;
  return {car:lead,speed,lane,fx,fy,ahead:(lead.x-c.x)*fx+(lead.y-c.y)*fy};
 }
 function setHighwayTrafficLane(c,lane,coord,cooldown){
@@ -4989,35 +5172,18 @@ function setHighwayTrafficLane(c,lane,coord,cooldown){
  road.lane=lane;c.passCooldown=cooldown;
  c.senseIn=0;trafficJunctions.timer=0;
 }
-function tryHighwayTrafficPass(c,priority,lane){
- const road=c.route.highway,reckless=recklessTraffic(c);
+function tryHighwayTrafficPass(c){
+ const road=c.route.highway,lane=road.lane===100?54:100;
  const coord=roadCoord(road.index,road.axis)+(road.axis===0?-road.direction:road.direction)*lane;
- const speed=Math.hypot(c.vx,c.vy),shoulderMove=lane>100||road.lane>100;
- const startCross=road.axis===0?c.x:c.y,mergeLength=Math.max(75,speed*175);
- if(shoulderMove){
-  const x=road.axis===0?coord:c.x+road.direction*mergeLength;
-  const y=road.axis===0?c.y+road.direction*mergeLength:coord;
-  if(!segmentClear(c.x,c.y,x,y,c.hh+4))return false;
- }
- for(const other of dynamicHash.query(c,priority?420:210)){
+ for(const other of dynamicHash.query(c,210)){
   if(other===c||other.destroyed||ignoresCollision(c,other))continue;
   const sideways=road.axis===0?other.x:other.y,planned=other.route?.highway;
   const entering=planned?.axis===road.axis&&planned.index===road.index&&planned.direction===road.direction&&planned.lane===lane;
-  const parallel=Math.abs(road.axis===0?Math.sin(other.angle):Math.cos(other.angle));
-  const perpendicular=Math.abs(road.axis===0?Math.cos(other.angle):Math.sin(other.angle));
-  const width=priority?other.hh*parallel+other.hw*perpendicular:other.hh;
+  if(!entering&&Math.abs(sideways-coord)>=c.hh+other.hh+12)continue;
   const ahead=(road.axis===0?other.y-c.y:other.x-c.x)*road.direction;
-  // A move across the outer lane to or from the shoulder needs room in between.
-  const between=shoulderMove&&(sideways-startCross)*(sideways-coord)<0&&Math.abs(sideways-startCross)>c.hh+width+4;
-  if(between&&ahead>=-c.hw-other.hw-12&&ahead<=mergeLength+c.hw+other.hw)return false;
-  if(!entering&&Math.abs(sideways-coord)>=c.hh+width+(reckless?6:12))continue;
-  const otherSpeed=(road.axis===0?other.vy:other.vx)*road.direction;
-  const closing=ahead>=0?Math.max(0,speed-otherSpeed):Math.max(0,otherSpeed-speed);
-  const length=priority?other.hw*parallel+other.hh*perpendicular:other.hw;
-  const gap=c.hw+length+(reckless?24+closing*(ahead>=0?440:590):priority?46+closing*(ahead>=0?700:920):150);
-  if(Math.abs(ahead)<gap)return false;
+  if(Math.abs(ahead)<c.hw+other.hw+150)return false;
  }
- setHighwayTrafficLane(c,lane,coord,reckless?900:c.driver==='emergency'?1450:3500);
+ setHighwayTrafficLane(c,lane,coord,3500);
  return true;
 }
 function highwayPassClear(c,coord,nearby,speed){
@@ -5042,8 +5208,9 @@ function highwayPassClear(c,coord,nearby,speed){
  return vertical?segmentClear(c.x,c.y,coord,along,pad)&&segmentClear(coord,along,coord,end,pad):
   segmentClear(c.x,c.y,along,coord,pad)&&segmentClear(along,coord,end,coord,pad);
 }
-function tryRecklessHighwayPass(c,speed){
+function tryFastHighwayPass(c,speed){
  if(c.reverseFor>0||c.cooldown>0)return false;
+ if(c.driver==='emergency'&&(c.junctionInside||c.junctionEntry<110+speed*140))return false;
  const road=c.route.highway,lead=c.blocker;
  const gain=lead?c.cruise-(road.axis===0?lead.vy:lead.vx)*road.direction:0;
  const catching=lead&&!sameMotorbikeGang(c,lead)&&gain>.03&&c.blockedGap<90+gain*440;
@@ -5069,7 +5236,7 @@ function tryRecklessHighwayPass(c,speed){
 }
 const CITY_PASS_OFFSET=2*LANE,CITY_PASS_MERGE=78;
 function cityPassReturnClear(c,lane,fx,fy,speed,time){
- const move=speed*time,x=lane.x+fx*move,y=lane.y+fy*move,reckless=recklessTraffic(c);
+ const move=speed*time,x=lane.x+fx*move,y=lane.y+fy*move;
  for(const other of dynamicHash.query(c,Math.max(155,move+time*.55+100))){
   if(other===c||other.destroyed||ignoresCollision(c,other))continue;
   const dx=other.x+other.vx*time-x,dy=other.y+other.vy*time-y,angle=other.angle-lane.angle;
@@ -5078,26 +5245,26 @@ function cityPassReturnClear(c,lane,fx,fy,speed,time){
   const ahead=dx*fx+dy*fy,length=Math.abs(Math.cos(angle))*other.hw+Math.abs(Math.sin(angle))*other.hh;
   const otherSpeed=other.vx*fx+other.vy*fy;
   const closing=ahead>=0?Math.max(0,speed-otherSpeed):Math.max(0,otherSpeed-speed);
-  if(Math.abs(ahead)<c.hw+length+(reckless?11+closing*125:16+closing*180))return false;
+  if(Math.abs(ahead)<c.hw+length+11+closing*125)return false;
  }
  return true;
 }
 function tryCityTrafficPass(c,lead){
- const reckless=recklessTraffic(c),entryGap=(reckless?11:15)+Math.max(0,c.hw-22)*2;
+ const entryGap=11+Math.max(0,c.hw-22)*2;
  if(!c.route.junctions||c.routeError>6||c.blockedGap<entryGap||lead.ahead<=0)return false;
  const {lane,fx,fy}=lead,segment=c.route.segments[lane.index];
  if(segment.len<255||Math.abs(angleDiff(lane.angle,c.angle))>.15)return false;
- const speed=c.cruise*(reckless?.98:.94),gain=speed-lead.speed;
- if(gain<(reckless?.033:.052))return false;
- const acceleration=VEHICLE_TYPES[c.model].accel*(reckless?1.55:2);
+ const speed=c.cruise*.98,gain=speed-lead.speed;
+ if(gain<.033)return false;
+ const acceleration=VEHICLE_TYPES[c.model].accel*(c.driver==='emergency'?2:1.55);
  const speedLoss=Math.max(0,speed-(c.vx*fx+c.vy*fy));
- const clearance=c.hw+lead.car.hw+(reckless?16:23);
+ const clearance=c.hw+lead.car.hw+16;
  const duration=(lead.ahead+clearance+speedLoss*speedLoss/(2*acceleration)+12)/gain;
  const run=speed*duration,finish=run+CITY_PASS_MERGE;
  const limit=Math.min(segment.start+segment.len-18,lane.d+(c.junctionEntry??Infinity)-16);
  if(lane.d+finish>limit)return false;
 
- const horizon=duration+CITY_PASS_MERGE/speed+(reckless?160:300);
+ const horizon=duration+CITY_PASS_MERGE/speed+160;
  for(const other of dynamicHash.query(c,finish+horizon*.55+100)){
   if(other===c||other.destroyed||ignoresCollision(c,other))continue;
   const dx=other.x-lane.x,dy=other.y-lane.y,along=dx*fx+dy*fy,side=-dx*fy+dy*fx+CITY_PASS_OFFSET;
@@ -5105,7 +5272,7 @@ function tryCityTrafficPass(c,lead){
   const width=Math.abs(Math.sin(other.angle-lane.angle))*other.hw+Math.abs(Math.cos(other.angle-lane.angle))*other.hh;
   const reach=c.hh+width+8;
   if(Math.min(side,side+drift)>reach||Math.max(side,side+drift)<-reach)continue;
-  const future=along+(other.vx*fx+other.vy*fy)*horizon,margin=c.hw+other.hw+(reckless?23:35);
+  const future=along+(other.vx*fx+other.vy*fy)*horizon,margin=c.hw+other.hw+23;
   if(Math.max(along,future)>-margin&&Math.min(along,future)<finish+margin)return false;
  }
  if(!cityPassReturnClear(c,lane,fx,fy,speed,duration+CITY_PASS_MERGE/(2*speed)))return false;
@@ -5120,22 +5287,14 @@ function tryCityTrafficPass(c,lead){
 }
 function tryTrafficPass(c){
  if(c.cityPass||c.junctionInside||c.reverseFor>0||c.cooldown>0||c.passCooldown>0)return;
- const road=c.route.highway,reckless=recklessTraffic(c),urgent=c.driver==='emergency',priority=urgent||reckless;
- const lead=priority?trafficPassLeader(c):null;
- if(!road){
-  if(lead&&!tryCityTrafficPass(c,lead))c.passCooldown=reckless?90:200;
+ if(!c.route.highway){
+  if(!fastTraffic(c))return;
+  const lead=cityPassLeader(c);
+  if(lead&&!tryCityTrafficPass(c,lead))c.passCooldown=90;
   return;
  }
- const speed=Math.hypot(c.vx,c.vy);
- const junctionBuffer=reckless?70+speed*105:110+(urgent?speed*140:0);
- if(c.junctionEntry<junctionBuffer)return;
- const heldUp=c.trafficLimit<=c.cruise*(reckless?.93:urgent?.9:.72)&&
-  (!priority||c.blocker&&!sameMotorbikeGang(c,c.blocker));
- if(road.lane<=100&&!c.yieldLane&&!lead&&!heldUp)return;
- const lane=road.lane===100?54:100;
- if(tryHighwayTrafficPass(c,priority,lane))return;
- if(reckless&&road.lane<=100&&tryHighwayTrafficPass(c,true,roadHalf(road.index,road.axis)-15))return;
- if(priority)c.passCooldown=reckless?90:200;
+ if(c.junctionEntry<110||!c.yieldLane&&c.trafficLimit>c.cruise*.72)return;
+ tryHighwayTrafficPass(c);
 }
 function cityPassOncoming(c,lane,fx,fy,speed){
  const range=210+speed*380;
@@ -5165,7 +5324,7 @@ function steerCityPass(c,near,aim,speed,dt,scan){
   if((past||fallenBack)&&cityPassReturnClear(c,near,fx,fy,mergeSpeed,140))pass.returning=true;
  }
  if(pass.returning){
-  if(c.routeError<4&&Math.abs(angleDiff(near.angle,c.angle))<.17){c.cityPass=null;c.passCooldown=recklessTraffic(c)?750:2200;}
+  if(c.routeError<4&&Math.abs(angleDiff(near.angle,c.angle))<.17){c.cityPass=null;c.passCooldown=750;}
   return pass.abort&&ahead>0?Math.max(.04,leadSpeed):Infinity;
  }
  const offset=pass.abort?clamp((c.x-near.x)*fy-(c.y-near.y)*fx,0,CITY_PASS_OFFSET):CITY_PASS_OFFSET;
@@ -5322,7 +5481,8 @@ function updateTrafficJunctions(dt){
   const conflicts=(a,b)=>!sameMotorbikeGang(a.car,b.car)&&trafficPathsConflict(a,b);
   for(const p of group){
    const car=p.car,reckless=recklessTraffic(car);
-   p.mayEnter=reckless||!trafficQueuedBehind(p,group)&&junctionExitClear(car,z,p.exit);
+   // Even fast drivers need the car ahead to clear their approach first.
+   p.mayEnter=!trafficQueuedBehind(p,group)&&(reckless||junctionExitClear(car,z,p.exit));
    if(nightSpeeder(car)||!playerPresent||ignoresCollision(car,player))continue;
    if(!parkedPlayer){if(!reckless)p.mayEnter=false;continue;}
    const hits=junctionPlayerHits(car,junctionApproach(p));
@@ -5411,9 +5571,10 @@ function senseTraffic(c,speed){
    const gap=ahead-c.hw-length,leader=Math.max(0,other.vx*fx+other.vy*fy),safeGap=20+speed*230;
    if(gap<c.blockedGap){c.blocker=other;c.blockedGap=gap;}
    if(fast){
-    const pack=sameMotorbikeGang(c,other),margin=pack?14:reckless?10:22;
-    const headway=pack?30+speed*45:reckless?16+speed*58:28+speed*105;
-    const braking=Math.sqrt(leader*leader+2*FAST_TRAFFIC_BRAKE*Math.max(0,gap-margin-speed*(reckless&&!pack?42:65)));
+    const pack=sameMotorbikeGang(c,other),closeFollowing=reckless||co>.55;
+    const margin=pack?14:closeFollowing?10:22;
+    const headway=pack?30+speed*45:closeFollowing?16+speed*58:28+speed*105;
+    const braking=Math.sqrt(leader*leader+2*FAST_TRAFFIC_BRAKE*Math.max(0,gap-margin-speed*(closeFollowing&&!pack?42:65)));
     limit=Math.min(limit,braking,Math.max(0,leader+(gap-headway)*.0035));
    }else limit=Math.min(limit,Math.max(0,(gap-20)/350),leader+Math.max(0,gap-safeGap)*.002);
    yielding=true;
@@ -5456,12 +5617,12 @@ function updateTraffic(c,dt){
  const look=clamp(20+speed*100+c.hw*.35,28,66),aim=routeAt(c.route,d+look,samples[0]),near=routeAt(c.route,d,samples[1]),far=routeAt(c.route,d+look+c.hw+20,samples[2]);
  c.senseIn=(c.senseIn||0)-dt;
  const scan=c.senseIn<=0;
- const recklessHighway=reckless&&c.route.highway,nightCrossing=c.junctionInside&&nightSpeeder(c);
+ const fastHighway=fast&&c.route.highway,nightCrossing=c.junctionInside&&nightSpeeder(c);
  if(scan){
   senseTraffic(c,speed);
-  c.senseIn=recklessHighway?30+(c.id||0)%15:(fast?42:90)+(c.id||0)%35;
+  c.senseIn=fastHighway?30+(c.id||0)%15:(fast?42:90)+(c.id||0)%35;
   if(!nightCrossing){
-   if(recklessHighway){if(tryRecklessHighwayPass(c,speed))routeAt(c.route,d+look,aim);}
+   if(fastHighway){if(tryFastHighwayPass(c,speed))routeAt(c.route,d+look,aim);}
    else tryTrafficPass(c);
   }
  }
@@ -5479,7 +5640,8 @@ function updateTraffic(c,dt){
    target=Math.min(target,Math.sqrt(corner*corner+2*brake*room));
   }
  }
- const steeringCorrection=Math.max(0,Math.abs(delta)-(recklessHighway?.68:0));
+ const holdHighwaySpeed=fastHighway&&(reckless||c.passCooldown>0);
+ const steeringCorrection=Math.max(0,Math.abs(delta)-(holdHighwaySpeed?.68:0));
  target*=clamp(1-steeringCorrection*.5,.22,1);
  const detourLimit=c.junctionDetour?(reckless?.16:.115):Infinity;
  target=Math.min(target,c.trafficLimit??c.cruise,c.junctionLimit??Infinity,passLimit,detourLimit);
@@ -5716,7 +5878,7 @@ function sceneGround(s,g=ctx,map=false){
    }
   }
   if(d.kind==='apron'){g.fillStyle='#9da89d';g.fillRect(d.x-d.hw,d.y-d.hh,d.hw*2,d.hh*2);if(!map){g.strokeStyle='#727f7855';g.lineWidth=1;for(let px=d.x-d.hw+35;px<d.x+d.hw;px+=70){g.beginPath();g.moveTo(px,d.y-d.hh);g.lineTo(px,d.y+d.hh);g.stroke();}for(let py=d.y-d.hh+35;py<d.y+d.hh;py+=70){g.beginPath();g.moveTo(d.x-d.hw,py);g.lineTo(d.x+d.hw,py);g.stroke();}}}
-  if(d.kind==='stand'&&!map){g.save();g.translate(d.x,d.y);g.rotate(d.angle);g.strokeStyle='#d1bd7c';g.lineWidth=1.2;g.beginPath();g.moveTo(-d.length*.65,0);g.lineTo(d.length*.59,0);g.moveTo(d.length*.59,-12);g.lineTo(d.length*.59,12);g.stroke();g.font='bold 8px Arial';g.fillStyle='#6d7968';g.textAlign='center';g.fillText(d.label,-d.length*.65,14);g.restore();}
+  if(d.kind==='stand'&&!map){g.save();g.translate(d.x,d.y);g.rotate(d.angle);g.strokeStyle='#d1bd7c';g.lineWidth=1.2;g.beginPath();g.moveTo(-d.length*.65,0);g.lineTo(d.length*.59,0);g.moveTo(d.length*.59,-12);g.lineTo(d.length*.59,12);g.stroke();g.restore();}
   if(d.kind==='oldplaza'||d.kind==='clearing'){g.fillStyle=d.kind==='oldplaza'?'#c4b796':s.biome==='dry'?'#c6b48d':'#a9aa7a';g.beginPath();g.arc(d.x,d.y,d.r,0,TAU);g.fill();}
  }
 }
@@ -5801,7 +5963,7 @@ function drawTrafficSign(x,y,label,direction=1){
   const octagon=r=>Array.from({length:8},(_,n)=>{
    const angle=(n+.5)*TAU/8;return [Math.cos(angle)*r,-5+Math.sin(angle)*r];
   });
-  roofPolygon(octagon(12),'#f2dbc0');roofPolygon(octagon(10.3),'#a34036');textAt('STOP',0,-3,5.8,'#fff2d7');
+  roofPolygon(octagon(12),'#f2dbc0');roofPolygon(octagon(10.3),'#a34036');
  }else{
   roofPolygon([[0,-18],[13,-5],[0,8],[-13,-5]],'#554e3c');
   roofPolygon([[0,-16],[11,-5],[0,6],[-11,-5]],'#e9bb63');
@@ -5961,7 +6123,6 @@ function drawSceneDetails(s){
   for(const d of s.decor){
    if(!visible(d.x,d.y,d.hw+8,d.hh+8))continue;
    if(d.kind==='flowerBed'||d.kind==='courtFountain')drawSiteFixture(d);
-   else if(d.label)textAt(d.label,d.x,d.y+d.hh-8,10,s.type==='offices'?'#6a6557':'#516b4e');
   }
   return;
  }
@@ -5970,7 +6131,7 @@ function drawSceneDetails(s){
   if(d.kind==='runway'){
    ctx.save();ctx.translate(d.x,d.y);if(d.vertical)ctx.rotate(Math.PI/2);const length=(d.vertical?d.hh:d.hw)*2,width=(d.vertical?d.hw:d.hh)*2;
    ctx.strokeStyle='#f0ecce';ctx.lineWidth=2;ctx.strokeRect(-length/2,-width/2+7,length,width-14);ctx.setLineDash([35,28]);ctx.beginPath();ctx.moveTo(-length/2+100,0);ctx.lineTo(length/2-100,0);ctx.stroke();ctx.setLineDash([]);
-   for(const side of [-1,1]){for(let n=-Math.floor((width-24)/24);n<=Math.floor((width-24)/24);n++)if(n!==0)rect(side*(length/2-35)-14,n*12-3,28,6,'#e7e7cd');ctx.save();ctx.translate(side*(length/2-100),0);ctx.rotate(side<0?Math.PI/2:-Math.PI/2);textAt(d.number?d.number[side<0?0:1]:side<0?'09':'27',0,8,Math.min(23,width*.26),'#eee9d1');ctx.restore();}
+   for(const side of [-1,1])for(let n=-Math.floor((width-24)/24);n<=Math.floor((width-24)/24);n++)if(n!==0)rect(side*(length/2-35)-14,n*12-3,28,6,'#e7e7cd');
    for(let px=-length/2;px<length/2;px+=65)for(const side of [-1,1])circle(px,side*(width/2+5),2,'#b9d7d0');ctx.restore();
   }
   if(d.kind==='plane'&&visible(d.x,d.y,(AIRCRAFT[d.model]?.length||126)/2+12))drawAircraft(d);
@@ -5994,8 +6155,7 @@ function drawSceneDetails(s){
    drawOldTownMosaic(s.town,d.x,d.y);
    circle(d.x,d.y,53,s.town.ground);ctx.strokeStyle=s.town.street;ctx.lineWidth=3;ctx.beginPath();ctx.arc(d.x,d.y,65,0,TAU);ctx.stroke();
    for(let n=0;n<8;n++){const a=n*TAU/8;ctx.strokeStyle=s.town.edge+'55';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(d.x+Math.cos(a)*26,d.y+Math.sin(a)*26);ctx.lineTo(d.x+Math.cos(a)*62,d.y+Math.sin(a)*62);ctx.stroke();}
-   textAt(d.label,d.x,d.y+54,8,s.town.edge);
-   circle(d.x,d.y,20,s.town.street);circle(d.x,d.y,14,s.town.accent);
+    circle(d.x,d.y,20,s.town.street);circle(d.x,d.y,14,s.town.accent);
    if(d.landmark==='MARKET HALL'){
     for(const x of [-7,0,7])rect(d.x+x-1,d.y-6,2,12,'#e8d6b8');
    }else if(d.landmark==='CLOCK TOWER'){
@@ -6071,7 +6231,6 @@ function drawOilEquipment(d){
   for(let k=-1;k<=1;k++)rect(x-r*.42,y+r*.12+k*4,r*.78,1,'#899590');
   rect(x+r*.37,y+r*.53,r*.66,4,'#858b78');rect(x+r*.51,y+r*.53,1.5,4,'#ded3a5');
  }else if(d.kind==='pipeRack')drawSiteFixture(d);
- else if(d.kind==='oilYardLabel')textAt('FIELD SERVICE',d.x,d.y,12,'#6d6150');
 }
 function drawSiteFixture(d){
  const {x,y,hw,hh}=d,w=hw*2,h=hh*2,left=x-hw,top=y-hh,r=Math.min(hw,hh);
@@ -6207,7 +6366,6 @@ function drawBlock(b){
    for(let n=0;n<3;n++){
     const px=d.x+n*bay+4;
     rect(px,d.y+5,2,d.h-9,'#dbc58e');rect(px,d.y+5,bay-7,2,'#dbc58e');
-    textAt(String(n+1).padStart(2,'0'),px+bay*.48,d.y+d.h*.65,Math.min(13,d.h*.28),'#d6c99c');
    }
   }
   if(d.kind==='bankBays'){
@@ -6218,7 +6376,6 @@ function drawBlock(b){
     rect(d.x+n*stall+4,d.y+4,stall-8,2,'#e0c98a');
     rect(d.x+n*stall+4,d.y+d.h-5,stall-8,2,'#e0c98a');
    }
-   textAt('LOADING',d.x+d.w/2,d.y+d.h*.54,Math.min(6.5,stall*.17),'#f1dba4');
   }
   if(d.kind==='patrolBays'||d.kind==='postBays'){
    const patrol=d.kind==='patrolBays',stall=d.w/3,ink=patrol?'#c1d8e3':'#f0d69a';
@@ -6230,7 +6387,6 @@ function drawBlock(b){
     rect(px+4,d.y+d.h-4,stall-6,2,ink);
    }
    rect(d.x+d.w-2,d.y+2,1.5,d.h-4,ink);
-   textAt(patrol?'PATROL':'POST',d.x+d.w/2,d.y+d.h*.56,Math.min(9,stall*.23),ink);
   }
   if(d.kind==='retailLot'||d.kind==='serviceBays'){
    const retail=d.kind==='retailLot',stalls=Math.max(5,Math.floor(d.w/29));
@@ -6258,11 +6414,10 @@ function drawBlock(b){
   }
   if(d.kind==='boat'){const canal=b.decor.find(v=>v.kind==='canal');if(canal&&Math.abs(d.x+d.w/2-canal.bridgeX)<canal.bridge/2+d.w)continue;rounded(d.x+2,d.y+3,d.w,d.h,6,'#345e5655');rounded(d.x,d.y,d.w,d.h,6,'#d4d9bf');rect(d.x+8,d.y+3,d.w-18,d.h-6,'#728e8b');}
   if(d.kind==='field'||d.kind==='court')drawPlayingSurface(d);
-  if(d.kind==='lot'){rect(d.x,d.y,d.w,d.h,'#747f73');for(let px=d.x;px<d.x+d.w;px+=46){rect(px,d.y+4,1,48,'#c7c7a7');rect(px,d.y+d.h-52,1,48,'#c7c7a7');}textAt('P',d.x+d.w-19,d.y+d.h/2+5,20,'#d9ddbd');}
-  if(d.kind==='medicalCourt'){rect(d.x,d.y,d.w,d.h,'#8d9f93');rect(d.x+3,d.y+3,d.w-6,3,'#e4d8b3');textAt('AMBULANCE / KEEP CLEAR',d.x+d.w*.63,d.y+d.h*.55,6,'#eee5c2');}
+  if(d.kind==='lot'){rect(d.x,d.y,d.w,d.h,'#747f73');for(let px=d.x;px<d.x+d.w;px+=46){rect(px,d.y+4,1,48,'#c7c7a7');rect(px,d.y+d.h-52,1,48,'#c7c7a7');}}
+  if(d.kind==='medicalCourt'){rect(d.x,d.y,d.w,d.h,'#8d9f93');rect(d.x+3,d.y+3,d.w-6,3,'#e4d8b3');}
   if(d.kind==='loading'){rect(d.x,d.y,d.w,d.h,'#6e7d71');for(let py=d.y;py<d.y+d.h;py+=18)rect(d.x+2,py,d.w-4,2,'#ccbc7f');}
  }
- if(['park','sports','plaza','market','canal'].includes(b.type))textAt(b.name.toUpperCase(),x+w/2,y+h-18,8,'#e9e9cf');
 }
 
 function roofPolygon(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],n)=>n?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
@@ -7363,9 +7518,15 @@ function drawAtlas(){
  $('mapArea').textContent=districtAt(roadIndex(mapView.x,0),roadIndex(mapView.y,1)).name+' · '+(mapView.span*.8/1000).toFixed(1)+' km across';
  const canSetWaypoint=progress.mode==='free'||(progress.mode==='train'&&!jobTarget());
  atlas.tabIndex=canSetWaypoint?0:-1;atlas.classList.toggle('can-set-waypoint',canSetWaypoint);
- const hint=$('mapControlsHint'),hintText=progress.mode==='train'&&!jobTarget()?'Click a station to set your rail destination · Drag to pan · Scroll to zoom':canSetWaypoint?'Click to set a waypoint · Enter pins the map center · Drag to pan · Scroll to zoom':'Drag to explore · Scroll to zoom';
- if(hint.textContent!==hintText)hint.textContent=hintText;
+ updateMapControlsHint();
  $('mapZoomIn').disabled=mapView.span<=1800;$('mapZoomOut').disabled=mapView.span>=10000;mapView.dirty=false;
+}
+function updateMapControlsHint(){
+ const hint=$('mapControlsHint'),canSetWaypoint=atlas.tabIndex===0;
+ const keyboard=progress.mode==='train'&&canSetWaypoint?'Click a station to set your rail destination · Drag to pan · Scroll to zoom':canSetWaypoint?'Click to set a waypoint · Enter pins the map center · Drag to pan · Scroll to zoom':'Drag to explore · Scroll to zoom';
+ const controller='Left stick pans · {garage} / {boost} zoom'+(canSetWaypoint?' · {confirm} pins map center':'');
+ const text=inputHint(keyboard,controller);
+ if(hint.textContent!==text)hint.textContent=text;
 }
 function zoomMap(factor){mapView.span=clamp(mapView.span*factor,1800,10000);mapView.dirty=true;}
 document.querySelectorAll('[data-landscape]').forEach(b=>b.onclick=()=>findLandscape(b.dataset.landscape));
@@ -7435,6 +7596,7 @@ function updateHUD(){
 function loop(now){
  const frameStart=performance.now();
  const elapsed=Math.min(80,Math.max(0,now-last));last=now;
+ pollGamepads(now,elapsed);
  trackFrameTime(elapsed);
  if(!activeModal&&!document.hidden){accumulator+=elapsed;while(accumulator>=STEP){physics(STEP);accumulator-=STEP;}}
  // Render between fixed physics steps; whole-step positions jitter at high speed.
