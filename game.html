@@ -8,7 +8,7 @@
 <style>
 :root{color-scheme:dark;--ink:#f5f2e6;--muted:#bdc9bf;--green:#d4ed89;--panel:#142e2bee;--line:#ffffff24}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#2b4140;color:var(--ink);font-family:Arial,Helvetica,sans-serif}button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible{outline:3px solid #e8f7ab;outline-offset:5px}button:disabled{cursor:default;opacity:.45}[hidden]{display:none!important}
-#game{display:block;width:100%;height:100%;touch-action:none;outline:none} .vignette{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 160px #0a272935}
+#game{position:absolute;display:block;width:100%;height:100%;touch-action:none;outline:none;will-change:transform} .vignette{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 160px #0a272935}
 .top{position:fixed;top:28px;left:32px;right:32px;display:flex;align-items:center;justify-content:space-between;gap:20px;pointer-events:none}.brand{display:flex;align-items:center;gap:13px;text-shadow:0 2px 12px #102b2baa}.brand-icon{background:var(--green);color:#193732;width:43px;height:43px;display:grid;place-items:center;font-size:29px;font-weight:bold;border-radius:12px;box-shadow:0 4px 16px #1233}.brand-name{font-size:21px;letter-spacing:-1px;font-weight:900;line-height:1}.brand-sub{display:block;font-size:9px;letter-spacing:2.1px;margin-top:7px;font-weight:500;color:#f5f2e6}.top-right{display:flex;gap:8px;pointer-events:auto}.pill,.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);box-shadow:0 5px 20px #15272719;backdrop-filter:blur(16px)}.pill{border-radius:30px;padding:12px 17px;display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:1.4px;font-weight:700}.live-dot{width:6px;height:6px;background:var(--green);border-radius:100%;box-shadow:0 0 10px #def3a133}.iconbtn{border-radius:50%;width:39px;height:39px;display:grid;place-items:center;font-size:16px;transition:background .15s}.iconbtn:hover{background:#36524b}.iconbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
 .location{position:fixed;top:103px;left:33px;pointer-events:none;text-shadow:0 2px 7px #102726}.eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted)}.location strong{display:block;font-size:16px;margin-top:5px;letter-spacing:-.3px}.location small{display:block;font-size:10px;margin-top:5px;color:#e1e6db}
 .location .day-cycle{color:#f6e0a3;font-weight:700;font-variant-numeric:tabular-nums}.location .day-cycle[data-phase="night"]{color:#cbddf6}
@@ -2061,6 +2061,7 @@ function getScene(a,b,development,roadsOnly=false){
   const r=roadObject(points,width,kind);
   if(kind==='cobbles'){r.color=s.town.street;r.edge=s.town.edge;}
   if(type==='docks'||(type==='airport'&&industrialKind(a,b)))r.theme='industrial';
+  if(type==='airport'&&kind==='service'&&r.theme==='industrial')for(const seg of r.segments)seg.airportService=true;
   if(oneWay){r.oneWay=true;for(const seg of r.segments)seg.oneWay=true;}
   s.roads.push(r);return r;
  };
@@ -2101,18 +2102,38 @@ function getScene(a,b,development,roadsOnly=false){
   });
   const unique=values=>[...new Set(values)].sort((a,b)=>a-b);
   const us=unique([p.u0,p.u1,...entrances.map(q=>q.u)]),vs=unique([p.v0,p.v1,p.taxi,...p.runways,...entrances.map(q=>q.v)]);
-  const loop=[...us.map(u=>point(u,p.v0)),...vs.slice(1).map(v=>point(p.u1,v)),...us.slice(0,-1).reverse().map(u=>point(u,p.v1)),...vs.slice(1,-1).reverse().map(v=>point(p.u0,v))];loop.push(loop[0]);road(loop,48,'service');s.trafficLoops.push(loop);
-  for(const e of entrances)road([e.portal,point(e.u,e.v)],48,'service');
+  const serviceWidth=48;
+  const loop=[...us.map(u=>point(u,p.v0)),...vs.slice(1).map(v=>point(p.u1,v)),...us.slice(0,-1).reverse().map(u=>point(u,p.v1)),...vs.slice(1,-1).reverse().map(v=>point(p.u0,v))];loop.push(loop[0]);road(loop,serviceWidth,'service');s.trafficLoops.push(loop);
+  for(const e of entrances)road([e.portal,point(e.u,e.v)],serviceWidth,'service');
   const links=kind==='regional'?[.31,.5,.69]:[.17,.38,.62,.83];
   const runwayUs=unique([p.u0,p.u1,...links]);
   uvroad(runwayUs.map(u=>[u,p.taxi]),42,'taxiway');
   for(const u of links)uvroad([p.taxi,...p.runways].map(v=>[u,v]),40,'taxiway');
+  const runwayScale=s.vertical?siteH:siteW;
+  const setback=Math.min((serviceWidth/2+16)/runwayScale,p.ends[0]-p.u0-6/runwayScale,p.u1-p.ends[1]-6/runwayScale);
+  const nearEnd=p.u0+setback,farEnd=p.u1-setback;
   for(const v of p.runways){
-   uvroad(runwayUs.map(u=>[u,v]),p.width,'runway');
+   const runway=uvroad(runwayUs.map(u=>[u,v]),p.width,'runway');
+   if(s.roadsOnly)continue;
+   // Preserve the driving connection through a narrower turnout at each end.
+   // The wider runway pavement ends on the airfield side of the service road.
+   const pavement=(a,b,width,kind)=>{
+    const {points,segments}=roadObject([point(a,v),point(b,v)],width,kind);
+    const [seg]=segments;
+    if(s.vertical){seg.t=points[0].y;seg.bottom=points[1].y;}
+    else{seg.l=points[0].x;seg.r=points[1].x;}
+    return {points,segments,width,kind,theme:runway.theme,cap:'butt'};
+   };
+   runway.pavement=[
+    pavement(p.u0,nearEnd+2/runwayScale,38,'service'),
+    pavement(farEnd-2/runwayScale,p.u1,38,'service'),
+    pavement(nearEnd,farEnd,p.width,'runway')
+   ];
    const start=point(p.ends[0],v),end=point(p.ends[1],v);
    s.decor.push({kind:'runway',x:(start.x+end.x)/2,y:(start.y+end.y)/2,hw:s.vertical?p.width/2:Math.abs(end.x-start.x)/2,hh:s.vertical?Math.abs(end.y-start.y)/2:p.width/2,vertical:s.vertical});
   }
   if(s.roadsOnly){s.segments=s.roads.flatMap(r=>r.segments);return s;}
+  s.surfaceSegments=s.roads.flatMap(r=>r.pavement?r.pavement.flatMap(part=>part.segments):r.segments);
   s.decor.push({kind:'apron',...box(...p.apron)});
   for(const u of p.hangars){const roof=building(box(u,p.hangarV,p.hangarW,p.hangarH),'HANGAR','harbor');dressBuilding(roof,{architecture:'barrel',role:'hangar'});}
   if(kind==='regional'){
@@ -2238,7 +2259,7 @@ function surfaceAt(x,y){
   if(s.type==='oldtown')return 'cobbles';
   if(s.type==='docks'||s.type==='offices'||s.type==='factory')return 'road';
   if(s.type==='oilfield')return 'dirt';
-  for(const seg of s.segments)if(x>=seg.l&&x<=seg.r&&y>=seg.t&&y<=seg.bottom&&projectSegment(x,y,seg.a,seg.b).distance<seg.width/2)return s.type==='offroad'?'dirt':'road';
+  for(const seg of s.surfaceSegments||s.segments)if(x>=seg.l&&x<=seg.r&&y>=seg.t&&y<=seg.bottom&&projectSegment(x,y,seg.a,seg.b).distance<seg.width/2)return s.type==='offroad'?'dirt':'road';
   if(s.type==='airport'){for(const d of s.decor)if(d.kind==='apron'&&Math.abs(x-d.x)<d.hw&&Math.abs(y-d.y)<d.hh)return 'road';}
   if(s.type==='offroad'&&s.biome!=='dense'&&Math.hypot(x-s.showcase.x,y-s.showcase.y)<54)return 'dirt';
   return 'grass';
@@ -2609,15 +2630,21 @@ function prepareNextChunk(){
  if(block.scene)preparedScenes.set(block.scene.key,block.scene);
 }
 function queueChunkPreparation(frameStart){
- if(!pendingChunks.length||chunkPreparationQueued)return;
+ if(chunkPreparationQueued)return;
+ const tile=nextSceneryTile();
+ if(!tile&&!pendingChunks.length)return;
+ const prepare=()=>{
+  if(tile&&tile.scale===pixelRatio*zoom&&validSceneryTile(tile))prepareSceneryTile(tile,shouldPrepareNightTiles());
+  else prepareNextChunk();
+ };
  if(typeof requestIdleCallback!=='function'){
-  if(performance.now()-frameStart<3)prepareNextChunk();
+  if(performance.now()-frameStart<3)prepare();
   return;
  }
  chunkPreparationQueued=true;
  requestIdleCallback(deadline=>{
   chunkPreparationQueued=false;
-  if(!activeModal&&!document.hidden&&deadline.timeRemaining()>2)prepareNextChunk();
+  if(!activeModal&&!document.hidden&&deadline.timeRemaining()>3)prepare();
  });
 }
 function streamWorld(force=false){
@@ -4868,7 +4895,16 @@ function pollGamepads(now,elapsed){
 
 let safePosition={x:player.x,y:player.y,angle:player.angle};
 const rendering={density:1.5,frames:0,slow:0,time:0};
-function sizeGameCanvas(){pixelRatio=Math.min(devicePixelRatio||1,rendering.density,Math.sqrt(6000000/(viewW*viewH)));canvas.width=Math.round(viewW*pixelRatio);canvas.height=Math.round(viewH*pixelRatio);sceneryCache.valid=false;}
+const GAME_CANVAS_GUTTER=2;
+function sizeGameCanvas(){
+ const w=viewW+2*GAME_CANVAS_GUTTER,h=viewH+2*GAME_CANVAS_GUTTER;
+ pixelRatio=Math.min(devicePixelRatio||1,rendering.density,Math.sqrt(6000000/(w*h)));
+ canvas.width=Math.round(w*pixelRatio);canvas.height=Math.round(h*pixelRatio);
+ canvas.style.left=canvas.style.top=-GAME_CANVAS_GUTTER+'px';
+ canvas.style.width=canvas.width/pixelRatio+'px';
+ canvas.style.height=canvas.height/pixelRatio+'px';
+ sceneryCache.valid=false;
+}
 function resize(){viewW=innerWidth;viewH=innerHeight;zoom=viewW<700?1.15:1.55;sizeGameCanvas();if(activeModal==='mapModal')drawAtlas();}
 function trackFrameTime(elapsed){
  if(!started||activeModal||document.hidden){rendering.frames=rendering.slow=rendering.time=0;return;}
@@ -5928,7 +5964,7 @@ function destroyVehicle(c,playerTakedown=false){
   particles.push({x:c.x,y:c.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:debris?650+random()*200:280+random()*300,color:debris?c.color:n%2?'#ffe2a0':'#f29950',size:debris?3+random()*3:2+random()*2});
  }
  if(particles.length>256)particles.splice(0,particles.length-256);
- if(playerTakedown||Math.hypot(c.x-player.x,c.y-player.y)<125)shake=Math.max(shake,3);
+ if(playerTakedown)shake=Math.max(shake,3);
  return true;
 }
 function resolveNightSpeederCrash(a,b,hit){
@@ -5992,7 +6028,8 @@ function resolve(a,b,hit){
    if(-relative>.025){if(a.kind==='police')a.stun=b===player?65:160;if(b.kind==='police')b.stun=a===player?65:160;}
    if(-relative>.025&&((a===player&&b.kind==='police')||(b===player&&a.kind==='police')))policeState.hits++;
    if((a===player||b===player)&&-relative>.025){
-     player.hit=160;shake=Math.max(shake,Math.min(5,-relative*18));
+     player.hit=160;
+     if(-relative>.055)shake=Math.max(shake,Math.min(5,-relative*18));
      if(impactCooldown<=0){impactCooldown=170;const px=a.x+nx*a.hw,py=a.y+ny*a.hh;for(let i=0;i<8;i++)particles.push({x:px,y:py,vx:(random()-.5)*.14,vy:(random()-.5)*.14,life:220+random()*230});}
    }
  }
@@ -6540,7 +6577,7 @@ function rounded(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundR
 function textAt(text,x,y,size,color,weight='bold'){ctx.font=weight+' '+size+'px Arial';ctx.fillStyle=color;ctx.textAlign='center';ctx.fillText(text,x,y);}
 let bounds={l:0,t:0,r:0,b:0};
 function visible(x,y,w=0,h=w){return x+w>=bounds.l&&x-w<=bounds.r&&y+h>=bounds.t&&y-h<=bounds.b;}
-function strokeRoad(g,road,color,width=road.width,dash=[]){g.strokeStyle=color;g.lineWidth=width;g.lineJoin='round';g.lineCap=road.kind==='highway'?'butt':'round';g.setLineDash(dash);g.beginPath();road.points.forEach((p,n)=>n?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.stroke();g.setLineDash([]);}
+function strokeRoad(g,road,color,width=road.width,dash=[]){g.strokeStyle=color;g.lineWidth=width;g.lineJoin='round';g.lineCap=road.cap||(road.kind==='highway'?'butt':'round');g.setLineDash(dash);g.beginPath();road.points.forEach((p,n)=>n?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));g.stroke();g.setLineDash([]);}
 function traceNaturePolygon(g,points){
  g.beginPath();g.moveTo(points[0].x,points[0].y);
  for(let i=1;i<points.length;i++)g.lineTo(points[i].x,points[i].y);
@@ -6887,6 +6924,9 @@ function drawIndustrialRoadWear(seg,start=12,end=Math.hypot(seg.b.x-seg.a.x,seg.
  const {a,b,width}=seg,half=width/2;
  const seed=Math.floor(a.x*3+a.y),axis=Math.abs(a.y-b.y)>Math.abs(a.x-b.x)?1:0;
  ctx.save();ctx.translate(a.x,a.y);ctx.rotate(Math.atan2(b.y-a.y,b.x-a.x));
+ if(seg.airportService){
+  ctx.beginPath();ctx.rect(0,-half,Math.hypot(b.x-a.x,b.y-a.y),width);ctx.clip();
+ }
  for(const side of [-1,1]){
   const edge=side*(half-5),lane=side*half*.53;
   rect(start,edge-2,end-start,4,'#82725a4d');rect(start,lane-2,end-start,4,'#272c29a6');
@@ -6958,9 +6998,10 @@ function drawRoads(){
  for(const s of activeScenes.values())if(visible(s.x+s.w/2,s.y+s.h/2,s.w/2,s.h/2))sceneGround(s);
  const roads=navigation.roads.filter(r=>r.segments.some(s=>s.r+5>=bounds.l&&s.l-5<=bounds.r&&s.bottom+5>=bounds.t&&s.t-5<=bounds.b));
  const grid=roads.filter(r=>r.entryInset!==undefined),scenic=roads.filter(r=>r.entryInset===undefined);
+ const paving=scenic.flatMap(r=>r.pavement||r);
  for(const r of grid)drawGridPavement(r,r.kind==='highway'?'#c6c4aa':r.theme==='industrial'?'#a8a089':'#c7c3ab',4);
- for(const r of scenic){const dirt=r.kind==='dirt',cobbles=r.kind==='cobbles';strokeRoad(ctx,r,dirt?'#a7a17a':cobbles?r.edge||'#968972':r.theme==='industrial'?'#a8a089':'#c7c3ab',r.width+(dirt?9:8));}
- for(const r of scenic)strokeRoad(ctx,r,r.color||(r.kind==='dirt'?'#b7a57b':r.kind==='cobbles'?'#c1b497':r.kind==='runway'?'#4c5959':r.theme==='industrial'?'#363a36':'#505e5e'));
+ for(const r of paving){const dirt=r.kind==='dirt',cobbles=r.kind==='cobbles';strokeRoad(ctx,r,dirt?'#a7a17a':cobbles?r.edge||'#968972':r.theme==='industrial'?'#a8a089':'#c7c3ab',r.width+(dirt?9:8));}
+ for(const r of paving)strokeRoad(ctx,r,r.color||(r.kind==='dirt'?'#b7a57b':r.kind==='cobbles'?'#c1b497':r.kind==='runway'?'#4c5959':r.theme==='industrial'?'#363a36':'#505e5e'));
  for(const r of scenic){
   if(r.kind==='dirt'){for(const offset of [-8,8]){const points=r.points.map((p,n)=>{const q=r.points[Math.min(n+1,r.points.length-1)],prev=r.points[Math.max(0,n-1)],angle=Math.atan2(q.y-prev.y,q.x-prev.x);return {x:p.x-Math.sin(angle)*offset,y:p.y+Math.cos(angle)*offset};});strokeRoad(ctx,{...r,points},'#95826230',4);}}
   if(r.kind==='cobbles')drawCobblestones(r);
@@ -8121,16 +8162,12 @@ function drawNightUnderglow(){
  ctx.save();ctx.translate(renderedPlayer.x,renderedPlayer.y);ctx.rotate(renderedPlayer.angle);
  ctx.drawImage(light,-width/2,-height/2,width,height);ctx.restore();
 }
-const nightMap={canvas:document.createElement('canvas'),build:-1};
-function prepareNightMap(pool){
- const {l,t,r,b,builds}=sceneryCache;
- if(nightMap.build===builds)return;
- const layer=nightMap.canvas,{width,height}=sceneryCache.ground;
- if(layer.width!==width||layer.height!==height){layer.width=width;layer.height=height;}
- const g=layer.getContext('2d'),sx=width/(r-l),sy=height/(b-t);
- g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,width,height);
- g.fillStyle='#11182ea6';g.fillRect(0,0,width,height);
- g.setTransform(sx,0,0,sy,-l*sx,-t*sy);
+function drawSceneryNightTile(tile){
+ const {canvas:layer,g}=makeSceneryTileCanvas(),{l,t,r,b,scale,x,y}=tile;
+ if(!nightLightTextures)nightLightTextures=createNightLightTextures();
+ const {pool}=nightLightTextures;
+ g.fillStyle='#11182ea6';g.fillRect(0,0,layer.width,layer.height);
+ g.setTransform(scale,0,0,scale,-x,-y);
  const lamps=streetlamps.filter(({bx,by,radius})=>bx+radius>=l&&bx-radius<=r&&by+radius>=t&&by-radius<=b);
  const stamp=({bx,by,radius})=>g.drawImage(pool,bx-radius,by-radius,radius*2,radius*2);
  g.globalCompositeOperation='destination-out';lamps.forEach(stamp);
@@ -8141,7 +8178,7 @@ function prepareNightMap(pool){
   if(office.architecture!=='lantern'||office.x+office.hw<l||office.x-office.hw>r||office.y+office.hh<t||office.y-office.hh>b)continue;
   drawLanternOfficeFacades(g,office,lanternOfficeRoof(office),pool);
  }
- nightMap.build=builds;
+ return layer;
 }
 function drawVehicleLights(c,beam){
  const x=lerp(c.prevX,c.x,renderAlpha),y=lerp(c.prevY,c.y,renderAlpha);
@@ -8158,9 +8195,8 @@ function drawVehicleLights(c,beam){
 }
 function drawNightLighting(level){
  if(!nightLightTextures)nightLightTextures=createNightLightTextures();
- const {pool,beam}=nightLightTextures;
- prepareNightMap(pool);
- ctx.save();ctx.globalAlpha=level;paintScenery(nightMap.canvas);
+ const {beam}=nightLightTextures;
+ ctx.save();ctx.globalAlpha=level;paintSceneryTiles('night');
  drawNightUnderglow();
  for(const c of traffic)drawVehicleLights(c,beam);
  for(const c of police)drawVehicleLights(c,beam);
@@ -8527,9 +8563,75 @@ function drawExplosions(){
   ctx.restore();
  }
 }
-// Reuse two bounded scenery layers as the camera moves. Tyre marks remain below
-// roofs, while cars, pickups, trees and explosions retain their original order.
-const sceneryCache={ground:document.createElement('canvas'),roofs:document.createElement('canvas'),railElevated:document.createElement('canvas'),railTiles:[],valid:false,builds:0,uses:0};
+// Keep static roofs and night lighting in world-aligned tiles. Scrolling can
+// bring in one tile at a time without rebuilding either whole viewport layer.
+const SCENERY_TILE_SIZE=384;
+const sceneryTiles={scale:0,tiles:new Map()};
+function makeSceneryTileCanvas(){
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=SCENERY_TILE_SIZE;
+ return {canvas,g:canvas.getContext('2d')};
+}
+function validSceneryTile(tile){return tile.complete||tile.generation===worldWindow.generation;}
+function sceneryTile(i,j){
+ const {tiles,scale}=sceneryTiles,key=i+','+j,old=tiles.get(key);
+ if(old&&validSceneryTile(old))return old;
+ const x=i*SCENERY_TILE_SIZE,y=j*SCENERY_TILE_SIZE,l=x/scale,t=y/scale,r=(x+SCENERY_TILE_SIZE)/scale,b=(y+SCENERY_TILE_SIZE)/scale;
+ const tile={x,y,l,t,r,b,scale,generation:worldWindow.generation,complete:insideLoaded(l,t,180)&&insideLoaded(r,b,180)};
+ tiles.set(key,tile);
+ return tile;
+}
+function drawSceneryRoofTile(tile){
+ const {l,t,r,b,scale,x,y}=tile;
+ const roofs=buildings.filter(roof=>{
+  const pad=(roof.height||8)+5;
+  return roof.x+roof.hw+pad>=l&&roof.x-roof.hw-pad<=r&&roof.y+roof.hh+pad>=t&&roof.y-roof.hh-pad<=b;
+ });
+ if(!roofs.length)return null;
+ const {canvas,g}=makeSceneryTileCanvas(),screen=ctx;
+ g.setTransform(scale,0,0,scale,-x,-y);ctx=g;
+ try{for(const roof of roofs)drawBuilding(roof);}
+ finally{ctx=screen;}
+ return canvas;
+}
+function shouldPrepareNightTiles(){return dayCycleMs>=DAY_PHASE_MS-1800;}
+function prepareSceneryTile(tile,night){
+ if(tile.roof===undefined){tile.roof=drawSceneryRoofTile(tile);return;}
+ if(night&&tile.night===undefined)tile.night=drawSceneryNightTile(tile);
+}
+function paintSceneryTiles(layer){
+ const scale=pixelRatio*zoom,step=SCENERY_TILE_SIZE,transform=ctx.getTransform(),dx=transform.e,dy=transform.f;
+ if(sceneryTiles.scale!==scale){sceneryTiles.tiles.clear();sceneryTiles.scale=scale;}
+ const i0=Math.floor(-dx/step),i1=Math.floor((canvas.width-1-dx)/step);
+ const j0=Math.floor(-dy/step),j1=Math.floor((canvas.height-1-dy)/step);
+ if(layer==='roof')for(const [key,tile] of sceneryTiles.tiles){
+  if(tile.x<(i0-2)*step||tile.x>(i1+2)*step||tile.y<(j0-2)*step||tile.y>(j1+2)*step)sceneryTiles.tiles.delete(key);
+ }
+ ctx.save();ctx.setTransform(1,0,0,1,0,0);
+ try{
+  for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){
+   const tile=sceneryTile(i,j);
+   if(tile[layer]===undefined)tile[layer]=layer==='roof'?drawSceneryRoofTile(tile):drawSceneryNightTile(tile);
+   if(tile[layer])ctx.drawImage(tile[layer],tile.x+dx,tile.y+dy);
+  }
+ }finally{ctx.restore();}
+}
+function nextSceneryTile(){
+ const scale=sceneryTiles.scale;
+ if(!scale||scale!==pixelRatio*zoom)return;
+ const night=shouldPrepareNightTiles(),step=SCENERY_TILE_SIZE;
+ const pad=66,leadX=clamp(player.vx*700,-150,150),leadY=clamp(player.vy*700,-150,150);
+ const hw=viewW/(2*zoom)+pad,hh=viewH/(2*zoom)+pad;
+ const i0=Math.floor((camera.x-hw+Math.min(0,leadX))*scale/step);
+ const i1=Math.floor((camera.x+hw+Math.max(0,leadX))*scale/step);
+ const j0=Math.floor((camera.y-hh+Math.min(0,leadY))*scale/step);
+ const j1=Math.floor((camera.y+hh+Math.max(0,leadY))*scale/step);
+ for(let j=j0;j<=j1;j++)for(let i=i0;i<=i1;i++){
+  const tile=sceneryTile(i,j);
+  if(tile.roof===undefined||night&&tile.night===undefined)return tile;
+ }
+}
+// Keep the road and railway artwork buffered separately from roofs and lighting.
+const sceneryCache={ground:document.createElement('canvas'),railElevated:document.createElement('canvas'),railTiles:[],valid:false,builds:0,uses:0};
 function drawGroundScenery(){
  drawRoads();
  for(const b of blocks)if(visible(b.x+b.w/2,b.y+b.h/2,b.w/2+15,b.h/2+15))drawBlock(b);
@@ -8553,7 +8655,7 @@ function prepareScenery(){
  const screenContext=ctx,screenBounds=bounds,fullBounds={l:cache.l,t:cache.t,r:cache.r,b:cache.b};
  bounds=fullBounds;
  try{
-  for(const kind of ['ground','roofs','railElevated']){
+  for(const kind of ['ground','railElevated']){
    const layer=cache[kind],transparent=kind!=='ground';
    if(layer.width!==w||layer.height!==h){layer.width=w;layer.height=h;}
    ctx=layer.getContext('2d',{alpha:transparent});ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;
@@ -8574,14 +8676,7 @@ function prepareScenery(){
    }
    if(transparent)ctx.clearRect(0,0,w,h);
    ctx.setTransform(scale,0,0,scale,-cache.l*scale,-cache.t*scale);
-   if(kind==='roofs'){
-    cache.hasRoofs=false;
-    for(const b of buildings){
-     const overhang=(b.height||8)+4;
-     if(visible(b.x,b.y,b.hw+overhang,b.hh+overhang)){drawBuilding(b);cache.hasRoofs=true;}
-    }
-   }
-   else if(kind==='railElevated')cache.hasRails=railDrawElevated();
+   if(kind==='railElevated')cache.hasRails=railDrawElevated();
    else drawGroundScenery();
   }
  }finally{ctx=screenContext;bounds=screenBounds;}
@@ -8645,14 +8740,19 @@ function drawBankParticle(p){
 }
 function draw(){
  const shift=shake>.1?Math.sin(performance.now()*.1)*shake:0,scale=pixelRatio*zoom;
- const x=Math.round((viewW/2+shift)*pixelRatio-camera.x*scale),y=Math.round((viewH/2+shift*.4)*pixelRatio-camera.y*scale);
+ const exactX=(viewW/2+GAME_CANVAS_GUTTER+shift)*pixelRatio-camera.x*scale;
+ const exactY=(viewH/2+GAME_CANVAS_GUTTER+shift*.4)*pixelRatio-camera.y*scale;
+ const x=Math.round(exactX),y=Math.round(exactY);
+ // Keep cached scenery on whole pixels internally, then move the entire view
+ // by the remainder so vehicles, terrain and tracks scroll together smoothly.
+ canvas.style.transform='translate3d('+((exactX-x)/pixelRatio)+'px,'+((exactY-y)/pixelRatio)+'px,0)';
  ctx.setTransform(scale,0,0,scale,x,y);
  bounds={l:camera.x-viewW/(2*zoom)-45,r:camera.x+viewW/(2*zoom)+45,t:camera.y-viewH/(2*zoom)-45,b:camera.y+viewH/(2*zoom)+45};
  const night=nightLevel();
  prepareScenery();paintScenery(sceneryCache.ground);
  for(const s of skids)if(visible(s.x,s.y,6)){ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.angle);ctx.globalAlpha=Math.min(.4,s.life/11000*.5);rect(-3,-1,6,2,'#182d28');ctx.restore();}
  if(!night)drawRoadTurnGuidance();
- if(sceneryCache.hasRoofs)paintScenery(sceneryCache.roofs);
+ paintSceneryTiles('roof');
  for(const s of activeScenes.values())if(s.livestock?.length&&visible(s.x+s.w/2,s.y+s.h/2,s.w/2,s.h/2))
   for(const animal of s.livestock)drawFarmAnimal(animal);
  drawIndustrialEffects();
@@ -8833,7 +8933,7 @@ function mapRegion(g,cx,cy,span,w,h,labels=false){
    g.fillStyle=d.kind==='container'?d.color:d.kind==='cargoShip'?'#d0cdb5':'#bf865f';
    g.fillRect(d.x-d.hw,d.y-d.hh,d.hw*2,d.hh*2);
   }
-  for(const road of s.roads)strokeRoad(g,road,road.kind==='runway'?'#536b69':road.kind==='dirt'?'#c7b58a':road.color||(road.theme==='industrial'?'#766f60':'#d3c9aa'));
+  for(const road of s.roads.flatMap(r=>r.pavement||r))strokeRoad(g,road,road.kind==='runway'?'#536b69':road.kind==='dirt'?'#c7b58a':road.color||(road.theme==='industrial'?'#766f60':'#d3c9aa'));
   for(const bridge of s.bridges||[]){
    g.fillStyle='#a49476';g.fillRect(bridge.x-bridge.hw,bridge.y-bridge.hh,bridge.hw*2,bridge.hh*2);
   }
