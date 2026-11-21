@@ -268,6 +268,7 @@ const VEHICLE_TYPES={
  train:{hw:35,hh:12,invMass:0,pace:1.35,accel:.00012,turn:0},
  sedan:{hw:16,hh:8,invMass:1,pace:1,accel:.00019,turn:.0038},
  suv:{hw:20,hh:9.5,invMass:.77,pace:.98,accel:.00018,turn:.00355},
+ tractor:{hw:18,hh:10,invMass:.48,pace:1,accel:.00015,turn:.0041},
  hatchback:{hw:14,hh:7.5,invMass:1.15,pace:1.04,accel:.00021,turn:.0041},
  van:{hw:21,hh:9,invMass:.62,pace:.94,accel:.00016,turn:.0034},
  armoredvan:{hw:24,hh:10,invMass:.48,pace:.87,accel:.00014,turn:.0030},
@@ -1403,12 +1404,12 @@ function generateNature(s,road,building,obstacle,away,occupied,rng){
   }
  }
 }
-function roundedTrafficLoop(corners){
+function roundedTrafficLoop(corners,radius=32){
  const points=[];
  for(let i=0;i<corners.length;i++){
   const corner=corners[i],previous=corners.at(i-1),next=corners[(i+1)%corners.length];
-  const before=32/Math.hypot(previous.x-corner.x,previous.y-corner.y);
-  const after=32/Math.hypot(next.x-corner.x,next.y-corner.y);
+  const before=radius/Math.hypot(previous.x-corner.x,previous.y-corner.y);
+  const after=radius/Math.hypot(next.x-corner.x,next.y-corner.y);
   const entry={x:lerp(corner.x,previous.x,before),y:lerp(corner.y,previous.y,before)};
   const exit={x:lerp(corner.x,next.x,after),y:lerp(corner.y,next.y,after)};
   for(let step=0;step<=6;step++){
@@ -1961,10 +1962,10 @@ function chooseTrafficModel(roadType){
  return choose(progress.mode==='police'?CHASE_EMERGENCY_MODELS:EMERGENCY_MODELS);
 }
 function trafficCandidate(route,distance,roadType,cruise,initial=false,gang=0){
- const p=routeAt(route,distance);
- if(!insideLoaded(p.x,p.y,120)||(progress.mode!=='train'&&Math.hypot(p.x-player.x,p.y-player.y)<170)||(!initial&&nearDrivingView(p.x,p.y)))return null;
- const model=gang?'motorbike':chooseTrafficModel(roadType);
- const color=EMERGENCY_PAINT[model]??(model==='suv'?'#232727':model==='bus'?choose(TRAFFIC_BUS_COLORS):choose(['#e6c36c','#ba6e59','#789c9e','#d6d6bf','#73899a','#a695a0','#8c9c73']));
+ const p=routeAt(route,distance),tractorReserve=route.tractorReserve;
+ if((!tractorReserve&&!insideLoaded(p.x,p.y,120))||(progress.mode!=='train'&&Math.hypot(p.x-player.x,p.y-player.y)<170)||(!initial&&nearDrivingView(p.x,p.y)))return null;
+ const model=gang?'motorbike':tractorReserve?'tractor':chooseTrafficModel(roadType);
+ const color=EMERGENCY_PAINT[model]??(model==='suv'?'#232727':model==='tractor'?choose(TRACTOR_PAINT):model==='bus'?choose(TRAFFIC_BUS_COLORS):choose(['#e6c36c','#ba6e59','#789c9e','#d6d6bf','#73899a','#a695a0','#8c9c73']));
  const c=makeCar(p.x,p.y,p.angle,color,'traffic',model);
  // Leave braking room when joining roads, and keep grid crossings clear.
  if(route.junctions?.some(j=>Math.abs(c.x-j.x)<100+c.hw&&Math.abs(c.y-j.y)<100+c.hw))return null;
@@ -1986,6 +1987,7 @@ function trafficCandidate(route,distance,roadType,cruise,initial=false,gang=0){
  }
  if(driver==='speeder')desiredCruise=Math.min(desiredCruise,SPEEDER_TOP_SPEED);
  Object.assign(c,{route,seg:p.index,routeD:p.d,roadType,cruise:desiredCruise,driver,gang,cooldown:0,id,senseIn:0,trafficLimit:desiredCruise,progressTime:0,checkX:c.x,checkY:c.y,stuckFor:0,reverseFor:0,rejoinAll:false});
+ if(tractorReserve)c.tractorReserve=tractorReserve;
  // New vehicles join at road speed, already facing their lane.
  c.vx=fx*desiredCruise;c.vy=fy*desiredCruise;
  return c;
@@ -2033,7 +2035,7 @@ function refillHighwayAhead(ahead,target,maxSpawns){
    let replacement=-1,score=-Infinity;
    for(let i=0;i<traffic.length;i++){
     const other=traffic[i],along=distanceAhead(other);
-    if(other.gang||(sameHighway(other)&&along>0)||protectVisibleVehicle(other))continue;
+    if(other.gang||other.tractorReserve||(sameHighway(other)&&along>0)||protectVisibleVehicle(other))continue;
     const weight=(other.x-player.x)**2+(other.y-player.y)**2+(along<0?1000000:0);
     if(weight>score){score=weight;replacement=i;}
    }
@@ -2058,7 +2060,83 @@ function connectedIndustrialTraffic(s){
  }
  return routes;
 }
+const RESERVE_TRACTOR_COUNT=10;
+const RESERVE_TRACTOR_CIRCUIT=[
+ [0,0],[1,0],[2,0],[3,0],[3,1],[2,1],[1,1],[1,2],
+ [2,2],[3,2],[3,3],[2,3],[1,3],[0,3],[0,2],[0,1]
+];
+const TRACTOR_PAINT=['#af543c','#758945','#c59843','#557b89'];
+function reserveTrail(scene,entry,exit){
+ const nodes=[],ids=new Map();
+ const idFor=p=>{
+  if(!ids.has(p)){ids.set(p,nodes.length);nodes.push({x:p.x,y:p.y,edges:[]});}
+  return ids.get(p);
+ };
+ for(const {a,b} of scene.segments){
+  const start=idFor(a),end=idFor(b),cost=Math.hypot(b.x-a.x,b.y-a.y);
+  nodes[start].edges.push({to:end,cost});nodes[end].edges.push({to:start,cost});
+ }
+ return navigationPath([{id:ids.get(entry),distance:0}],[{id:ids.get(exit),distance:0}],nodes);
+}
+function reserveTractorRoute(reserve){
+ if(reserve.tractorRoute!==undefined)return reserve.tractorRoute;
+ const scenes=RESERVE_TRACTOR_CIRCUIT.map(([x,y])=>getScene(reserve.left+x,reserve.top+y));
+ // Each of the sixteen tiles connects to the next through an existing dirt-road portal.
+ const seams=scenes.map((scene,i)=>{
+  const next=scenes[(i+1)%scenes.length];
+  for(const exit of scene.portals){
+   if(!exit.open)continue;
+   const entry=next.portals.find(p=>p.open&&Math.abs(p.x-exit.x)<.01&&Math.abs(p.y-exit.y)<.01);
+   if(entry)return {exit,entry};
+  }
+  return null;
+ });
+ if(seams.some(seam=>!seam))return reserve.tractorRoute=null;
+ const points=[];
+ for(const [i,scene] of scenes.entries()){
+  const path=reserveTrail(scene,seams.at(i-1).entry,seams[i].exit);
+  if(path.length<2)return reserve.tractorRoute=null;
+  points.push(...path.slice(0,-1));
+ }
+ const route=polyRoute(roundedTrafficLoop(points,17));route.tractorReserve=reserve.key;
+ return reserve.tractorRoute=route;
+}
+function refillReserveTractors(initial){
+ const active=new Map();
+ for(const scene of activeScenes.values()){
+  if(scene.reserve&&!active.has(scene.reserve))active.set(scene.reserve,natureReserve(scene.a,scene.b));
+ }
+ const present=new Map();
+ for(let i=traffic.length-1;i>=0;i--){
+  const c=traffic[i],key=c.tractorReserve;
+  if(!key)continue;
+  if(!active.has(key)&&!protectVisibleVehicle(c)){traffic.splice(i,1);continue;}
+  if(!present.has(key))present.set(key,[]);
+  present.get(key).push(c);
+ }
+ for(const [key,reserve] of active){
+  const fleet=present.get(key)||[],count=RESERVE_TRACTOR_COUNT;
+  if(fleet.length>=count)continue;
+  const route=reserveTractorRoute(reserve);
+  if(!route)continue;
+  const lead=fleet.length?fleet[0]:null;
+  const phase=lead?(lead.junctionDetour?.rejoin??projectRoute(lead))-lead.tractorSlot*route.length/count:
+   projectRoute({x:player.x,y:player.y,route,rejoinAll:true})+MINIMAP_SPAN*.57;
+  for(let slot=0;slot<count;slot++){
+   if(fleet.some(c=>c.tractorSlot===slot))continue;
+   const distance=phase+slot*route.length/count;
+   const cruise=(26+worldHash(reserve.left,reserve.top,767)*6)/SPEED_KMH;
+   for(const shift of [0,240,-240,500,-500,950,-950]){
+    const car=trafficCandidate(route,distance+shift,'offroad',cruise,initial);
+    if(!car)continue;
+    car.tractorSlot=slot;
+    traffic.push(car);break;
+   }
+  }
+ }
+}
 function refillTraffic(initial=false){
+ refillReserveTractors(initial);
  const target=trafficLimitForTime(),ahead=highwayAhead(),maxSpawns=initial?target:4;
  const added=ahead?refillHighwayAhead(ahead,target,initial?target:2):0;
  if(traffic.length>=target)return;
@@ -2148,7 +2226,7 @@ function spawnMotorbikeGang(count=2+Math.floor(random()*5)){
  return false;
 }
 function trafficLimitForTime(){
- return Math.round(lerp(DAY_TRAFFIC_LIMIT,NIGHT_TRAFFIC_LIMIT,nightLevel()))+traffic.reduce((count,c)=>count+Number(!!c.gang),0);
+ return Math.round(lerp(DAY_TRAFFIC_LIMIT,NIGHT_TRAFFIC_LIMIT,nightLevel()))+traffic.reduce((count,c)=>count+Number(!!(c.gang||c.tractorReserve)),0);
 }
 function maintainTraffic(dt){
  gangIn=dayCycleMs>=DAY_PHASE_MS?Math.max(0,gangIn-dt):FIRST_GANG_DELAY;
@@ -2156,7 +2234,7 @@ function maintainTraffic(dt){
  const limit=trafficLimitForTime();
  for(let i=traffic.length-1;i>=0;i--){
   const c=traffic[i];
-  if((!c.gang&&traffic.length>limit||!insideLoaded(c.x,c.y,150))&&!protectVisibleVehicle(c))traffic.splice(i,1);
+  if(!c.tractorReserve&&(!c.gang&&traffic.length>limit||!insideLoaded(c.x,c.y,150))&&!protectVisibleVehicle(c))traffic.splice(i,1);
  }
  if(!gangIn){
   if(spawnMotorbikeGang())gangIn=42000+random()*24000;
@@ -2233,7 +2311,7 @@ function streamWorld(force=false){
  staticHash.reset();for(const b of buildings)staticHash.insert(b);for(const b of obstacles)staticHash.insert(b);
  // A long route can begin several areas away while its car is still beside us.
  // Retire cars by their current position, and only safely beyond the camera.
- dynamicHash.reset();for(let n=traffic.length-1;n>=0;n--){const c=traffic[n];if(!insideLoaded(c.x,c.y,150)&&!protectVisibleVehicle(c))traffic.splice(n,1);}
+ dynamicHash.reset();for(let n=traffic.length-1;n>=0;n--){const c=traffic[n];if(!c.tractorReserve&&!insideLoaded(c.x,c.y,150)&&!protectVisibleVehicle(c))traffic.splice(n,1);}
  buildNavigation();railRefreshWorld();refillTraffic(initial);worldWindow.generation++;worldWindow.maxLoaded=Math.max(worldWindow.maxLoaded,chunks.size);
 
  rebuildDynamic();return true;
@@ -5150,8 +5228,8 @@ function guidedNavigationPath(starts,ends,heading){
  if(finish.start.via)path.unshift(finish.start.via);if(finishAnchor.via)path.push({...finishAnchor.via,road:finishAnchor.road});
  return path.filter((p,n)=>!n||Math.hypot(p.x-path[n-1].x,p.y-path[n-1].y)>.1);
 }
-function navigationPath(starts,ends){
- const nodes=navigation.nodes,n=nodes.length,cost=new Float64Array(n).fill(Infinity),previous=new Int32Array(n).fill(-1),done=new Uint8Array(n),targets=new Map(ends.map(e=>[e.id,e.distance]));
+function navigationPath(starts,ends,nodes=navigation.nodes){
+ const n=nodes.length,cost=new Float64Array(n).fill(Infinity),previous=new Int32Array(n).fill(-1),done=new Uint8Array(n),targets=new Map(ends.map(e=>[e.id,e.distance]));
  for(const s of starts)cost[s.id]=s.distance;
  let finish=-1,best=Infinity;
  // The nearby street graph is small and rebuilt only when areas stream in.
@@ -5854,7 +5932,8 @@ function updateTraffic(c,dt){
  }
  if(!c.junctionDetour&&c.route.closed===false&&d>c.route.length-500){const seg=c.route.segments.at(-1),extension=SPACING*8,ratio=(seg.len+extension)/seg.len;seg.dx*=ratio;seg.dy*=ratio;seg.len+=extension;c.route.length+=extension;}
  const samples=c.routeSamples||(c.routeSamples=[{},{},{}]);
- const look=clamp(20+speed*100+c.hw*.35,28,66),aim=routeAt(c.route,d+look,samples[0]),near=routeAt(c.route,d,samples[1]),far=routeAt(c.route,d+look+c.hw+20,samples[2]);
+ const look=c.tractorReserve?22+speed*75:clamp(20+speed*100+c.hw*.35,28,66);
+ const aim=routeAt(c.route,d+look,samples[0]),near=routeAt(c.route,d,samples[1]),far=routeAt(c.route,d+look+c.hw+20,samples[2]);
  c.senseIn=(c.senseIn||0)-dt;
  const scan=c.senseIn<=0;
  if(scan){
@@ -7303,6 +7382,27 @@ function paintTrafficVehicle(g,c,x,y,angle){
   round(-11,-2,26,7,3,'#18352f55');round(-12,-2.2,7,4.4,2,'#243532');round(6,-2.2,7,4.4,2,'#243532');
   round(-8,-3,17,6,3,body);fill(5,-5,1.5,10,'#354b43');round(-6,-2.5,8,5,2,'#263d37');
   round(-3,-3.5,7,7,2,'#566d67');dot(4,0,3.2,'#f1edd3');dot(4.6,0,2,'#607f7d');fill(11,-1.7,2,3.4,'#f6e8ad');fill(-12,-1.7,2,3.4,c.braking?'#ff785b':'#a15c4a');
+  g.restore();return;
+ }
+ if(model==='tractor'){
+  round(-hw+1,-hh+3,hw*2+3,hh*2,4,'#22372d55');
+  fill(-hw,-2.3,5,4.6,'#68736b');fill(-hw+2,-.8,4,1.6,'#a8a994');
+  round(-hw+3,-6,hw*2-6,12,2.5,'#384b3e');
+  round(-3,-5.4,hw+2,10.8,2.2,body);
+  fill(1,-4.6,hw-6,1.1,'#fff0c477');fill(hw-2,-4.3,1.3,8.6,'#49544a');
+  for(const side of [-1,1]){
+   const rearY=side*(hh-2.8),frontY=side*(hh-4.1);
+   round(-15,rearY-2.8,12,5.6,1.2,'#25342f');
+   round(7,frontY-2,8,4,1.0,'#2c3a33');
+   for(let k=0;k<4;k++)fill(-14+k*2.6,rearY-2.1,.8,4.2,'#59675a');
+   for(let k=0;k<3;k++)fill(8+k*2.1,frontY-1.5,.65,3,'#59675a');
+   round(-14,side*5.4-1.25,10,2.5,.7,body);
+   fill(hw-3.1,side*3.4-1,2,2,'#f3e6b4');
+   fill(-hw+3,side*5.1-1,1.3,2,c.braking?'#ff8a68':'#a7604e');
+  }
+  round(-12,-5,12,10,2,'#3a5656');round(-11.1,-4.2,9,8.4,1.5,'#a9b9ab');
+  fill(-1.9,-3.5,2,7,'#709994');fill(-9.5,-3.2,6.3,1,'#f2ebd177');
+  dot(3,3.7,1.25,'#303d36');
   g.restore();return;
  }
  round(-hw+3,-hh+3,hw*2,hh*2,4,'#1e352e55');
