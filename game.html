@@ -152,7 +152,7 @@ body[data-input="gamepad"] .modal :is(button,select,#atlas):focus{outline:2px so
 <section class="intro" id="intro"><div class="eyebrow">THE CITY KEEPS GOING</div><h1>Every turn<br>is <em>yours.</em></h1><p>Roam endless streets, outrun the police, carry passengers, deliver freight, or take the railway through the countryside. Every kilometre and completed job helps build your ride.</p><button class="start" id="startBtn">Let's drive <span aria-hidden="true" data-pad-hint="{confirm}">↗</span></button><button class="intro-modes" id="introModesBtn">Choose a game mode · <span data-pad-hint="D-pad ↑">V</span></button><div class="intro-footer"><span data-pad-hint="{accelerate} / {reverse} · LEFT STICK">WASD / ARROWS TO DRIVE</span><i>JUST EXPLORE.</i></div></section>
 <section class="map-card" aria-label="Minimap"><button class="map-button" id="miniBtn" data-pad-title="Open city map ({map})" title="Open city map (M)" aria-label="Open city map"><canvas id="mini" width="420" height="348"></canvas><span class="north">↑ N</span></button><div class="map-label"><span>ENDLESS CITY</span><span data-pad-hint="{map} ↗">M ↗</span></div></section>
 <section class="drive-hud" aria-label="Driving dashboard"><div class="car-title"><span id="activeVehicleName">THE RUNABOUT</span><span>●</span></div><div class="speed-line"><span class="speed" id="speed">0</span><span class="unit">KM/H</span><span class="gear" id="gear">N</span></div><div class="speed-track"><div class="speed-fill" id="speedFill"></div></div><div class="turbo-meter" id="turboMeter" hidden><div class="turbo-label"><span id="turboStatus">TURBO READY</span><span data-pad-hint="{boost}">SHIFT</span></div><div class="turbo-track"><i id="turboFill"></i></div></div><div class="distance"><span>LIFETIME</span><b id="distance">0.00 km</b></div><button class="garage-wallet" id="walletBtn" data-pad-title="Spend kilometres in the garage ({garage})" title="Spend kilometres in the garage (G)"><span>GARAGE ↗</span><b id="wallet">0.00 km</b></button></section>
-<div id="powerHud" class="power-hud" aria-label="Active pickup powers" hidden><div class="power-card" id="power-speed" style="--power:#efd276" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">ϟ</span>SPEED +40%</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-phase" style="--power:#8bdedc" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">◇</span>GHOST DRIVE</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-nitro" style="--power:#c7a5f2" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">∞</span>INFINITE NITRO</div><span class="power-time"></span><div class="power-track"><i></i></div></div></div>
+<div id="powerHud" class="power-hud" aria-label="Active pickup powers" hidden><div class="power-card" id="power-speed" style="--power:#efd276" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">ϟ</span><span id="speedPowerLabel">SPEED +40%</span></div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-phase" style="--power:#8bdedc" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">◇</span>GHOST DRIVE</div><span class="power-time"></span><div class="power-track"><i></i></div></div><div class="power-card" id="power-nitro" style="--power:#c7a5f2" hidden><div class="power-top"><span class="power-symbol" aria-hidden="true">∞</span>INFINITE NITRO</div><span class="power-time"></span><div class="power-track"><i></i></div></div></div>
 <div class="toast" id="toast" role="status"></div>
 <div class="gamepad-menu-hint" id="gamepadMenuHint" aria-hidden="true" hidden></div>
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
@@ -2466,7 +2466,7 @@ function railUpdatePlayer(dt){
  const infiniteNitro=powerActive('nitro');
  const wantsBoost=boostInput()&&accelerating&&!emergency&&(garageState().performance.turbo>0||infiniteNitro);
  updateTurbo(dt,st,wantsBoost,infiniteNitro);
- const brake=.00048*st.brakeMultiplier,accel=st.acceleration*(turbo.active?1.65:1),limit=st.maxSpeed*(turbo.active?st.boostMultiplier:1)*(powerActive('speed')?1.3:1);
+ const brake=.00048*st.brakeMultiplier,accel=st.acceleration*(turbo.active?1.65:1),limit=st.maxSpeed*(turbo.active?st.boostMultiplier:1)*speedPowerMultiplier('train');
  const assistBraking=!up&&!down&&!emergency&&previous!==0&&railAtStop(jobTarget());
  const rollingResistance=.000014,throttleCoastResistance=rollingResistance*.6,speedCap=Math.max(limit,Math.abs(previous));
  if(emergency)t.speed=Math.sign(t.speed)*Math.max(0,Math.abs(t.speed)-brake*dt*1.9);
@@ -2621,7 +2621,7 @@ function railUpdate(dt){
    railReserveTrains(trains);
   }else railway[timer]=railMode?3500:2000;
  }
- if(progress.mode==='train'&&started)railUpdatePlayer(dt);
+ if(playerTrain&&started){const travelled=railUpdatePlayer(dt);updateRailPickup(playerTrain,dt,travelled);}
  for(const t of railway.npcs)railUpdateNPC(t,dt);
  railResolveNPCDeadlocks();
 }
@@ -2932,7 +2932,10 @@ function railDrawUpperLayer(night){
  if(trains.length&&(opacity<1||night))railDrawComposite(trains,night);
  else{paintRailScenery(night);railDrawTrains(trains);}
  ctx.restore();
- if(progress.mode==='train'){railDrawJunctionChoice();railDrawTarget();}
+ if(progress.mode==='train'){
+  railDrawJunctionChoice();railDrawTarget();
+  if(railPickupState.pickup)drawPickup(railPickupState.pickup);
+ }
 }
 function railPaintVehicle(g,c,x,y,angle,look){
  const carriage=c.carriage||0,cab=carriage===0||carriage===RAIL_CARS-1;
@@ -3424,9 +3427,12 @@ const POWER_TYPES={
 };
 const powers={speed:0,phase:0,nitro:0,exitBodies:new Set()};
 const pickups=[];
+const railPickupState={pickup:null,nextIn:null,boostMs:0};
 const pickupDelay=()=>40000+random()*35000;
 const pickupState={untilSpawn:pickupDelay(),travel:0,retryIn:0,lastType:null,spawned:0,collected:0,nextId:1};
 function powerActive(type){return powers[type]>0;}
+function speedPowerTime(mode){return mode==='train'?Math.max(powers.speed,railPickupState.boostMs):powers.speed;}
+function speedPowerMultiplier(mode){return speedPowerTime(mode)>0?(mode==='train'?1.3:1.4):1;}
 function ghosting(){return powerActive('phase')||powers.exitBodies.size>0;}
 function ignoresCollision(a,b){if((a.kind==='rail'||a.model==='train')!==(b.kind==='rail'||b.model==='train'))return true;const other=a===player?b:b===player?a:null;return !!other&&(powerActive('phase')||powers.exitBodies.has(other));}
 function syncTurboAvailability(){
@@ -3442,6 +3448,7 @@ function activatePower(type){
 function tickPowers(dt){
  const hadPhase=powerActive('phase'),hadNitro=powerActive('nitro');
  for(const type of Object.keys(POWER_TYPES))powers[type]=Math.max(0,powers[type]-dt);
+ railPickupState.boostMs=Math.max(0,railPickupState.boostMs-dt);
  if(hadPhase&&!powerActive('phase')){
   // Allow a safe exit only from bodies already overlapping at expiry.
   // Contact geometry stays active for pickups, recovery and these overlap checks.
@@ -3483,25 +3490,68 @@ function updatePickups(dt,travelled){
  if(travelled>.2){pickupState.untilSpawn=Math.max(0,pickupState.untilSpawn-dt);pickupState.travel+=travelled*.8;pickupState.retryIn=Math.max(0,pickupState.retryIn-dt);}
  if(travelled>.2&&pickupState.untilSpawn===0&&pickupState.travel>=2500&&pickupState.retryIn===0&&!pickups.length){if(!spawnPickup())pickupState.retryIn=2000;}
 }
+function resetRailPickup(){
+ railPickupState.pickup=null;railPickupState.nextIn=null;railPickupState.boostMs=0;
+}
+function railPickupLead(train,dir){return train.d-(dir<0?RAIL_GAP*(RAIL_CARS-1):0);}
+function railPickupDistance(point){return point.ref.reverse?point.piece.length-point.local:point.local;}
+function spawnRailPickup(train,dir){
+ const ahead=Math.max(650,Math.max(viewW,viewH)/(2*zoom)+160)+random()*200;
+ railEnsure(train,ahead+530);
+ const lead=railPickupLead(train,dir),length=railLength(train);
+ for(let distance=ahead;distance<=ahead+450;distance+=90){
+  const d=lead+dir*distance;
+  if(d<0||d>length)break;
+  const p=railSample(train,d),along=railPickupDistance(p);
+  if(p.piece.kind!=='e'||along<80||along>p.piece.length-80||
+     (p.piece.stationD!==null&&Math.abs(along-p.piece.stationD)<125)||!insideLoaded(p.x,p.y,120))continue;
+  railPickupState.pickup={x:p.x,y:p.y,type:'speed',edge:p.piece.id,d:along,age:0};
+  railPickupState.nextIn=null;
+  return true;
+ }
+ return false;
+}
+function updateRailPickup(train,dt,travelled){
+ const state=railPickupState,dir=railTravelDirection(train),pickup=state.pickup;
+ if(pickup){
+  pickup.age+=dt;
+  const lead=railSample(train,railPickupLead(train,dir));
+  if(lead.piece.id===pickup.edge&&Math.abs(railPickupDistance(lead)-pickup.d)<=VEHICLE_TYPES.train.hw+16){
+   state.pickup=null;state.boostMs=POWER_TYPES.speed.duration;updatePowerHUD();
+  }else if(pickup.age>=60000||(!insideLoaded(pickup.x,pickup.y,80)||!train.pieces.some(ref=>ref.id===pickup.edge))&&
+      !nearDrivingView(pickup.x,pickup.y,80))state.pickup=null;
+  return;
+ }
+ if(travelled<=.2||state.boostMs>0)return;
+ state.nextIn??=30000+random()*20000;
+ state.nextIn=Math.max(0,state.nextIn-dt);
+ if(state.nextIn===0&&!spawnRailPickup(train,dir))state.nextIn=2000;
+}
 function updatePowerHUD(){
  const tray=$('powerHud');let any=false;
  for(const [type,power]of Object.entries(POWER_TYPES)){
-  const active=powerActive(type),exit=type==='phase'&&powers.exitBodies.size>0,row=$('power-'+type);row.hidden=!active&&!exit;if(row.hidden)continue;any=true;
-  row.querySelector('.power-time').textContent=exit?'MOVE CLEAR':Math.ceil(powers[type]/1000)+'s';row.querySelector('i').style.width=(exit?100:powers[type]/power.duration*100)+'%';
+  const remaining=type==='speed'?speedPowerTime(progress.mode):powers[type];
+  const exit=type==='phase'&&powers.exitBodies.size>0,row=$('power-'+type);row.hidden=remaining<=0&&!exit;if(row.hidden)continue;any=true;
+  if(type==='speed')$('speedPowerLabel').textContent=progress.mode==='train'?'SPEED +30%':power.short;
+  row.querySelector('.power-time').textContent=exit?'MOVE CLEAR':Math.ceil(remaining/1000)+'s';row.querySelector('i').style.width=(exit?100:remaining/power.duration*100)+'%';
  }
  tray.hidden=!any;
- const hint=$('pickupHint'),p=pickups[0];hint.hidden=!p;if(p){const dx=p.x-player.x,dy=p.y-player.y,arrows=['→','↘','↓','↙','←','↖','↑','↗'],arrow=arrows[mod(Math.round(Math.atan2(dy,dx)/(Math.PI/4)),8)];hint.style.color=POWER_TYPES[p.type].color;hint.textContent=POWER_TYPES[p.type].symbol+' '+POWER_TYPES[p.type].name+' · '+arrow+' '+(Math.hypot(dx,dy)*.8/1000).toFixed(1)+' km';}
+ const hint=$('pickupHint'),p=progress.mode==='train'?null:pickups[0];hint.hidden=!p;if(p){const dx=p.x-player.x,dy=p.y-player.y,arrows=['→','↘','↓','↙','←','↖','↑','↗'],arrow=arrows[mod(Math.round(Math.atan2(dy,dx)/(Math.PI/4)),8)];hint.style.color=POWER_TYPES[p.type].color;hint.textContent=POWER_TYPES[p.type].symbol+' '+POWER_TYPES[p.type].name+' · '+arrow+' '+(Math.hypot(dx,dy)*.8/1000).toFixed(1)+' km';}
 }
-function drawPickups(){
- for(const p of pickups){if(!visible(p.x,p.y,50))continue;const power=POWER_TYPES[p.type],pulse=1+Math.sin(simTime*.004)*.1;
-  ctx.save();ctx.translate(p.x,p.y);ctx.globalAlpha=.14;circle(0,0,29*pulse,power.color);ctx.globalAlpha=1;
-  ctx.fillStyle='#173a35';ctx.strokeStyle=power.color;ctx.lineWidth=2;ctx.beginPath();for(let n=0;n<6;n++){const angle=n*Math.PI/3-Math.PI/2,x=Math.cos(angle)*18,y=Math.sin(angle)*18;n?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();
-  textAt(power.symbol,0,7,23,power.color);textAt('PICKUP',0,34,6,power.color);ctx.restore();
- }
+function drawPickup(p){
+ if(!visible(p.x,p.y,50))return;
+ const power=POWER_TYPES[p.type],pulse=1+Math.sin(simTime*.004)*.1;
+ ctx.save();ctx.translate(p.x,p.y);ctx.globalAlpha=.14;circle(0,0,29*pulse,power.color);ctx.globalAlpha=1;
+ ctx.fillStyle='#173a35';ctx.strokeStyle=power.color;ctx.lineWidth=2;ctx.beginPath();for(let n=0;n<6;n++){const angle=n*Math.PI/3-Math.PI/2,x=Math.cos(angle)*18,y=Math.sin(angle)*18;n?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();
+ textAt(power.symbol,0,7,23,power.color);
+ if(!p.edge)textAt('PICKUP',0,34,6,power.color);
+ ctx.restore();
 }
+function drawPickups(){if(progress.mode!=='train')for(const p of pickups)drawPickup(p);}
 function drawPickupMapMarkers(g,m,showSymbol=false){
- const half=showSymbol?11:5;
- for(const p of pickups){
+ const half=showSymbol?11:5,shown=progress.mode==='train'?[railPickupState.pickup]:pickups;
+ for(const p of shown){
+  if(!p)continue;
   const power=POWER_TYPES[p.type],x=(p.x-m.left)*m.scale,y=(p.y-m.top)*m.scale;
   g.save();g.translate(x,y);g.rotate(Math.PI/4);
   g.fillStyle=power.color;g.strokeStyle='#183b32';g.lineWidth=showSymbol?4:1.5;
@@ -4059,7 +4109,7 @@ function setGameMode(mode,announce=true){
  if(!placement){toast('No room to change vehicles here. Move to a clearer street and try again.');return false;}
  if(mode==='police')for(let i=traffic.length-1;i>=0;i--)if(traffic[i].model==='police')traffic.splice(i,1);
  progress.mode=mode;progress.policeEnabled=mode==='police';previewSelection=null;applyBuild();clearKeys();
- if(leavingRail||mode==='train'){player.vx=player.vy=0;turbo.active=false;railway.navKey='';railway.destination=null;railway.manualTurn=null;}
+ if(leavingRail||mode==='train'){resetRailPickup();player.vx=player.vy=0;turbo.active=false;railway.navKey='';railway.destination=null;railway.manualTurn=null;}
  if(Math.hypot(placement.x-oldPos.x,placement.y-oldPos.y)>.5){Object.assign(player,placement,{vx:0,vy:0});camera.x=player.x;camera.y=player.y;powers.exitBodies.clear();}
  if(leavingRail||mode==='train'){streamWorld(true);sceneryCache.valid=false;minimapView.cachedRegion=null;}
  if(leavingRail)railway.roadSpawnIn=Math.min(railway.roadSpawnIn,2400);
@@ -5125,7 +5175,7 @@ function updatePlayer(dt){
  let forwardSpeed=player.vx*cos+player.vy*sin,lateralSpeed=-player.vx*sin+player.vy*cos;
  const surface=surfaceAt(player.x,player.y),grass=surface==='grass'&&!powerActive('phase'),dirt=surface==='dirt';
  // Original game's acceleration, rolling drag, steering and lateral-grip settings.
- const st=stats(),speedPower=powerActive('speed')?1.4:1,infiniteNitro=powerActive('nitro');
+ const st=stats(),speedPower=speedPowerMultiplier(progress.mode),infiniteNitro=powerActive('nitro');
  const wantsBoost=(garageState().performance.turbo>0||infiniteNitro)&&boostInput()&&accel&&!brake&&!handbrake&&!grass&&!dirt&&forwardSpeed>.04;
  updateTurbo(dt,st,wantsBoost,infiniteNitro);
  const enginePower=(grass?.00024:dirt?st.acceleration*.72:st.acceleration)*(turbo.active?1.9:1)*(powerActive('speed')?1.35:1),brakePower=.00062*(forwardSpeed>0?st.brakeMultiplier:1);
@@ -7496,7 +7546,7 @@ function updateHUD(){
  const clockText=(night?'Night':'Day')+' · '+Math.floor(timeLeft/60)+':'+String(timeLeft%60).padStart(2,'0');
  clock.hidden=!started;if(clock.textContent!==clockText){clock.textContent=clockText;clock.dataset.phase=night?'night':'day';}
  const forward=player.vx*Math.cos(player.angle)+player.vy*Math.sin(player.angle),speedValue=Math.hypot(player.vx,player.vy),speed=speedKmh(speedValue);
- $('speed').textContent=speed;$('speedFill').style.width=Math.min(100,speedValue/(stats().maxSpeed*(turbo.active?stats().boostMultiplier:1)*(powerActive('speed')?1.4:1))*100)+'%';$('gear').textContent=speed<2?'N':forward<-.008?'R':'D';$('distance').textContent=kmText(progress.earnedMm)+' km';$('wallet').textContent=kmText(balanceMm())+' km';$('turboFill').style.width=(turbo.charge*100)+'%';$('turboMeter').classList.toggle('boosting',turbo.active);$('turboStatus').textContent=powerActive('nitro')?'INFINITE NITRO':turbo.active?'BOOSTING':turbo.depleted?'RECHARGING':turbo.charge>.99?'TURBO READY':'TURBO '+Math.floor(turbo.charge*100)+'%';
+ $('speed').textContent=speed;$('speedFill').style.width=Math.min(100,speedValue/(stats().maxSpeed*(turbo.active?stats().boostMultiplier:1)*speedPowerMultiplier(progress.mode))*100)+'%';$('gear').textContent=speed<2?'N':forward<-.008?'R':'D';$('distance').textContent=kmText(progress.earnedMm)+' km';$('wallet').textContent=kmText(balanceMm())+' km';$('turboFill').style.width=(turbo.charge*100)+'%';$('turboMeter').classList.toggle('boosting',turbo.active);$('turboStatus').textContent=powerActive('nitro')?'INFINITE NITRO':turbo.active?'BOOSTING':turbo.depleted?'RECHARGING':turbo.charge>.99?'TURBO READY':'TURBO '+Math.floor(turbo.charge*100)+'%';
  const r=closestRoad(player.x,player.y),surface=surfaceAt(player.x,player.y);
  const i=roadIndex(player.x,0),j=roadIndex(player.y,1),feature=featureAt(i,j),scene=chunks.get(i+','+j)?.scene;
  $('district').textContent=scene?.development?scene.name:neighbourhood(player.x,player.y);
