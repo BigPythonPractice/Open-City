@@ -141,6 +141,19 @@
 body[data-input="gamepad"] .touch{display:none}
 body[data-input="gamepad"] .modal :is(button,select,#atlas):focus{outline:2px solid #e8f7ab;outline-offset:3px}
 .gamepad-menu-hint{position:fixed;z-index:11;bottom:5px;left:50%;transform:translateX(-50%);padding:5px 10px;border-radius:6px;background:#17342f;color:#e8f7ab;font-size:11px;white-space:nowrap;pointer-events:none}
+.admin-dialog{width:min(460px,100%)}
+.admin-dialog h2{margin:0 44px 25px 0}
+.admin-time-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:9px 0 20px;padding:5px;border-radius:12px;background:#102b24}
+.admin-time-options button{min-height:44px;border:1px solid transparent;border-radius:8px;padding:6px;color:var(--muted);background:none;font-size:13px;font-weight:700}
+.admin-time-options button[aria-pressed="true"]{border-color:#d4ed89;background:#d4ed89;color:#173128}
+.admin-time-options button[aria-pressed="false"]:hover,.admin-switches button:hover{background:#25483a}
+.admin-switches{display:grid;gap:6px}
+.admin-switches button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:46px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#1d3b31;color:var(--ink);font-size:14px;font-weight:700}
+.admin-switches span{flex:none;position:relative;width:35px;height:20px;border-radius:20px;border:1px solid #94ab99;background:#2a4639}
+.admin-switches span::after{content:"";position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:#baccb8}
+.admin-switches button[aria-checked="true"] span{border-color:#d4ed89;background:#d4ed89}
+.admin-switches button[aria-checked="true"] span::after{left:18px;background:#213d30}
+@media(max-width:420px){.admin-dialog{padding:20px}.admin-time-options button{font-size:12px;padding:4px}}
 </style>
 </head>
 <body>
@@ -156,6 +169,26 @@ body[data-input="gamepad"] .modal :is(button,select,#atlas):focus{outline:2px so
 <div class="toast" id="toast" role="status"></div>
 <div class="gamepad-menu-hint" id="gamepadMenuHint" aria-hidden="true" hidden></div>
 <div class="touch touch-left"><button data-key="a" aria-label="Steer left">←</button><button data-key="d" aria-label="Steer right">→</button></div><div class="touch touch-right"><button class="boost" id="touchBoost" data-key="shift" aria-label="Hold for turbo" hidden>TURBO ↑</button><button class="hand" data-key=" " aria-label="Handbrake">DRIFT</button><button class="pedal" data-key="s" aria-label="Brake and reverse">BRAKE</button><button class="pedal" data-key="w" aria-label="Accelerate">GO ↑</button></div>
+<div class="modal" id="adminModal" hidden>
+ <section class="dialog admin-dialog" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <button class="iconbtn close" data-close aria-label="Close admin panel">×</button>
+  <h2 id="adminTitle">Admin panel</h2>
+  <div class="admin-time" role="group" aria-labelledby="adminTimeLabel">
+   <div class="eyebrow" id="adminTimeLabel">TIME OF DAY</div>
+   <div class="admin-time-options">
+    <button type="button" data-admin-time="cycle" aria-pressed="true">Regular cycle</button>
+    <button type="button" data-admin-time="night" aria-pressed="false">Always night</button>
+    <button type="button" data-admin-time="day" aria-pressed="false">Always day</button>
+   </div>
+  </div>
+  <div class="admin-switches">
+   <button type="button" role="switch" data-admin-toggle="npcs" aria-checked="true">NPCs<span aria-hidden="true"></span></button>
+   <button type="button" role="switch" data-admin-toggle="speed" aria-checked="false">Superspeed<span aria-hidden="true"></span></button>
+   <button type="button" role="switch" data-admin-toggle="nitro" aria-checked="false">Infinite nitro<span aria-hidden="true"></span></button>
+   <button type="button" role="switch" data-admin-toggle="phase" aria-checked="false">Ghost mode<span aria-hidden="true"></span></button>
+  </div>
+ </section>
+</div>
 <div class="modal" id="pauseModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pauseTitle"><button class="iconbtn close" data-close aria-label="Resume driving">×</button><div class="eyebrow">TAKE YOUR TIME</div><h2 id="pauseTitle">Parked for a moment.</h2><p>The city will be right here.</p><button class="start" id="resumeBtn">Keep driving <span>↗</span></button></section></div>
 <div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><button class="iconbtn close" data-close aria-label="Close controls">×</button><div class="eyebrow">GET A FEEL FOR IT</div><h2 id="helpTitle" data-pad-hint="Controller controls">Your keys to the city.</h2><div class="help-row"><span>Accelerate</span><b data-pad-hint="{accelerate}">W / ↑</b></div><div class="help-row"><span>Brake, then reverse</span><b data-pad-hint="{reverse}">S / ↓</b></div><div class="help-row"><span>Steer (road vehicles)</span><b data-pad-hint="Left stick / D-pad ← →">A D / ← →</b></div><div class="help-row"><span>Handbrake / drift</span><b data-pad-hint="{brake}">SPACE</b></div><div class="help-row"><span>Recover to a clear road or railway</span><b data-pad-hint="{recover}">R</b></div><div class="help-row"><span>Garage / city map</span><b data-pad-hint="{garage} / {map}">G / M</b></div><div class="help-row"><span>Turbo (once unlocked)</span><b data-pad-hint="{boost} + {accelerate}">SHIFT + W / ↑</b></div><div class="help-row"><span>Cycle game modes / mode menu</span><b data-pad-hint="D-pad ↓ / ↑">C / V</b></div><div class="help-row"><span>Accept a ride or driving job</span><b data-pad-hint="{confirm}">E</b></div><div class="help-row"><span>Trophy Room</span><b data-pad-hint="{trophies}">B</b></div><div class="help-row"><span>Pause</span><b data-pad-hint="{pause}">ESC</b></div><div class="help-row"><span>Open controls</span><b data-pad-hint="{help}">? button</b></div><p>Explore green pharmacies, hospital campuses, glass terminals, roof gardens and four distinct old-town styles. Airports range from regional airfields to international hubs with twin runways and larger airliners. Traffic includes hatchbacks, vans, trucks, buses, ambulances, fire trucks and motorbikes. Traffic drives at different speeds. Highway speeders and emergency vehicles drive aggressively and get priority at crossings. Fast motorcycle groups sometimes ride the expressways at night. Buildings and vehicles are solid. Ease off before a corner, or hold the handbrake to slide. Grass slows you down. Dirt trails have looser grip and a lower top speed. Open the map and use Find nearby to pin a residential, commercial or industrial sector, airport, giant Old Town, highway or giant reserve. Drive to earn spendable kilometres. Open the garage to upgrade the vehicle you are currently driving. Turbo recharges after use. While actively boosting, hitting another car makes it explode and clears it from your path—including parked cars and police. Every pursuing police car you destroy awards 100 bonus kilometres to spend in the garage. Glowing pickups appear occasionally as you drive: speed boost (15s), ghost drive through every obstacle with full speed on grass (18s), and infinite nitro (25s; boost even without a turbo upgrade). Collect them by driving over them. Ghost drive passes through buildings, traffic, police, planes, rocks and water. Cars you pass through while ghosting stay intact, even with nitro active. If ghost drive ends while you overlap an obstacle or vehicle, you can move clear before colliding with that object again. Choose Police chase for up to five coordinated pursuers: a chaser, an interceptor, two flankers and a unit aiming for junctions ahead. They close gaps at high speed, ram your car and intercept your path from ahead and both sides. Lost or destroyed units are quickly replaced ahead, outside your view. Switch modes any time to end the chase. Uber, bus and truck jobs have no time limit. Uber rides use your Runabout. Stop at the marked curb to pick up one passenger, then drive them to their drop-off. Bus jobs have 2–6 stops, including the first pickup and final drop-off. Each offer shows its total stops and bonus KM; the active job shows which stop you are on. Choose Accept job to take an offer. Every new assignment needs your acceptance. Routes range from regional trips to cross-country journeys. Follow the marked bays and stop for two seconds to load or unload. Completed drop-offs earn KM. The clean-driving bonus starts at 100% and drops by 5 points per collision with a vehicle or building. Cars destroyed with boost don’t count. At the final drop-off, the remaining percentage of the full job fare is paid as an extra bonus. Jobs, passengers and cargo wait for you when you switch modes, and are saved between sessions. Use Next job to get an offer with a pickup near your current location, even after roaming far away. You still need to accept it. Use End job to leave an unfinished assignment. The bright purple map route favours main roads, highways and longer straight stretches, avoiding old-town and airport shortcuts where practical. Short purple arrows on the road mark upcoming turns during accepted jobs. They appear earlier at speed, fade after each turn and leave long straight roads clear. Car, Bus and Truck keep separate performance and cosmetic builds. Free Roam, Police Chase and Uber share the Car garage. Train mode places your three-car train on the nearest clear railway, with matching outward-facing cabs at each end and a carriage in the middle. Use <span data-pad-hint="{accelerate}">W / Up</span> to go forward, <span data-pad-hint="{reverse}">S / Down</span> to brake then reverse, and <span data-pad-hint="{brake}">Space</span> for stronger braking. Speed, acceleration and boost are equal in both directions. Between jobs, tap <span data-pad-hint="D-pad ← / →">A / Left or D / Right</span> to move one step through Left, Straight and Right for the next junction. For example, after choosing Right, tap Left once for Straight and again for Left. Choices follow your direction of travel, including while reversing. Without a selection the train continues straight, or follows your chosen map destination. You can change the queued turn until your leading cab enters the junction. During an accepted station job, junctions follow the job automatically. Stop with the center of any of the three cars inside the purple station marker for two seconds to load or unload. Railway jobs alternate passenger services and freight deliveries, with no time limit. The Train garage has its own upgrades. Open the map to set a rail destination between jobs. Occasional NPC trains stop at stations and obey shared signals. The entire railway, including junctions and stations, is elevated on continuous bridges. Road vehicles pass beneath it; trains and ground traffic never collide with or yield to each other. Tracks and bridge decks fade while driving a road vehicle and become fully opaque in Train mode. Switching back places your road vehicle on a nearby clear road. Your rail jobs, train position and upgrades are saved.</p><button class="start" data-close>Got it <span>↗</span></button></section></div>
 <div class="modal" id="mapModal" hidden><section class="dialog map-dialog" role="dialog" aria-modal="true" aria-labelledby="mapTitle"><button class="iconbtn close" data-close aria-label="Close map">×</button><div class="map-head"><div class="eyebrow">THERE’S ALWAYS ANOTHER STREET</div><h2 id="mapTitle">Your next neighbourhood.</h2></div><div class="map-tools"><span id="mapArea"></span><div><button id="mapHome" aria-label="Centre map on your car">Locate me</button><button id="mapZoomOut" aria-label="Zoom out">−</button><button id="mapZoomIn" aria-label="Zoom in">+</button></div></div><div class="map-discover"><span>FIND NEARBY</span><select id="oldTownDiscovery" aria-label="Find giant Old Town"><option value="" selected disabled>Giant Old Town</option><option value="any">Nearest Old Town</option><option value="terracotta">Terracotta</option><option value="alpine">Alpine</option><option value="merchant">Merchant</option><option value="sandstone">Sandstone</option></select><button data-landscape="industrial">Industrial sector</button><button data-landscape="residential">Residential sector</button><button data-landscape="commercial">Commercial sector</button><button data-landscape="highway">Highway</button><select id="reserveDiscovery" aria-label="Find a nature reserve"><option value="" selected disabled>Nature reserves</option><option value="any">Nearest reserve</option><option value="lake">Lake Trails</option><option value="river">River Valley</option><option value="pine">Pine Forest</option><option value="dense">Dense Forest</option><option value="meadow">Wildflower Meadows</option><option value="dry">Rocky Badlands</option><option value="wheat">Wheat Farm</option><option value="corn">Corn Farm</option><option value="hemp">Hemp / Cannabis Farm</option><option value="animals">Animal Farm</option></select><button id="clearDestination">Clear pin</button></div><canvas id="atlas" width="1000" height="800" aria-describedby="mapControlsHint" aria-label="Map of the surrounding city."></canvas><div class="map-foot"><span>↗ YOU · <span style="color:#e0c48b">━ RAIL · ● STATION</span></span><span id="mapControlsHint">Drag to explore · Scroll to zoom</span><span data-pad-hint="{back} TO CLOSE">M / ESC TO CLOSE</span></div></section></div>
@@ -222,7 +255,9 @@ const MINIMAP_SPAN=1900,MINIMAP_LOOK_AHEAD=480,MINIMAP_CACHE_PAD=64;
 const minimapView={offsetX:0,offsetY:0,terrain:document.createElement('canvas'),cachedRegion:null};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
+function isNight(){return progress.admin.time==='night'||progress.admin.time==='cycle'&&dayCycleMs>=DAY_PHASE_MS;}
 function nightLevel(){
+ if(progress.admin.time!=='cycle')return progress.admin.time==='night'?1:0;
  const elapsed=dayCycleMs-DAY_PHASE_MS;
  const t=clamp(Math.min(elapsed,DAY_PHASE_MS-elapsed)/TWILIGHT_MS,0,1);
  return t*t*(3-2*t);
@@ -2294,7 +2329,7 @@ function trafficDriver(model,id,gang,highway){
  if(Object.hasOwn(EMERGENCY_PAINT,model))return highway?'emergency':'normal';
  if(!['sedan','hatchback','van'].includes(model))return 'normal';
  const roll=worldHash(id,0,413);
- const speederCutoff=dayCycleMs>=DAY_PHASE_MS?.50:.77;
+ const speederCutoff=isNight()?.50:.77;
  return roll<.27?'chilled':highway&&roll>=speederCutoff?'speeder':'normal';
 }
 function chooseTrafficModel(roadType){
@@ -2489,6 +2524,7 @@ function refillReserveTractors(initial){
  }
 }
 function refillTraffic(initial=false){
+ if(!progress.admin.npcs)return;
  refillReserveTractors(initial);
  const target=trafficLimitForTime(),ahead=highwayAhead(),maxSpawns=initial?target:4;
  const added=ahead?refillHighwayAhead(ahead,target,initial?target:2):0;
@@ -2528,7 +2564,7 @@ const FIRST_GANG_DELAY=12000,GANG_RIDER_GAP=96;
 const GANG_CRUISE_MIN=180/SPEED_KMH,GANG_TOP_SPEED=250/SPEED_KMH;
 let trafficRefreshIn=1200,gangIn=FIRST_GANG_DELAY,gangSerial=0;
 function spawnMotorbikeGang(count=2+Math.floor(random()*5)){
- if(dayCycleMs<DAY_PHASE_MS||traffic.some(c=>c.gang))return false;
+ if(!progress.admin.npcs||!isNight()||traffic.some(c=>c.gang))return false;
  const speed=lerp(GANG_CRUISE_MIN,GANG_TOP_SPEED,random()),candidates=[];
  for(const axis of [0,1]){
   const center=axis===0?worldWindow.i:worldWindow.j;
@@ -2582,7 +2618,8 @@ function trafficLimitForTime(){
  return Math.round(lerp(DAY_TRAFFIC_LIMIT,NIGHT_TRAFFIC_LIMIT,nightLevel()))+traffic.reduce((count,c)=>count+Number(!!(c.gang||c.tractorReserve)),0);
 }
 function maintainTraffic(dt){
- gangIn=dayCycleMs>=DAY_PHASE_MS?Math.max(0,gangIn-dt):FIRST_GANG_DELAY;
+ if(!progress.admin.npcs)return;
+ gangIn=isNight()?Math.max(0,gangIn-dt):FIRST_GANG_DELAY;
  trafficRefreshIn-=dt;if(trafficRefreshIn>0)return;trafficRefreshIn=1200;
  const limit=trafficLimitForTime();
  for(let i=traffic.length-1;i>=0;i--){
@@ -3336,6 +3373,7 @@ function railTrainModeSpawn(serial){
  return candidates[Math.floor(worldHash(serial,0,970)*candidates.length)];
 }
 function railSpawnNPC(){
+ if(!progress.admin.npcs)return false;
  const railMode=progress.mode==='train',serial=railway.serial+1;
  const chosen=railMode?railTrainModeSpawn(serial):railRoadSpawn();
  if(!chosen)return false;
@@ -3400,7 +3438,7 @@ function railUpdate(dt){
  const playerTrain=railMode?railway.player:null;
  if(playerTrain)railEnsure(playerTrain);
  railProtectJobRoute(playerTrain,railMode?jobTarget():null);
- railway[timer]-=dt;
+ if(progress.admin.npcs)railway[timer]-=dt;
  for(let n=railway.npcs.length-1;n>=0;n--){
   const t=railway.npcs[n],p=railSample(t);
   const distant=Math.hypot(p.x-player.x,p.y-player.y)>range&&!nearDrivingView(p.x,p.y,400);
@@ -3410,7 +3448,7 @@ function railUpdate(dt){
  }
  const trains=playerTrain?[playerTrain,...railway.npcs]:railway.npcs;
  for(const t of railway.npcs)railEnsure(t);railApplyManualTurn();railReserveTrains(trains);
- if(railway[timer]<=0&&railway.npcs.length<3){
+ if(progress.admin.npcs&&railway[timer]<=0&&railway.npcs.length<3){
   if(railSpawnNPC()){
    const jitter=worldHash(railway.serial,1,971);
    railway[timer]=railMode?30000+jitter*25000:8500+jitter*5000;
@@ -4214,12 +4252,18 @@ function cleanGarage(raw,kind,legacy=false){
  }}
  return clean;
 }
-function freshProgress(){return {version:1,garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0,train:0},jobOfferCounts:{uber:0,bus:0,truck:0,train:0},jobSerial:0,worldVersion:WORLD_LAYOUT_VERSION,position:null,railPosition:null,garages:{train:freshGarage('train'),car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
+function cleanAdminSettings(raw){
+ return {
+  time:raw?.time==='day'||raw?.time==='night'?raw.time:'cycle',
+  npcs:raw?.npcs!==false,speed:raw?.speed===true,nitro:raw?.nitro===true,phase:raw?.phase===true
+ };
+}
+function freshProgress(){return {version:1,admin:cleanAdminSettings(),garageVersion:1,earnedMm:0,spentMm:0,ownedTrophies:[],policeEnabled:false,mode:'free',jobs:{},offers:{},completedJobs:{uber:0,bus:0,truck:0,train:0},jobOfferCounts:{uber:0,bus:0,truck:0,train:0},jobSerial:0,worldVersion:WORLD_LAYOUT_VERSION,position:null,railPosition:null,garages:{train:freshGarage('train'),car:freshGarage('car'),bus:freshGarage('bus'),truck:freshGarage('truck')}};}
 function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);if(!raw)return freshProgress();const p=JSON.parse(raw);
   if(!p||p.version!==1||!Number.isSafeInteger(p.earnedMm)||p.earnedMm<0||!Number.isSafeInteger(p.spentMm)||p.spentMm<0||p.spentMm>p.earnedMm)return freshProgress();
-  const clean=freshProgress();clean.earnedMm=p.earnedMm;clean.spentMm=p.spentMm;clean.mode=Object.hasOwn(GAME_MODES,p.mode)?p.mode:(p.policeEnabled===true?'police':'free');clean.policeEnabled=clean.mode==='police';
+  const clean=freshProgress();clean.admin=cleanAdminSettings(p.admin);clean.earnedMm=p.earnedMm;clean.spentMm=p.spentMm;clean.mode=Object.hasOwn(GAME_MODES,p.mode)?p.mode:(p.policeEnabled===true?'police':'free');clean.policeEnabled=clean.mode==='police';
   const owned=new Set(Array.isArray(p.ownedTrophies)?p.ownedTrophies:[]);
   clean.ownedTrophies=TROPHIES.filter(item=>owned.has(item.id)).map(item=>item.id);
   clean.jobSerial=Number.isSafeInteger(p.jobSerial)&&p.jobSerial>=0?p.jobSerial:0;
@@ -4277,8 +4321,9 @@ const pickups=[];
 const railPickupState={pickup:null,nextIn:null,boostMs:0};
 const pickupDelay=()=>40000+random()*35000;
 const pickupState={untilSpawn:pickupDelay(),travel:0,retryIn:0,lastType:null,spawned:0,collected:0,nextId:1};
-function powerActive(type){return powers[type]>0;}
-function speedPowerTime(mode){return mode==='train'?Math.max(powers.speed,railPickupState.boostMs):powers.speed;}
+function powerTime(type){return progress.admin[type]===true?Infinity:powers[type];}
+function powerActive(type){return powerTime(type)>0;}
+function speedPowerTime(mode){const time=powerTime('speed');return mode==='train'?Math.max(time,railPickupState.boostMs):time;}
 function speedPowerMultiplier(mode){return speedPowerTime(mode)>0?(mode==='train'?1.3:1.4):1;}
 function ghosting(){return powerActive('phase')||powers.exitBodies.size>0;}
 function ignoresCollision(a,b){if((a.kind==='rail'||a.model==='train')!==(b.kind==='rail'||b.model==='train'))return true;const other=a===player?b:b===player?a:null;return !!other&&(powerActive('phase')||powers.exitBodies.has(other));}
@@ -4286,24 +4331,29 @@ function syncTurboAvailability(){
  const available=garageState().performance.turbo>0||powerActive('nitro');document.body.classList.toggle('turbo-owned',available);
  $('turboMeter').hidden=$('touchBoost').hidden=!available;
 }
+function refillNitro(){
+ turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;
+ syncTurboAvailability();
+}
 function activatePower(type){
  const power=POWER_TYPES[type];if(!power)return false;
  powers[type]=power.duration;if(type==='phase')powers.exitBodies.clear();
- if(type==='nitro'){turbo.charge=1;turbo.depleted=false;turbo.rechargeDelay=0;syncTurboAvailability();}
+ if(type==='nitro')refillNitro();
  toast(power.message);updatePowerHUD();return true;
 }
 function tickPowers(dt){
  const hadPhase=powerActive('phase'),hadNitro=powerActive('nitro');
  for(const type of Object.keys(POWER_TYPES))powers[type]=Math.max(0,powers[type]-dt);
  railPickupState.boostMs=Math.max(0,railPickupState.boostMs-dt);
- if(hadPhase&&!powerActive('phase')){
-  // Allow a safe exit only from bodies already overlapping at expiry.
-  // Contact geometry stays active for pickups, recovery and these overlap checks.
-  for(const b of staticHash.query(player))if(contact(player,b))powers.exitBodies.add(b);
-  for(const c of dynamicHash.query(player))if(c!==player&&contact(player,c))powers.exitBodies.add(c);
-  if(powers.exitBodies.size)toast('Ghost drive ended. Move clear to turn solid again.');
- }
+ if(hadPhase&&!powerActive('phase'))beginGhostExit();
  if(hadNitro&&!powerActive('nitro'))syncTurboAvailability();
+}
+function beginGhostExit(){
+ if(progress.mode==='train')return;
+ // Buildings and vehicles the player already overlaps stay passable until clear.
+ for(const b of staticHash.query(player))if(contact(player,b))powers.exitBodies.add(b);
+ for(const c of dynamicHash.query(player))if(c!==player&&contact(player,c))powers.exitBodies.add(c);
+ if(powers.exitBodies.size)toast('Ghost drive ended. Move clear to turn solid again.');
 }
 function finishGhostExit(){
  for(const b of powers.exitBodies){
@@ -4377,10 +4427,11 @@ function updateRailPickup(train,dt,travelled){
 function updatePowerHUD(){
  const tray=$('powerHud');let any=false;
  for(const [type,power]of Object.entries(POWER_TYPES)){
-  const remaining=type==='speed'?speedPowerTime(progress.mode):powers[type];
+  const remaining=type==='speed'?speedPowerTime(progress.mode):powerTime(type);
   const exit=type==='phase'&&powers.exitBodies.size>0,row=$('power-'+type);row.hidden=remaining<=0&&!exit;if(row.hidden)continue;any=true;
   if(type==='speed')$('speedPowerLabel').textContent=progress.mode==='train'?'SPEED +30%':power.short;
-  row.querySelector('.power-time').textContent=exit?'MOVE CLEAR':Math.ceil(remaining/1000)+'s';row.querySelector('i').style.width=(exit?100:remaining/power.duration*100)+'%';
+  row.querySelector('.power-time').textContent=exit?'MOVE CLEAR':remaining===Infinity?'ALWAYS ON':Math.ceil(remaining/1000)+'s';
+  row.querySelector('i').style.width=(exit?100:Math.min(100,remaining/power.duration*100))+'%';
  }
  tray.hidden=!any;
  const hint=$('pickupHint'),p=progress.mode==='train'?null:pickups[0];hint.hidden=!p;if(p){const dx=p.x-player.x,dy=p.y-player.y,arrows=['→','↘','↓','↙','←','↖','↑','↗'],arrow=arrows[mod(Math.round(Math.atan2(dy,dx)/(Math.PI/4)),8)];hint.style.color=POWER_TYPES[p.type].color;hint.textContent=POWER_TYPES[p.type].symbol+' '+POWER_TYPES[p.type].name+' · '+arrow+' '+(Math.hypot(dx,dy)*.8/1000).toFixed(1)+' km';}
@@ -5546,7 +5597,53 @@ function drawRouteDestination(){
 
 function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2800);}
 function clearKeys(){resetGamepadDrive();turbo.active=false;for(const k of Object.keys(keys))delete keys[k];document.querySelectorAll('.held').forEach(b=>b.classList.remove('held'));}
-function start(){if(started)return;started=true;$('intro').hidden=true;document.body.classList.add('driving');canvas.focus({preventScroll:true});if(progress.policeEnabled){deployPolice();toast('Police pursuit on. Keep moving.');}else if(JOB_MODES.includes(progress.mode))toast(GAME_MODES[progress.mode].name+(jobTarget()?' · Your accepted job is ready to resume.':' · '+inputHint('Press E to accept a job.','Press {confirm} to accept a job.'))); else toast('Welcome to '+neighbourhood(player.x,player.y)+'. Take any turn.');ensureJobOffer();updateHUD();updatePoliceHUD();}
+function start(){if(started)return;started=true;$('intro').hidden=true;document.body.classList.add('driving');canvas.focus({preventScroll:true});if(progress.policeEnabled&&progress.admin.npcs){deployPolice();toast('Police pursuit on. Keep moving.');}else if(JOB_MODES.includes(progress.mode))toast(GAME_MODES[progress.mode].name+(jobTarget()?' · Your accepted job is ready to resume.':' · '+inputHint('Press E to accept a job.','Press {confirm} to accept a job.'))); else toast('Welcome to '+neighbourhood(player.x,player.y)+'. Take any turn.');ensureJobOffer();updateHUD();updatePoliceHUD();}
+function renderAdminPanel(){
+ const settings=progress.admin;
+ for(const button of $('adminModal').querySelectorAll('[data-admin-time]'))button.setAttribute('aria-pressed',String(settings.time===button.dataset.adminTime));
+ for(const button of $('adminModal').querySelectorAll('[data-admin-toggle]'))button.setAttribute('aria-checked',String(settings[button.dataset.adminToggle]));
+}
+function setAdminNPCs(enabled){
+ progress.admin.npcs=enabled;
+ trafficJunctions.zones.length=0;trafficJunctions.version=-1;trafficJunctions.timer=0;
+ if(!enabled){
+  traffic.length=police.length=railway.npcs.length=0;
+  railway.reservations.clear();
+  policeState.dispatchFor=0;
+ }else{
+  refillTraffic();
+  trafficRefreshIn=0;
+  railway.spawnIn=Math.min(railway.spawnIn,2000);
+  railway.roadSpawnIn=Math.min(railway.roadSpawnIn,1500);
+  if(started&&progress.policeEnabled)deployPolice();
+ }
+ rebuildDynamic();finishGhostExit();updatePoliceHUD();
+}
+$('adminModal').addEventListener('click',event=>{
+ const button=event.target.closest('[data-admin-time], [data-admin-toggle]');
+ if(!button)return;
+ const settings=progress.admin,{adminTime,adminToggle}=button.dataset;
+ if(adminTime){
+  const wasNight=isNight();
+  settings.time=adminTime;
+  if(wasNight!==isNight())refreshTrafficForDayPhase();
+ }else if(adminToggle==='npcs')setAdminNPCs(!settings.npcs);
+ else{
+  settings[adminToggle]=!settings[adminToggle];
+  if(adminToggle==='phase'){
+   if(powerActive('phase'))powers.exitBodies.clear();
+   else beginGhostExit();
+  }
+  if(adminToggle==='nitro'){
+   if(powerActive('nitro'))refillNitro();
+   else{
+    turbo.active=false;
+    syncTurboAvailability();
+   }
+  }
+ }
+ renderAdminPanel();saveProgress();updateHUD();draw();drawMini();
+});
 function closeModal(){
  if(!activeModal)return;
  if(activeModal==='trophyModal')dismissTrophyConfirmation();
@@ -5564,6 +5661,7 @@ function openModal(id){
  if(id==='mapModal'){mapView.x=player.x;mapView.y=player.y;drawAtlas();}
  if(id==='garageModal'){previewSelection=null;saveProgress();renderGarage();}
  if(id==='modeModal')renderModeMenu();
+ if(id==='adminModal')renderAdminPanel();
  if(id==='trophyModal'){
   $('trophyFeedback').textContent='';
   renderTrophyRoom();$('trophyDialog').scrollTop=0;
@@ -5602,6 +5700,11 @@ addEventListener('wheel',()=>setInputDevice('keyboard'),{passive:true});
 addEventListener('keydown',e=>{
  if(!e.repeat)setInputDevice('keyboard');
  const key=e.key.toLowerCase();if(e.metaKey||e.ctrlKey||e.altKey)return;
+ if(key==='`'||e.code==='Backquote'){
+  e.preventDefault();
+  if(!e.repeat)openModal('adminModal');
+  return;
+ }
  if(activeModal&&key==='tab'){
   const controls=modalControls();
   const first=controls[0],end=controls.at(-1);
@@ -5824,7 +5927,7 @@ function policeTarget(c){
  c.targetX=x;c.targetY=y;return distance;
 }
 function maintainPursuit(dt){
- if(!started||!progress.policeEnabled)return;
+ if(!started||!progress.policeEnabled||!progress.admin.npcs)return;
  policeState.reinforceIn=Math.max(0,policeState.reinforceIn-dt);policeState.scanIn=Math.max(0,policeState.scanIn-dt);
  const hadNotice=policeState.dispatchFor>0;policeState.dispatchFor=Math.max(0,policeState.dispatchFor-dt);if(hadNotice&&policeState.dispatchFor===0)updatePoliceHUD();
  if(policeState.scanIn>0||policeState.reinforceIn>0)return;policeState.scanIn=400;
@@ -5851,6 +5954,7 @@ function planPolice(c){
  let first=0;for(let n=path.length-1;n>0;n--)if(segmentClear(c.x,c.y,path[n].x,path[n].y,18)){first=n;break;}c.path=path.slice(first);
 }
 function spawnPoliceUnit(unit,minDistance=240,offscreen=false,reinforcement=false){
+ if(!progress.admin.npcs)return null;
  const role=POLICE_ROLES[unit];if(!role)return null;
  const speed=Math.hypot(player.vx,player.vy),travelHeading=speed>.04?Math.atan2(player.vy,player.vx):player.angle;
  const candidates=[],heading=travelHeading+(reinforcement?(role.side?Math.sign(role.side)*.65:0):role.spawn),wanted=reinforcement?Math.max(900,minDistance+120):340+unit*70;
@@ -5870,7 +5974,7 @@ function deployPolice(){
  rebuildDynamic();updatePoliceHUD();
 }
 function updatePoliceHUD(){
- const enabled=progress.policeEnabled;
+ const enabled=progress.policeEnabled&&progress.admin.npcs;
  $('pursuitStatus').hidden=!enabled;
  $('pursuitStatus').textContent=!started?'Chase starts when you drive':police.length+(policeState.dispatchFor>0?' units · interceptor inbound':' units in pursuit');
  document.body.classList.toggle('police-on',enabled);
@@ -6089,7 +6193,7 @@ function updatePlayer(dt){
 }
 function sameMotorbikeGang(a,b){return !!a.gang&&a.gang===b.gang;}
 function onTrafficHighway(c){return !!(c.route?.highway||c.junctionDetour?.route.highway);}
-function nightSpeeder(c){return dayCycleMs>=DAY_PHASE_MS&&c.driver==='speeder'&&onTrafficHighway(c);}
+function nightSpeeder(c){return isNight()&&c.driver==='speeder'&&onTrafficHighway(c);}
 function fastTraffic(c){return onTrafficHighway(c)&&(c.driver==='emergency'||c.driver==='speeder'||!!c.gang);}
 function setHighwayTrafficLane(c,lane,coord,cooldown){
  const road=c.route.highway,seg=c.route.segments[0];
@@ -6162,7 +6266,10 @@ function tryFastHighwayPass(c,speed){
 }
 // A reservation lasts until the vehicle has left the crossing. Unlike a fresh
 // ETA comparison each frame, this cannot flip priority between stopped drivers.
-const trafficJunctions={zones:[],version:-1,refresh:0,timer:0,time:0,count:0,playerStillFor:0};
+// Allow time for the periodic junction scan and pull-away within half a second.
+const PLAYER_JUNCTION_DETOUR_DELAY=350,PLAYER_JUNCTION_DETOUR_RETRY=250;
+const PLAYER_BYPASS_SPEED=.10,PLAYER_BYPASS_SHOULDER=34;
+const trafficJunctions={zones:[],version:-1,refresh:0,timer:0,time:0,count:0,playerStillFor:0,playerBypassAt:0};
 const junctionProbe={};
 function refreshTrafficJunctions(){
  const old=new Map(trafficJunctions.zones.map(z=>[z.key,z])),zones=new Map();
@@ -6184,11 +6291,11 @@ function trafficPathsConflict(a,b){
  }
  return false;
 }
-function junctionExitClear(c,z,exit){
+function junctionExitClear(c,z,exit,skip){
  if(!exit)return true;
  const fx=Math.cos(exit.angle),fy=Math.sin(exit.angle),probe={...exit,hw:c.hw+55,hh:c.hh+10};
  for(const other of dynamicHash.query(probe,35)){
-  if(other===c||other.destroyed||ignoresCollision(c,other)||junctionContains(z,other))continue;
+  if(other===c||other===skip||other.destroyed||ignoresCollision(c,other)||junctionContains(z,other))continue;
   if(Math.hypot(other.vx,other.vy)>.075)continue;
   const dx=other.x-exit.x,dy=other.y-exit.y,ahead=dx*fx+dy*fy,side=-dx*fy+dy*fx,relative=other.angle-exit.angle;
   const length=Math.abs(Math.cos(relative))*other.hw+Math.abs(Math.sin(relative))*other.hh,width=Math.abs(Math.sin(relative))*other.hw+Math.abs(Math.cos(relative))*other.hh;
@@ -6264,6 +6371,118 @@ function planJunctionDetour(p,z,hits){
  }
  return null;
 }
+function stoppedPlayerBlocking(){
+ return started&&progress.mode!=='train'&&!powerActive('phase')&&Math.hypot(player.vx,player.vy)<.018;
+}
+function playerBypassSegmentClear(car,a,b,eta,margin=6){
+ const sweep=junctionSweep(car,a,b,margin);
+ if(staticHash.query(sweep).some(solid=>contact(sweep,solid)))return false;
+ for(const other of dynamicHash.query(sweep,eta>0?220:0)){
+  if(other===car||other.destroyed||ignoresCollision(car,other))continue;
+  if(contact(sweep,other))return false;
+  if(eta>0&&other!==player&&Math.hypot(other.vx,other.vy)>.018){
+   const t=Math.min(eta,750);
+   const ahead={x:other.x+other.vx*t,y:other.y+other.vy*t,angle:other.angle,hw:other.hw+4,hh:other.hh+3};
+   if(contact(sweep,ahead))return false;
+  }
+ }
+ return true;
+}
+function widerPlayerDetour(car,start,d,reach,roads){
+ if(car.route.closed===false)reach=Math.min(reach,car.route.length-d);
+ const points=junctionApproach({car:{x:start.x,y:start.y,angle:start.angle,route:car.route},d,exitDistance:reach});
+ const hits=junctionPlayerHits(car,points);
+ if(!hits.length)return null;
+ const first=points[hits[0]-1].offset,last=points[hits.at(-1)].offset,full=first-10,release=last+24;
+ const smooth=(t)=>{const v=clamp(t,0,1);return v*v*(3-2*v);};
+ for(const width of [36,46,56,72,96,124])for(const side of [1,-1]){
+  const ramp=width*1.55+16,begin=Math.max(0,full-ramp),end=Math.min(reach,release+ramp);
+  if(full-begin<width*.74||end-release<width*.65)continue;
+  const path=[points[0]];
+  let elapsed=0,clear=true;
+  for(let i=1;i<points.length;i++){
+   const q=points[i],shift=width*side*smooth((q.offset-begin)/(full-begin))*smooth((end-q.offset)/(end-release));
+   const p={x:q.x-Math.sin(q.angle)*shift,y:q.y+Math.cos(q.angle)*shift,angle:q.angle};
+   const prev=path.at(-1),distance=Math.hypot(p.x-prev.x,p.y-prev.y);
+   if(distance<.05)continue;
+   elapsed+=distance/PLAYER_BYPASS_SPEED;
+   const angle=Math.atan2(p.y-prev.y,p.x-prev.x),shoulder=car.hh+1-PLAYER_BYPASS_SHOULDER;
+   const mx=(p.x+prev.x)/2,my=(p.y+prev.y)/2;
+   if(Math.abs(angleDiff(angle,p.angle))>1.02||
+      !roads.some(r=>mx>=r.l-PLAYER_BYPASS_SHOULDER&&mx<=r.r+PLAYER_BYPASS_SHOULDER&&my>=r.t-PLAYER_BYPASS_SHOULDER&&my<=r.bottom+PLAYER_BYPASS_SHOULDER&&
+       projectSegment(mx,my,r.a,r.b).distance+shoulder<=r.width/2)||
+      !playerBypassSegmentClear(car,prev,p,elapsed)){
+    clear=false;break;
+   }
+   path.push(p);
+  }
+  if(clear&&path.length>1)return {path,rejoin:d+reach,wide:true};
+ }
+ return null;
+}
+function planPlayerBypass(p){
+ const state=trafficJunctions,car=p.car;
+ if(state.time<state.playerBypassAt)return null;
+ state.playerBypassAt=state.time+80;
+ const roads=navigation.segments.filter(r=>r.l<player.x+460&&r.r>player.x-460&&r.t<player.y+460&&r.bottom>player.y-460);
+ const reach=clamp(p.exitDistance+190,265,545);
+ // Try a forward pass first. Reverse only if a clear rear path creates enough room to pass.
+ const plan=widerPlayerDetour(car,car,p.d,reach,roads);
+ if(plan)return {detour:plan};
+ if(Math.hypot(car.vx,car.vy)>.04)return null;
+ for(const distance of [44,78,116]){
+  const start={x:car.x-Math.cos(car.angle)*distance,y:car.y-Math.sin(car.angle)*distance,angle:car.angle};
+  if(!playerBypassSegmentClear(car,car,start,distance/.05,4))break;
+  const projected={...car,...start,rejoinAll:true},d=projectRoute(projected);
+  if(projected.routeError>car.hh+16)continue;
+  if(widerPlayerDetour(car,start,d,reach+distance,roads))return {backup:distance};
+ }
+ return null;
+}
+function startPlayerBackup(car,distance){
+ car.playerBackup={x:car.x,y:car.y,angle:car.angle,distance,playerX:player.x,playerY:player.y,until:trafficJunctions.time+4600};
+ car.stuckFor=0;car.cooldown=0;
+}
+function playerBackupSpeed(car,accel){
+ const backup=car.playerBackup,fx=Math.cos(backup.angle),fy=Math.sin(backup.angle);
+ const backed=(backup.x-car.x)*fx+(backup.y-car.y)*fy,remaining=backup.distance-backed;
+ if(remaining<=2||!stoppedPlayerBlocking()||Math.hypot(player.x-backup.playerX,player.y-backup.playerY)>8||trafficJunctions.time>=backup.until){
+  car.playerBackup=null;car.junctionDetourRetry=0;car.senseIn=0;car.rejoinAll=true;
+  return 0;
+ }
+ const ahead={x:car.x-fx*Math.min(22,remaining),y:car.y-fy*Math.min(22,remaining)};
+ if(!playerBypassSegmentClear(car,car,ahead,350,2))return 0;
+ return -Math.min(.055,trafficRearLimit(car),Math.sqrt(2*accel*Math.max(0,remaining-1)));
+}
+function usePlayerDetour(car,detour,parkedPlayer){
+ const route=polyRoute(detour.path);route.closed=false;
+ car.junctionDetour={route:car.route,rejoin:detour.rejoin,wide:detour.wide,player:detour.wide?parkedPlayer:null};
+ car.route=route;car.seg=0;car.routeD=0;car.senseIn=0;
+ car.junctionPlayerClear=parkedPlayer;
+}
+function tryRoadPlayerBypass(car,d){
+ if(car.junctionDetour||car.playerBackup||car.reverseFor||car.blocker!==player||car.junctionWait||
+    car.junctionZone&&junctionContains(car.junctionZone,player,player.hw+8)||
+    trafficJunctions.playerStillFor<PLAYER_JUNCTION_DETOUR_DELAY||!stoppedPlayerBlocking()||
+    trafficJunctions.time<(car.junctionDetourRetry||0)||car.blockedGap>90)return false;
+ const p={car,d,exitDistance:clamp(car.blockedGap+car.hw+player.hw+45,80,180)};
+ if(!junctionPlayerHits(car,junctionApproach(p)).length)return false;
+ const result=planPlayerBypass(p);
+ car.junctionDetourRetry=trafficJunctions.time+PLAYER_JUNCTION_DETOUR_RETRY;
+ if(result?.backup)startPlayerBackup(car,result.backup);
+ if(result?.detour)usePlayerDetour(car,result.detour,{x:player.x,y:player.y,angle:player.angle});
+ return !!result;
+}
+function playerDetourSpeed(car,d,speed,brake){
+ const range=18+speed*100+speed*speed/(2*brake);
+ let a=car;
+ for(let offset=12;offset<=range+12;offset+=12){
+  const b=routeAt(car.route,d+offset);
+  if(!playerBypassSegmentClear(car,a,b,offset/Math.max(.055,speed),3))return Math.sqrt(2*brake*Math.max(0,offset-14));
+  a=b;
+ }
+ return PLAYER_BYPASS_SPEED;
+}
 function resolveJunctionStall(z,time){
  const pair=z.recovery;
  if(pair&&time<pair.until&&z.cars.some(p=>p.car===pair.clearing&&p.inside)&&
@@ -6271,9 +6490,9 @@ function resolveJunctionStall(z,time){
  z.recovery=null;
  for(const {car,inside} of z.cars){
   const other=car.blocker;
-  if(!inside||(car.stuckFor||0)<1000||car.reverseFor>0||onTrafficHighway(car)||
+  if(!inside||(car.stuckFor||0)<1000||car.reverseFor>0||car.playerBackup||onTrafficHighway(car)||
      other?.kind!=='traffic'||other.blocker!==car||(other.stuckFor||0)<1000||
-     !other.junctionInside||other.junctionZone!==z||other.reverseFor>0||onTrafficHighway(other))continue;
+     !other.junctionInside||other.junctionZone!==z||other.reverseFor>0||other.playerBackup||onTrafficHighway(other))continue;
   // The shorter vehicle usually has more room to back out of the turn.
   const short=car.hw<=other.hw?car:other,long=short===car?other:car;
   const yielding=trafficRearLimit(short)>.025||trafficRearLimit(long)<=.025?short:long;
@@ -6289,7 +6508,7 @@ function updateTrafficJunctions(dt){
  state.playerStillFor=playerStopped?(state.playerStillFor||0)+dt:0;
  state.time+=dt;state.refresh-=dt;state.timer-=dt;
  const refresh=state.version!==navigation.version||state.refresh<=0||state.count!==traffic.length;
- if(state.timer>0&&!(refresh&&dayCycleMs>=DAY_PHASE_MS))return;
+ if(state.timer>0&&!(refresh&&isNight()))return;
  state.timer=80;
  if(refresh)refreshTrafficJunctions();
  for(const z of state.zones)z.cars.length=0;
@@ -6331,18 +6550,25 @@ function updateTrafficJunctions(dt){
    const car=p.car,fast=fastTraffic(car);
    if(car===recovery?.yielding){p.mayEnter=false;continue;}
    // Even fast drivers need the car ahead to clear their approach first.
-   p.mayEnter=!trafficQueuedBehind(p,group)&&(fast||junctionExitClear(car,z,p.exit));
+   const queued=trafficQueuedBehind(p,group);
+   p.mayEnter=!queued&&(fast||junctionExitClear(car,z,p.exit));
+   if(car.playerBackup){p.mayEnter=false;continue;}
    if(nightSpeeder(car)||!playerPresent||ignoresCollision(car,player))continue;
    if(!parkedPlayer){if(!fast)p.mayEnter=false;continue;}
    const hits=junctionPlayerHits(car,junctionApproach(p));
    if(!hits.length){car.junctionPlayerClear=parkedPlayer;continue;}
-   if(p.mayEnter&&p.exit&&p.entry<160&&!car.junctionDetour&&!car.reverseFor&&
-      state.playerStillFor>=(fast?120:1100)&&state.time>=(car.junctionDetourRetry||0)){
-    p.detour=planJunctionDetour(p,z,hits);
-    if(p.detour)p.path=p.detour.path;
-    else car.junctionDetourRetry=state.time+(fast?240:550);
+   if(!queued&&p.exit&&p.entry<160&&!car.junctionDetour&&!car.reverseFor&&
+      state.playerStillFor>=(fast?120:PLAYER_JUNCTION_DETOUR_DELAY)&&state.time>=(car.junctionDetourRetry||0)){
+    if(p.mayEnter)p.detour=planJunctionDetour(p,z,hits);
+    if(!p.detour&&(!car.blocker||car.blocker===player)&&junctionExitClear(car,z,p.exit,player)){
+     const fallback=planPlayerBypass(p);
+     p.detour=fallback?.detour;
+     if(fallback?.backup)startPlayerBackup(car,fallback.backup);
+    }
+    if(p.detour){p.path=p.detour.path;p.mayEnter=true;}
+    else car.junctionDetourRetry=state.time+(fast?240:PLAYER_JUNCTION_DETOUR_RETRY);
    }
-   if(!fast)p.mayEnter=!!p.detour;
+   if(!fast||car.playerBackup)p.mayEnter=!!p.detour;
   }
   const priority=p=>fastTraffic(p.car)?0:1;
   // The padded approach starts before the center of a street vehicle enters the crossing.
@@ -6368,13 +6594,7 @@ function updateTrafficJunctions(dt){
   z.owners=granted.map(p=>p.car);
   for(const p of group){
    if(z.owners.includes(p.car)){
-    if(p.detour){
-     const car=p.car,route=polyRoute(p.detour.path);
-     route.closed=false;
-     car.junctionDetour={route:car.route,rejoin:p.detour.rejoin};
-     car.route=route;car.seg=0;car.routeD=0;car.senseIn=0;
-     car.junctionPlayerClear=parkedPlayer;
-    }
+    if(p.detour)usePlayerDetour(p.car,p.detour,parkedPlayer);
     continue;
    }
    const fast=fastTraffic(p.car),buffer=fast?26+Math.hypot(p.car.vx,p.car.vy)*65:18;
@@ -6402,7 +6622,7 @@ function senseTraffic(c,speed){
  const playerInJunction=fast&&zone&&junctionContains(zone,player,player.hw+8);
  const range=fast?clamp(135+speed*520,155,470):clamp(90+speed*430,110,270);
  const fx=Math.cos(c.angle),fy=Math.sin(c.angle);let limit=c.cruise,yielding=false;c.blocker=null;c.blockedGap=Infinity;c.yieldLane=false;
- const parked=c.junctionPlayerClear,clearOfPlayer=parked&&Math.hypot(player.vx,player.vy)<.018&&
+ const parked=c.junctionDetour?.player||c.junctionPlayerClear,clearOfPlayer=parked&&Math.hypot(player.vx,player.vy)<.018&&
   Math.hypot(player.x-parked.x,player.y-parked.y)<3&&Math.abs(angleDiff(player.angle,parked.angle))<.12;
  for(const other of dynamicHash.query(c,range)){
   if(other===c||other.destroyed||ignoresCollision(c,other)||other===player&&clearOfPlayer)continue;
@@ -6480,7 +6700,8 @@ function updateTraffic(c,dt){
   senseTraffic(c,speed);
   const fastHighway=fast&&c.route.highway;
   c.senseIn=fastHighway?30+(c.id||0)%15:(fast?42:90)+(c.id||0)%35;
-  if(c.route.highway&&!(c.junctionInside&&nightSpeeder(c))){
+  if(tryRoadPlayerBypass(c,d))return;
+  if(!c.playerBackup&&c.route.highway&&!(c.junctionInside&&nightSpeeder(c))){
    if(fastHighway){if(tryFastHighwayPass(c,speed))routeAt(c.route,d+look,aim);}
    else tryHighwayTrafficPass(c);
   }
@@ -6499,7 +6720,7 @@ function updateTraffic(c,dt){
  }
  const steeringCorrection=Math.max(0,Math.abs(delta)-(fast?.68:0));
  target*=clamp(1-steeringCorrection*.5,.22,1);
- const detourLimit=c.junctionDetour&&!fast?.115:Infinity;
+ const detourLimit=c.junctionDetour?.wide?playerDetourSpeed(c,d,speed,brake):c.junctionDetour&&!fast?.115:Infinity;
  target=Math.min(target,c.trafficLimit??c.cruise,c.junctionLimit??Infinity,detourLimit);
  c.bumpFor=Math.max(0,(c.bumpFor||0)-dt);c.recoveryCooldown=Math.max(0,(c.recoveryCooldown||0)-dt);
  const junctionRecovery=c.junctionZone?.recovery;
@@ -6510,11 +6731,14 @@ function updateTraffic(c,dt){
   c.stuckFor=moved<3?(c.stuckFor||0)+c.progressTime:0;
   c.checkX=c.x;c.checkY=c.y;c.progressTime=0;
   const displaced=c.bumpFor>0||c.routeError>8||Math.abs(angleDiff(near.angle,c.angle))>.4;
-  if(c.stuckFor>=1500&&displaced&&!c.reverseFor&&!c.recoveryCooldown&&!clearing&&!yielding){c.reverseFor=850;c.recoveryCooldown=2000;c.rejoinAll=true;c.stuckFor=0;c.cooldown=0;}
+  if(c.stuckFor>=1500&&displaced&&!c.reverseFor&&!c.playerBackup&&!c.recoveryCooldown&&!clearing&&!yielding){c.reverseFor=850;c.recoveryCooldown=2000;c.rejoinAll=true;c.stuckFor=0;c.cooldown=0;}
  }
  // Make room for a reversing driver ahead. Wait in place if we're facing them.
- if(!clearing&&!c.reverseFor&&c.blocker?.reverseFor>0&&c.blockedGap<40&&Math.cos(c.angle-c.blocker.angle)>=-.8){c.reverseFor=500;c.recoveryCooldown=1200;c.cooldown=0;}
- if(c.reverseFor>0){
+ if(!clearing&&!c.reverseFor&&!c.playerBackup&&c.blocker?.reverseFor>0&&c.blockedGap<40&&Math.cos(c.angle-c.blocker.angle)>=-.8){c.reverseFor=500;c.recoveryCooldown=1200;c.cooldown=0;}
+ if(c.playerBackup){
+  delta=angleDiff(c.playerBackup.angle,c.angle);
+  target=playerBackupSpeed(c,accel);
+ }else if(c.reverseFor>0){
   c.reverseFor=Math.max(0,c.reverseFor-dt);target=-trafficRearLimit(c);
   delta=angleDiff(near.angle,c.angle);
  }
@@ -6526,14 +6750,15 @@ function updateTraffic(c,dt){
  const nc=Math.cos(c.angle),ns=Math.sin(c.angle);c.vx=next*nc-lateral*ns;c.vy=next*ns+lateral*nc;
 }
 
+function refreshTrafficForDayPhase(){
+ trafficJunctions.timer=0;
+ for(const c of traffic)if(c.driver==='speeder')c.senseIn=0;
+}
 function physics(dt){
- if(started){
-  const wasNight=dayCycleMs>=DAY_PHASE_MS;
+ if(started&&progress.admin.time==='cycle'){
+  const wasNight=isNight();
   dayCycleMs=(dayCycleMs+dt)%(DAY_PHASE_MS*2);
-  if(wasNight!==(dayCycleMs>=DAY_PHASE_MS)){
-   trafficJunctions.timer=0;
-   for(const c of traffic)if(c.driver==='speeder')c.senseIn=0;
-  }
+  if(wasNight!==isNight())refreshTrafficForDayPhase();
  }
  streamWorld();maintainTraffic(dt);if(started){tickPowers(dt);maintainPursuit(dt);}
  physicsTick++;activeBodies.length=0;
@@ -8593,7 +8818,7 @@ function drawSceneryRoofTile(tile){
  finally{ctx=screen;}
  return canvas;
 }
-function shouldPrepareNightTiles(){return dayCycleMs>=DAY_PHASE_MS-1800;}
+function shouldPrepareNightTiles(){return progress.admin.time==='night'||progress.admin.time==='cycle'&&dayCycleMs>=DAY_PHASE_MS-1800;}
 function prepareSceneryTile(tile,night){
  if(tile.roof===undefined){tile.roof=drawSceneryRoofTile(tile);return;}
  if(night&&tile.night===undefined)tile.night=drawSceneryNightTile(tile);
@@ -9087,8 +9312,8 @@ function updateHUD(){
  updateWaypointArrival();
  updateModeHUD();
  updatePowerHUD();
- const night=dayCycleMs>=DAY_PHASE_MS,timeLeft=Math.ceil((DAY_PHASE_MS-dayCycleMs%DAY_PHASE_MS)/1000),clock=$('dayCycle');
- const clockText=(night?'Night':'Day')+' · '+Math.floor(timeLeft/60)+':'+String(timeLeft%60).padStart(2,'0');
+ const night=isNight(),timeLeft=Math.ceil((DAY_PHASE_MS-dayCycleMs%DAY_PHASE_MS)/1000),clock=$('dayCycle');
+ const clockText=progress.admin.time==='cycle'?(night?'Night':'Day')+' · '+Math.floor(timeLeft/60)+':'+String(timeLeft%60).padStart(2,'0'):night?'Always night':'Always day';
  clock.hidden=!started;if(clock.textContent!==clockText){clock.textContent=clockText;clock.dataset.phase=night?'night':'day';}
  const forward=player.vx*Math.cos(player.angle)+player.vy*Math.sin(player.angle),speedValue=Math.hypot(player.vx,player.vy),speed=speedKmh(speedValue);
  $('speed').textContent=speed;$('speedFill').style.width=Math.min(100,speedValue/(stats().maxSpeed*(turbo.active?stats().boostMultiplier:1)*speedPowerMultiplier(progress.mode))*100)+'%';$('gear').textContent=speed<2?'N':forward<-.008?'R':'D';$('distance').textContent=kmText(progress.earnedMm)+' km';$('wallet').textContent=kmText(balanceMm())+' km';$('turboFill').style.width=(turbo.charge*100)+'%';$('turboMeter').classList.toggle('boosting',turbo.active);$('turboStatus').textContent=powerActive('nitro')?'INFINITE NITRO':turbo.active?'BOOSTING':turbo.depleted?'RECHARGING':turbo.charge>.99?'TURBO READY':'TURBO '+Math.floor(turbo.charge*100)+'%';
@@ -9140,7 +9365,7 @@ function loop(now){
  requestAnimationFrame(loop);
 }
 if(progress.position)Object.assign(player,progress.position);snapshotBody(player);safePosition={x:player.x,y:player.y,angle:player.angle};camera.x=player.x;camera.y=player.y;interpolatePlayer();
-applyBuild();if(progress.mode==='train'){if(!railRestore(progress.railPosition,progress.previousRailPosition)){const p=railEnter();if(p)Object.assign(player,p);}snapshotBody(player);camera.x=player.x;camera.y=player.y;interpolatePlayer();}streamWorld(true);resize();if(progress.mode!=='train'&&!clearSpot(player))recover();rebuildDynamic();updateHUD();updatePoliceHUD();drawMini();requestAnimationFrame(loop);
+applyBuild();if(progress.mode==='train'){if(!railRestore(progress.railPosition,progress.previousRailPosition)){const p=railEnter();if(p)Object.assign(player,p);}snapshotBody(player);camera.x=player.x;camera.y=player.y;interpolatePlayer();}streamWorld(true);resize();if(progress.mode!=='train'&&!powerActive('phase')&&!clearSpot(player))recover();rebuildDynamic();updateHUD();updatePoliceHUD();drawMini();requestAnimationFrame(loop);
 // Opt-in local diagnostics; not enabled during normal play.
 if(new URLSearchParams(location.search).has('test'))window.cityTest={railway,sceneryCache,railTrackOpacity,railPaintVehicle,railDrawTrainLights,railNode,railGeometry,railStation,railPiecesIn,railSample,railPlan,railPath,railEnsure,railMakeTrain,railNearest,railEnter,railCreateOffer,railCleanJob,railUpdateJob,railUpdateNavigation,railSpawnNPC,railCarriages,railAtStop,railRestore,railRefreshWorld,railFindStation,railSetDestination,railReservationsForArea,railReserved,railIntervals,railClearance,railReserveTrains,railUpdatePlayer,railUpdateNPC,railJobDistance,railPoint,railNext,railLength,railOnBridge,railSetManualTurn,railApplyManualTurn,railUpcomingJunction,railTravelDirection,railChoicePort,railJunctionHint,railDrawUpperLayer,trafficJunctions,updateTrafficJunctions,refreshTrafficJunctions,trafficRearLimit,GAME_MODES,MODE_ORDER,JOB_MODES,service,jobNavigation:routeNavigation,modeVehicle,setGameMode,cycleGameMode,currentJob,currentOffer,jobTarget,createJobOffer,ensureJobOffer,acceptJob,changeJobOffer,JOB_BANDS,JOB_ROUTE_COLOR,jobLengthKm,jobLegKm,updateJob,finishJobStop,cityJobType,findJobSite,streetSite,nearbyRoadStops,cleanJob,updateModeHUD,renderModeMenu,showJobMap,OLD_TOWNS,AIRPORTS,AIRCRAFT,oldTownStyle,airportKind,dressBuilding,drawBuilding,drawAircraft,SPEED_KMH,speedKmh,VEHICLE_TYPES,TRAFFIC_MIX,highwayRoute,refillTraffic,routeAt,projectRoute,updateTraffic,senseTraffic,MAX_POLICE,POLICE_ROLES,POWER_TYPES,powers,pickups,pickupState,powerActive,ghosting,activatePower,tickPowers,finishGhostExit,spawnPickup,updatePickups,ignoresCollision,maintainPursuit,spawnPoliceUnit,policeTarget,nearDrivingView,protectVisibleVehicle,regionType,featureAt,getScene,sceneCache,activeScenes,navigation,gridEdge,nearestDriveRoad,navigationPath,surfaceAt,findLandscape,exploration,roadAnchors,CATEGORIES,GARAGE_CATEGORIES,GARAGE_VEHICLES,garageKindForMode,garageState,UPGRADES,appearance,tryOn,paintVehicle,generateBlock,worldHash,worldWindow,chunks,previewChunks,roadCoord,roadHalf,roadIndex,streamWorld,insideLoaded,obstacles,staticHash,dynamicHash,mapView,police,policeState,setPoliceEnabled,deployPolice,planPolice,segmentClear,updatePolice,updatePlayer,progress,turbo,stats,earnDistance,purchase,balanceMm,saveProgress,renderGarage,applyBuild,SAVE_KEY,player,traffic,parked,buildings,boundaries,blocks,keys,xs,ys,contact,physics,recover,clearSpot,closestRoad,onGrass,start,openModal,closeModal,rebuildDynamic,updateHUD,draw,drawAtlas,clearKeys,get state(){return {started,activeModal,simTime,distance,camera:{...camera},world:{infinite:true,loaded:chunks.size,preview:previewChunks.size,generated:worldWindow.generated,center:{i:worldWindow.i,j:worldWindow.j},radius:worldWindow.radius},counts:{blocks:blocks.length,buildings:buildings.length,traffic:traffic.length,parked:parked.length}};}};
 })();
